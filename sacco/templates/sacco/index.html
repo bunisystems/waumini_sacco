@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static %}
+
+{% load humanize %}
+
+ 
+        <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- Header-->
+            {% include "partials/als_header.html" %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            {% include "partials/als_left_sidebar.html" %}
+            <!-- Left Sidebar End -->
+
+            
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+
+                <div class="page-content">
+                    <div class="container-fluid">
+                        
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                    <h4 class="mb-sm-0">Dashboard</h4>
+
+                                    <div class="page-title-right">
+                                        <ol class="breadcrumb m-0">
+                                            <li class="breadcrumb-item"><a href="javascript: void(0);">/</a></li>
+                                            <li class="breadcrumb-item active">Dashboard</li>
+                                        </ol>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <p class="text-truncate font-size-14 mb-2">Total Stations</p>
+                                                <h4 class="me-2">{% if s_count == None %} 0 {% else %} {{ s_count }} {% endif %}</h4>
+                                                <!-- <p class="text-muted mb-0"><span class="text-success fw-bold font-size-12 me-2"><i class="ri-arrow-right-up-line me-1 align-middle"></i>9.23%</span>from previous period</p> -->
+                                            </div>
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-primary rounded-3">
+                                                    <i class="ri-shopping-cart-2-line font-size-24"></i>  
+                                                </span>
+                                            </div>
+                                        </div>                                            
+                                    </div><!-- end cardbody -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <p class="text-truncate font-size-14 mb-2">Total Floats</p>
+                                                <h4 class="me-2">{% if t_float == None %} 0 {% else %} {{ t_float | intcomma }} {% endif %}</h4>
+                                                <!-- <p class="text-muted mb-0"><span class="text-danger fw-bold font-size-12 me-2"><i class="ri-arrow-right-down-line me-1 align-middle"></i>1.09%</span>from previous period</p> -->
+                                            </div>
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-success rounded-3">
+                                                    <i class="mdi mdi-currency-usd font-size-24"></i>  
+                                                </span>
+                                            </div>
+                                        </div>                                              
+                                    </div><!-- end cardbody -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <p class="text-truncate font-size-14 mb-2">Total Users</p>
+                                                <h4 class="mb-2">{{ u_count }}</h4>
+                                                <!-- <p class="text-muted mb-0"><span class="text-success fw-bold font-size-12 me-2"><i class="ri-arrow-right-up-line me-1 align-middle"></i>16.2%</span>from previous period</p> -->
+                                            </div>
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-primary rounded-3">
+                                                    <i class="ri-user-3-line font-size-24"></i>  
+                                                </span>
+                                            </div>
+                                        </div>                                              
+                                    </div><!-- end cardbody -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <p class="text-truncate font-size-14 mb-2">Total Expense</p>
+                                                <h4 class="me-2">{% if t_expense == None %} 0 {% else %} {{ t_expense | intcomma }} {% endif %}</h4>
+                                                <!-- <p class="text-muted mb-0"><span class="text-success fw-bold font-size-12 me-2"><i class="ri-arrow-right-up-line me-1 align-middle"></i>11.7%</span>from previous period</p> -->
+                                            </div>
+                                            <div class="avatar-sm">
+                                                <span class="avatar-title bg-light text-success rounded-3">
+                                                    <i class="mdi mdi-currency-btc font-size-24"></i>  
+                                                </span>
+                                            </div>
+                                        </div>                                              
+                                    </div><!-- end cardbody -->
+                                </div><!-- end card -->
+                            </div><!-- end col -->
+                        </div><!-- end row -->
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body pb-0">
+                                        <div class="float-end d-none d-md-inline-block">
+                                            <!-- <div class="dropdown card-header-dropdown">
+                                                <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item" href="#">Export</a>
+                                                    <a class="dropdown-item" href="#">Import</a>
+                                                    <a class="dropdown-item" href="#">Download Report</a>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <h4 class="card-title mb-4">Total Float Per Station</h4>
+
+                                        <div class="text-center pt-3">
+                                            <div class="row">
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <div class="d-inline-flex">
+                                                        <h5 class="me-2">{% if t_float == None %} 0 {% else %} {{ t_float | intcomma }} {% endif %}</h5>
+                                                       <!--  <div class="text-success font-size-12">
+                                                            <i class="mdi mdi-menu-up font-size-14"> </i>2.2 %
+                                                        </div> -->
+                                                    </div>
+                                                    <p class="text-muted text-truncate mb-0">All time total</p>
+                                                </div><!-- end col -->
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <div class="d-inline-flex">
+                                                        <h5 class="me-2">{% if f_last_month == None %} 0 {% else %} {{ f_last_month  | intcomma }} {% endif %}</h5>
+                                                       <!--  <div class="text-success font-size-12">
+                                                            <i class="mdi mdi-menu-up font-size-14"> </i>1.2 %
+                                                        </div> -->
+                                                        
+                                                    </div>
+                                                    <p class="text-muted text-truncate mb-0">Last Month</p>
+                                                </div><!-- end col -->
+                                                <div class="col-sm-4">
+                                                    <div class="d-inline-flex">
+                                                        <h5 class="me-2">{% if f_this_month == None %} 0 {% else %} {{ f_this_month | intcomma }} {% endif %}</h5>
+                                                       <!--  <div class="text-success font-size-12">
+                                                            <i class="mdi mdi-menu-up font-size-14"> </i>1.7 %
+                                                        </div> -->
+                                                    </div>
+                                                    <p class="text-muted text-truncate mb-0">This Month</p>
+                                                </div><!-- end col -->
+                                            </div><!-- end row -->
+                                        </div>
+                                    </div>
+                                    <div class="card-body py-0 px-2">
+                                        <div id="bar-float-station" class=".apex-charts" dir="ltr"></div>
+                                    </div>
+                                </div><!-- end card -->
+                            </div>
+                            <!-- end col -->
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body pb-0">
+                                        <div class="float-end d-none d-md-inline-block">
+                                           <!--  <div class="dropdown">
+                                                <a class="text-reset" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="text-muted">This Years<i class="mdi mdi-chevron-down ms-1"></i></span>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item" href="#">Today</a>
+                                                    <a class="dropdown-item" href="#">Last Week</a>
+                                                    <a class="dropdown-item" href="#">Last Month</a>
+                                                    <a class="dropdown-item" href="#">This Year</a>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <h4 class="card-title mb-4">Total Expense Per Station</h4>
+
+                                        <div class="text-center pt-3">
+                                            <div class="row">
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <div>
+                                                        
+                                                        <h5 class="me-2">{% if t_expense == None %} 0 {% else %} {{ t_expense | intcomma }} {% endif %}</h5>
+                                                        <p class="text-muted text-truncate mb-0">All time</p>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-sm-4 mb-3 mb-sm-0">
+                                                    <div>
+                                                        
+                                                        <h5 class="me-2">{% if e_last_month == None %} 0 {% else %} {{ e_last_month  | intcomma}} {% endif %}</h5>
+                                                        <p class="text-muted text-truncate mb-0">Last Month</p>
+                                                    </div>
+                                                </div><!-- end col -->
+                                                <div class="col-sm-4">
+                                                    <div>
+                                                        
+                                                        <h5 class="me-2">{% if e_this_month == None %} 0 {% else %} {{ e_this_month | intcomma }} {% endif %}</h5>
+                                                        <p class="text-muted text-truncate mb-0">This Month</p>
+                                                    </div>
+                                                </div><!-- end col -->
+                                            </div><!-- end row -->
+                                        </div>
+                                    </div>
+                                    <div class="card-body py-0 px-2">
+                                        <div id="bar-expense-station" class=".apex-charts" dir="ltr"></div>
+                                    </div>
+                                </div><!-- end card -->
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+
+<!--  -->
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body pb-0">
+                                        <div class="float-end d-none d-md-inline-block">
+                                            <!-- <div class="dropdown card-header-dropdown">
+                                                <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="text-muted">Report<i class="mdi mdi-chevron-down ms-1"></i></span>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item" href="#">Export</a>
+                                                    <a class="dropdown-item" href="#">Import</a>
+                                                    <a class="dropdown-item" href="#">Download Report</a>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <h4 class="card-title mb-4">Total Float vs Total Expense</h4>
+
+                                        <div class="text-center pt-3">
+                                           
+                                        </div>
+                                    </div>
+                                    <div class="card-body py-0 px-2">
+                                        <div id="float-vs-expense" class=".apex-charts" dir="ltr"></div>
+                                    </div>
+                                </div><!-- end card -->
+                            </div>
+                            <!-- end col -->
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body pb-0">
+                                        <div class="float-end d-none d-md-inline-block">
+                                           <!--  <div class="dropdown">
+                                                <a class="text-reset" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <span class="text-muted">This Years<i class="mdi mdi-chevron-down ms-1"></i></span>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item" href="#">Today</a>
+                                                    <a class="dropdown-item" href="#">Last Week</a>
+                                                    <a class="dropdown-item" href="#">Last Month</a>
+                                                    <a class="dropdown-item" href="#">This Year</a>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <h4 class="card-title mb-4">Top 5 User Expense</h4>
+
+                                        <div class="text-center pt-3">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="card-body py-0 px-2">
+                                        <div id="user-expense-station" class=".apex-charts" dir="ltr"></div>
+                                    </div>
+                                </div><!-- end card -->
+                            </div>
+                            <!-- end col -->
+                        </div>
+
+    
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="dropdown float-end">
+                                            <!-- <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-dots-vertical"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                               
+                                                <a href="javascript:void(0);" class="dropdown-item">Sales Report</a>
+                                               
+                                                <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                                              
+                                                <a href="javascript:void(0);" class="dropdown-item">Profit</a>
+                                             
+                                                <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                            </div> -->
+                                        </div>
+    
+                                        <h4 class="card-title mb-4">Latest Transactions</h4>
+    
+                                        <div class="table-responsive">
+                                            <table class="table table-centered mb-0 align-middle table-hover table-nowrap">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Expense Name</th>
+                                                      <!--   <th>Status</th> -->
+                                                        <th>Station</th>
+                                                        <th>Date</th>
+                                                        <th style="width: 120px;">Amount</th>
+                                                    </tr>
+                                                </thead><!-- end thead -->
+                                                <tbody>
+                                                    {% for le in l_expense %}
+                                                    <tr>
+                                                       
+                                                        <td><h6 class="mb-0">{{ le.created_by.username }}</h6></td>
+                                                        <td>{{ le.expense_name }}</td>
+                                                       <!--  <td>
+                                                            <div class="font-size-13"><i class="ri-checkbox-blank-circle-fill font-size-10 text-success align-middle me-2"></i>Active</div>
+                                                        </td> -->
+                                                        <td>
+                                                           {{ le.station.name }}
+                                                        </td>
+                                                        <td>
+                                                           {{le.created_on | naturaltime }}
+                                                        </td>
+                                                        <td>{{ le.amount | intcomma }}</td>
+                                                        
+                                                    </tr>
+                                                    {% endfor %}
+                                                   
+                                                </tbody><!-- end tbody -->
+                                            </table> <!-- end table -->
+                                        </div>
+                                    </div><!-- end card -->
+                                </div><!-- end card -->
+                            </div>
+                            <!-- end col 
+                            <div class="col-xl-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                       
+                                        <h4 class="card-title mb-4">Total Cash Flow</h4>
+
+                                        <div class="mt-4">
+                                            <div id="fe-donut-chart" class="apex-charts"></div>
+                                        </div>
+                                    </div>
+                                </div> end card
+                            </div> end col -->
+                        </div>
+                        <!-- end row -->
+                    </div>
+                    
+                </div>
+
+                <!-- End Page-content -->
+               
+                <!-- Footer -->
+                {% include "partials/als_footer.html" %}
+                
+            </div>
+            <!-- end main content-->
+
+        </div>
+        <!-- END layout-wrapper -->
+
+      
+        {% include "partials/als_charts.html" %}
+
+      
+        {% endblock %}

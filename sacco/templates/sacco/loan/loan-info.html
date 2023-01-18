@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static%}
+
+<!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+<!-- Begin page -->
+<div id="layout-wrapper">
+
+    <!-- Header-->
+    {% include "partials/als_header.html" %}
+
+    <!-- ========== Left Sidebar Start ========== -->
+    {% include "partials/als_left_sidebar.html" %}
+    <!-- Left Sidebar End -->
+
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+        <div class="page-content">
+            <div class="container-fluid">
+
+            <!-- start page title -->
+            {% include "partials/als_page_title.html" %}
+            <!-- end page title -->
+
+            {% include 'partials/als_messages.html' %} 
+
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ loan.member.first_name }} {{ loan.member.last_name }}</h4>
+                            <!-- <p class="card-title-desc">
+                                Create responsive tables by wrapping any <code>.table</code> in <code>.table-responsive</code>
+                                to make them scroll horizontally on small devices (under 768px).
+                            </p> -->
+
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Item</th>
+                                            <th>Data</th>
+                                          
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">1. Amount</th>
+                                            <td>{{ loan.amount }}</td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <th scope="row">2. Interest</th>
+                                            <td>{{ loan.interest_rate }}%</td>
+                                        </tr>  
+
+                                        <tr>
+                                            <th scope="row">3. Insuarance</th>
+                                            <td>{{ loan.insuarance_rate }}%</td>
+                                        </tr>  
+
+                                        <tr>
+                                            <th scope="row">4. Loan Fee</th>
+                                            <td>{{ loan.loan_fee }}</td>
+                                        </tr>  
+
+                                        <tr>
+                                            <th scope="row">5. Duration</th>
+                                            <td>{{ loan.months }} Month(s)</td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th scope="row">6. Total</th>
+                                            <td>{{ loan.total }}</td>
+                                        </tr> 
+                                        
+                                        <tr>
+                                            <th scope="row">7. Balance</th>
+                                            <td>{{ loan.balance }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <th scope="row">9. Created On</th>
+                                            <td>{{ loan.created_on }}</td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th scope="row">10. Due Date</th>
+                                            <td>{{ loan.due_date }}</td>
+                                        </tr> 
+ 
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end row -->
+            </div>
+        </div>  
+    </div>
+
+</div>
+<!-- END layout-wrapper -->
+
+
+{% endblock %}

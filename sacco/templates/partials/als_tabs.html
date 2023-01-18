@@ -1,0 +1,135 @@
+<div class="card-body">
+        
+    <h4 class="card-title">Member: </h4>
+    <p class="card-title-desc">{{ user.first_name }} {{ user.last_name }}</p>
+
+    <div class="row">
+
+        <div class="col-md-2">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link mb-2 active" id="v-pills-reg-tab" data-bs-toggle="pill" href="#v-pills-reg" role="tab" aria-controls="v-pills-reg" aria-selected="true">Registration</a>
+            <a class="nav-link mb-2" id="v-pills-loan-tab" data-bs-toggle="pill" href="#v-pills-loan" role="tab" aria-controls="v-pills-loan" aria-selected="false">Loans</a>
+            <a class="nav-link mb-2" id="v-pills-cshares-tab" data-bs-toggle="pill" href="#v-pills-cshares" role="tab" aria-controls="v-pills-cshares" aria-selected="false">Capital Shares</a>
+            <a class="nav-link" id="v-pills-nhif-tab" data-bs-toggle="pill" href="#v-pills-nhif" role="tab" aria-controls="v-pills-nhif" aria-selected="false">NHIF</a>
+            <a class="nav-link" id="v-pills-cheque-tab" data-bs-toggle="pill" href="#v-pills-cheque" role="tab" aria-controls="v-pills-cheque" aria-selected="false">Cheque</a>
+            <a class="nav-link" id="v-pills-account-tab" data-bs-toggle="pill" href="#v-pills-account" role="tab" aria-controls="v-pills-account" aria-selected="false">Account</a>
+            <a class="nav-link" id="v-pills-processing-tab" data-bs-toggle="pill" href="#v-pills-processing" role="tab" aria-controls="v-pills-processing" aria-selected="false">Processing Fee</a>
+            <a class="nav-link" id="v-pills-passbook-tab" data-bs-toggle="pill" href="#v-pills-passbook" role="tab" aria-controls="v-pills-passbook" aria-selected="false">Passbook</a>
+            </div>
+        </div>
+
+        <div class="col-md-10">
+            <div class="tab-content text-muted mt-4 mt-md-0" id="v-pills-tabContent">
+
+                <div class="tab-pane fade show active" id="v-pills-reg" role="tabpanel" aria-labelledby="v-pills-reg-tab">
+
+                    {% include 'partials/payments/registration.html' %} 
+
+                </div>
+
+
+                <div class="tab-pane fade" id="v-pills-loan" role="tabpanel" aria-labelledby="v-pills-loan-tab">
+                    
+                    {% include 'partials/payments/loan.html' %} 
+                   
+                    
+                </div>
+
+
+                <div class="tab-pane fade" id="v-pills-cshares" role="tabpanel" aria-labelledby="v-pills-cshares-tab">
+                    <p>
+                        Etsy mixtape wayfarers, ethical wes anderson tofu before they
+                        sold out mcsweeney's organic lomo retro fanny pack lo-fi
+                        farm-to-table readymade. Messenger bag gentrify pitchfork
+                        tattooed craft beer, iphone skateboard locavore carles etsy
+                        salvia banksy hoodie helvetica. DIY synth PBR banksy irony.
+                        Leggings gentrify squid 8-bit cred.
+                    </p>
+                    <p class="mb-0">DIY synth PBR banksy irony.
+                            Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh
+                            mi whatever gluten-free.</p>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-nhif" role="tabpanel" aria-labelledby="v-pills-nhif-tab">
+                    <p>
+                        Trust fund seitan letterpress, keytar raw denim keffiyeh etsy
+                        art party before they sold out master cleanse gluten-free squid
+                        scenester freegan cosby sweater. Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                    <p class="mb-0">Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-cheque" role="tabpanel" aria-labelledby="v-pills-cheque-tab">
+                    <p>
+                        Trust fund seitan letterpress, keytar raw denim keffiyeh etsy
+                        art party before they sold out master cleanse gluten-free squid
+                        scenester freegan cosby sweater. Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                    <p class="mb-0">Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-account" role="tabpanel" aria-labelledby="v-pills-account-tab">
+                    <p>
+                        Trust fund seitan letterpress, keytar raw denim keffiyeh etsy
+                        art party before they sold out master cleanse gluten-free squid
+                        scenester freegan cosby sweater. Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                    <p class="mb-0">Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-processing" role="tabpanel" aria-labelledby="v-pills-processing-tab">
+                    <p>
+                        Trust fund seitan letterpress, keytar raw denim keffiyeh etsy
+                        art party before they sold out master cleanse gluten-free squid
+                        scenester freegan cosby sweater. Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                    <p class="mb-0">Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-passbook" role="tabpanel" aria-labelledby="v-pills-passbook-tab">
+                    <p>
+                        Trust fund seitan letterpress, keytar raw denim keffiyeh etsy
+                        art party before they sold out master cleanse gluten-free squid
+                        scenester freegan cosby sweater. Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                    <p class="mb-0">Fanny pack portland seitan DIY,
+                        art party locavore wolf cliche high life echo park Austin. Cred
+                        vinyl keffiyeh DIY salvia PBR, banh mi before they sold out
+                        farm-to-table.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>

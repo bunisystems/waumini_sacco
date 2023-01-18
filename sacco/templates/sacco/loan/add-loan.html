@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static%}
+
+ <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- Header-->
+            {% include "partials/als_header.html" %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            {% include "partials/als_left_sidebar.html" %}
+            <!-- Left Sidebar End -->
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                         <!-- start page title -->
+                         {% include "partials/als_page_title.html" %}
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <!-- <h4 class="card-title">Validation type</h4>
+                                        <p class="card-title-desc">Parsley is a javascript form validation
+                                            library. It helps you provide your users with feedback on their form
+                                            submission before sending it to your server.</p> -->
+
+                                            {% include 'partials/als_messages.html' %} 
+                                            
+                                        <form class="custom-validation" action="" method="POST">
+                                            {% csrf_token %}
+
+                                        
+
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationCustom03" class="form-label">Member</label>
+                                                <select class="form-control select2" id="validationCustom03" name="member" required>
+                                                    <option value="" selected disabled>Choose...</option>
+                                                    <optgroup label="AVAILABLE MEMBERS">
+
+                                                        {% for m in members %}
+                                                        <option name="member" value="{{m.id}}">{{m.first_name}} {{m.last_name}}</option>
+                                
+                                                        {% endfor  %}
+
+                                        
+                                                    </optgroup>
+                                                   
+                                                </select>
+
+                                                <div class="invalid-tooltip">
+                                                    Please select a member
+                                                </div>
+                                            </div>
+
+
+                                        
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Amount</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="amount"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ values.amount }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Interest (One Month)</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">1%</span>
+                                                        </div>
+                                                        <input type="text" class="form-control" id="interest"
+                                                            placeholder="0.00"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="interest" value="{{ values.interest }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Loan Fee Form</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="loan_fee"
+                                                            placeholder="0.00"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="loan_fee" value="{{ values.loan_fee }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Insurance</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">3%</span>
+                                                        </div>
+                                                        <input type="text" class="form-control" id="insurance"
+                                                            placeholder="0.00"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="insurance" value="{{ values.insurance }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Duration</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">Months</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="duration"
+                                                            placeholder="0"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="duration" value="{{ values.duration }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+
+
+                
+        
+                            
+                                            <div class="mb-0">
+                                                <div>
+                                                    <button type="submit" class="btn btn-success waves-effect waves-light">
+                                                        <i class="ri-check-line align-middle me-2"></i> Submit
+                                                    </button>
+                                                    
+                                                    <a href="{% url 'registration' %}">
+                                                   
+                                                        <button type="button" class="btn btn-warning waves-effect waves-light">
+                                                            <i class="ri-error-warning-line align-middle me-2"></i> Cancel
+                                                        </button>
+                                                     
+                                                    </a>
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+                                   
+        
+                                    </div>
+                                </div>
+                            </div> <!-- end col -->
+                        <!-- end row -->
+                    </div>
+                  </div>  
+            </div>
+        
+        </div>
+        <!-- END layout-wrapper -->
+
+
+
+        <script>
+            var amount = document.getElementById("amount");
+            var interest = document.getElementById("interest");
+            var insurance = document.getElementById("insurance");
+            var duration = document.getElementById("duration");
+        
+            amount.oninput = function() {
+                interest.value = parseFloat(this.value * (1 / 100));
+                insurance.value = parseFloat(this.value * 3 / 100);
+            }
+
+
+            // OR
+
+           /*  document.getElementById("input1").addEventListener("input", myFunction);
+
+            function myFunction() {
+                document.getElementById("input2").value = this.value;
+            } */
+
+        </script>
+
+
+
+
+{% endblock %}

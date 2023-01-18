@@ -1,0 +1,87 @@
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="card-title">all {{ request.path|slice:"1:" }}</h4> 
+
+            <div class="page-title-right">
+                <div class="button-items text-center mt-4">
+
+                {% if 'registration' in request.path|slice:"1:" %}    
+                    <a href="{% url 'add-registration' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Registration Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'loan'%}    
+                    <a href="{% url 'add-loan' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Loan <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'capital-shares'%}    
+                    <a href="{% url 'add-capital-shares' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Capital Shares <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'shares'%}    
+                    <a href="{% url 'add-shares' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Shares <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'nhif'%}    
+                    <a href="{% url 'add-nhif' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add NHIF Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'cheque'%}    
+                    <a href="{% url 'add-cheque' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Cheque Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'account'%}    
+                    <a href="{% url 'add-account' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Account Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'processing'%}    
+                    <a href="{% url 'add-processing' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Processing Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'passbook'%}    
+                    <a href="{% url 'add-passbook' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Passbook Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'expense' or  request.path|slice:"1:" == 'my-expense'%}    
+                    <a href="{% url 'add-expense' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Expense <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'members'%}    
+                    <a href="{% url 'add-member' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Member <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% elif request.path|slice:"1:" == 'users'%}    
+                    <a href="{% url 'add-user' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add User <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
+                {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
