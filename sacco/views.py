@@ -23,6 +23,7 @@ from .constants import *
 import calendar
 from .functions import *
 import decimal
+from django.utils.safestring import mark_safe
 
 # Create your views here.
 def sign_in(request):
@@ -50,7 +51,7 @@ def sign_out(request):
 def index(request):
 
     context = { }
-    return render(request, 'sacco/index1.html', context)
+    return render(request, 'sacco/index.html', context)
 
 """ User """
 
@@ -110,18 +111,24 @@ def add_user(request):
                     g.user_set.add(user)
                 else:
                     messages.error(request,  username + " cannot be added to a group")
-                    return redirect('users')
+                    return redirect('member')
                     
 
                 messages.success(request,  username + " has been created successfully")
-                return redirect('users')
+                return redirect('mambers')
     else:
        
         form = CreateUserForm()
 
     
     context = {'groups': groups, 'form': form, 'values' : values}
-    return render(request, 'sacco/users/add-user.html', context)
+
+    if groups:
+        return render(request, 'sacco/users/add-user.html', context)
+    else:
+        messages.error(request,  "Error! Roles are not added, Please contact system administrator")
+        return render(request, 'sacco/error.html', context)
+
 
 def edit_user(request, id):
     user = User.objects.get(pk=id)
@@ -169,7 +176,7 @@ def edit_user(request, id):
                 cursor.execute("call sp_update_user(%s, %s, %s, %s, %s, %s)", (id, username, first_name, last_name, email, g))
                 data = cursor.fetchone()
                 messages.success(request,  username + " has been updated successfully")
-                return redirect('users')
+                return redirect('members')
 
     return render(request, 'sacco/users/edit-user.html', context)
 
@@ -243,7 +250,11 @@ def add_registration(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -326,7 +337,11 @@ def add_loan(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/loan/add-loan.html', context)
+        if members:
+            return render(request, 'sacco/loan/add-loan.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -393,6 +408,8 @@ def add_loan(request):
         if not member:
             messages.error(request, 'Member is required')
             return render(request, 'sacco/loan/add-loan.html', context)
+
+        
        
         # if no error we save the data into database
         # we use the expense model
@@ -400,8 +417,10 @@ def add_loan(request):
         Loan.objects.create( 
             member=member, 
             amount=amount, 
-            interest_rate=INTEREST , 
+            interest_rate=INTEREST ,
+            interest=total_interest,
             insuarance_rate=INSUARANCE, 
+            insurance=total_insurance,
             loan_fee=loan_fee,
             due_date=due_date, 
             balance=total,
@@ -413,7 +432,7 @@ def add_loan(request):
         # saving the expense in the database after creating it
         messages.success(request, 'Loan Fee saved successfully')
 
-        # redirect to the expense page to see the expenses
+        # redirect to the expense page to see the expenses]
         return redirect('loan')
 
 def edit_loan(request, id):
@@ -517,7 +536,11 @@ def add_capital_shares(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -611,7 +634,11 @@ def add_shares(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -696,7 +723,11 @@ def add_nhif(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -770,7 +801,11 @@ def add_cheque(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -844,7 +879,12 @@ def add_account(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
+
     
 
 
@@ -928,7 +968,12 @@ def add_processing(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -1012,7 +1057,11 @@ def add_passbook(request):
     print(request.POST)
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/add-registration.html', context)
+        if members:
+            return render(request, 'sacco/registration/add-registration.html', context)
+        else:
+            messages.error(request,  "Error! Pleae add sacco members")
+            return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -1110,33 +1159,6 @@ def edit_passbook(request, id):
 
 
 
-def edit_station(request, id):
-    station = Station.objects.get(pk=id)
-
-    context = {
-        'station': station,
-        'values': station
-    }
-
-    if request.method == 'GET':
-        return render(request, 'expense/station/edit-station.html', context)
-
-    if request.method == 'POST':
-     
-        station_name = request.POST['station_name']
-        
-        if not station_name:
-            messages.error(request, 'Station name is required')
-            return render(request, 'expense/station/edit-station.html', context)
-
-        station.name = station_name
-        station.created_by = station.created_by
-        station.created_on = station.created_on
-
-        station.save()
-        messages.success(request, 'Station updated  successfully')
-
-        return redirect('stations')
 
 
 
@@ -1169,21 +1191,3 @@ def edit_station(request, id):
 
 
 
-
-
-
-
-
-
-
-def delete_station(request, id):
-    station = Station.objects.get(pk=id)
-    station.delete()
-    messages.success(request, 'Station deleted')
-    return redirect('stations')
-
-""" Entrance """
-def entrance(request):
-    entrance = Entrance.objects.all()
-    context = { 'entrance' : entrance}
-    return render(request, 'sacco/registration/registration.html', context)

@@ -11,7 +11,7 @@ urlpatterns = [
     path('registration', views.registration, name="registration"),
     path('add-registration', views.add_registration, name="add-registration"),
     path('edit-registration/<int:id>', views.edit_registration, name="edit-registration"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # Loan
     path('loan', views.loan, name="loan"),
@@ -21,56 +21,55 @@ urlpatterns = [
     path('loan-payments/<int:id>', views.loan_payments, name="loan-payments"),
     path('add-loan', views.add_loan, name="add-loan"),
     path('edit-loan/<int:id>', views.edit_loan, name="edit-loan"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
-    
+
 
 
     # Capital Shares
     path('capital-shares', views.capital_shares, name="capital-shares"),
     path('add-capital-shares', views.add_capital_shares, name="add-capital-shares"),
     path('edit-capital-shares/<int:id>', views.edit_capital_shares, name="edit-capital-shares"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # Shares
     path('shares', views.shares, name="shares"),
     path('add-shares', views.add_shares, name="add-shares"),
     path('edit-shares/<int:id>', views.edit_shares, name="edit-shares"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # NHIF
     path('nhif', views.nhif, name="nhif"),
     path('add-nhif', views.add_nhif, name="add-nhif"),
     path('edit-nhif/<int:id>', views.edit_nhif, name="edit-nhif"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # Cheque
     path('cheque', views.cheque, name="cheque"),
     path('add-cheque', views.add_cheque, name="add-cheque"),
     path('edit-cheque/<int:id>', views.edit_cheque, name="edit-cheque"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # Account
     path('account', views.account, name="account"),
     path('add-account', views.add_account, name="add-account"),
     path('edit-account/<int:id>', views.edit_account, name="edit-account"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
     # Processing
     path('processing', views.processing, name="processing"),
     path('add-processing', views.add_processing, name="add-processing"),
     path('edit-processing/<int:id>', views.edit_processing, name="edit-processing"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
      # Passbook
     path('passbook', views.passbook, name="passbook"),
     path('add-passbook', views.add_passbook, name="add-passbook"),
     path('edit-passbook/<int:id>', views.edit_passbook, name="edit-passbook"),
-    path('delete-station/<int:id>', views.delete_station, name="delete-station"),
+
 
 
 
     # Entrance
-    path('entrance', views.entrance, name="entrance"),
+
     # path('add-station', views.add_station, name="add-station"),
     # path('edit-station/<int:id>', views.edit_station, name="edit-station"),
     # path('delete-station/<int:id>', views.delete_station, name="delete-station"),

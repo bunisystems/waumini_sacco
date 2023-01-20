@@ -79,3 +79,7 @@ BEGIN
     CLOSE cur1;
     CLOSE cur2;
 END
+
+
+pip install virtualenv
+virtualenv myenv

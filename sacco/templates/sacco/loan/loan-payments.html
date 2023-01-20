@@ -65,7 +65,7 @@
                                                 <label  for="validationCustom03" class="form-label">Loan ID</label>
                                                 <select class="form-control select2" id="validationCustom03" name="loan" required>
                                     
-                                                        <option name="loan" value="{{loan.id}}">{{loan.id }}</option>
+                                                        <option name="loan" value="{{loan.id}}">{{loan.loan_no }}</option>
                                           
                                                 </select>
 
@@ -85,7 +85,7 @@
                                                             <span class="input-group-text"
                                                                 id="validationTooltipUsernamePrepend">KES</span>
                                                         </div>
-                                                        <input type="number" class="form-control" id="total"
+                                                        <input type="text" class="form-control" id="total"
                                                             placeholder="0.00" min="1"
                                                             aria-describedby="validationTooltipUsernamePrepend"  name="total" value="{{ loan.total }}" required disabled>
                                                         <div class="invalid-tooltip">
@@ -103,7 +103,7 @@
                                                             <span class="input-group-text"
                                                                 id="validationTooltipUsernamePrepend">KES</span>
                                                         </div>
-                                                        <input type="number" class="form-control" id="balance"
+                                                        <input type="text" class="form-control" id="balance"
                                                             placeholder="0.00" min="1"
                                                             aria-describedby="validationTooltipUsernamePrepend"  name="balance" value="{{ loan.balance }}" required disabled>
                                                         <div class="invalid-tooltip">
@@ -121,9 +121,9 @@
                                                             <span class="input-group-text"
                                                                 id="validationTooltipUsernamePrepend">KES</span>
                                                         </div>
-                                                        <input type="number" class="form-control" id="amount"
+                                                        <input type="text" class="form-control" id="amount"
                                                             placeholder="0.00" min="1"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ values.amount }}" required >
+                                                            aria-describedby=""  name="amount" value="{{ values.amount }}" required >
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>

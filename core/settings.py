@@ -103,11 +103,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'railway',
+            'NAME': 'w_sacco',
             'USER': 'root',
-            'PASSWORD': 'tRwyEB7OBZ0jRYAvSC6q',
-            'HOST': 'containers-us-west-67.railway.app',
-            'PORT': '7544',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
         }
     }
 

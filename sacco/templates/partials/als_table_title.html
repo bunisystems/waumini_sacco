@@ -1,7 +1,17 @@
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="card-title">all {{ request.path|slice:"1:" }}</h4> 
+            <h4 class="card-title">
+
+
+                {% if 'loan-info' in request.path|slice:"1:" %}    
+                    {{ loan.member.first_name }} {{ loan.member.last_name }}
+                {% else %} 
+                    all {{ request.path|slice:"1:" }}
+                {% endif %}
+                
+
+            </h4> 
 
             <div class="page-title-right">
                 <div class="button-items text-center mt-4">
@@ -78,6 +88,7 @@
                         Add User <i class="ri-arrow-right-line align-middle ms-2"></i> 
                         </button>
                     </a>
+                
                 {% endif %}
                 </div>
             </div>
