@@ -7,9 +7,10 @@ from api.models import *
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, F
+from django.db.models.functions import TruncMonth
 from django.db import connection
 from .functions import dictfetchall
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 import datetime
 from django.db.models.functions import Coalesce
 from django.utils.timezone import make_aware
@@ -23,7 +24,8 @@ from .constants import *
 import calendar
 from .functions import *
 import decimal
-from django.utils.safestring import mark_safe
+from django.utils.timezone import make_aware
+import pytz
 
 # Create your views here.
 def sign_in(request):
@@ -50,7 +52,98 @@ def sign_out(request):
 
 def index(request):
 
-    context = { }
+    group = Group.objects.get(name='Member')
+    """ Get the current date """
+    today = datetime.now().date()
+    tomorrow = today + timedelta(1)
+    today_start = datetime.combine(today, time())
+    today_end = datetime.combine(tomorrow, time())
+    
+    month = today + timedelta(30)
+    m_today_start = datetime.combine(today, time())
+    m_today_end = datetime.combine(month, time())
+
+    """ Get the current month """
+    this_month = datetime.now().month
+    last_month = datetime.now().month - 1
+
+    # USERS
+    s_users = User.objects.all().exclude(groups=group).count()
+    s_active_users = User.objects.filter(is_active=1).exclude(groups=group).count()
+    s_inactive_users = User.objects.filter(is_active=0).exclude(groups=group).count()
+
+    # MEMBERS
+    s_members = User.objects.filter(groups=group).count()
+    s_paid_reg = Registration.objects.filter(is_deleted=0).count()
+    s_unpaid_reg = s_members - s_paid_reg
+
+    # LOANS
+    s_loans = Loan.objects.all().count()
+    s_paid_loans = Loan.objects.filter(is_paid=1).aggregate(Sum('balance'))['balance__sum']
+    s_unpaid_loans = Loan.objects.filter(is_paid=0).aggregate(Sum('balance'))['balance__sum']
+    t_loans = Loan.objects.all().aggregate(Sum('total'))['total__sum']
+
+    """ This/Last month's float """
+    l_this_month = Loan.objects.filter(created_on__month=this_month).aggregate(Sum('total'))['total__sum']
+    l_last_month = Loan.objects.filter(created_on__month=last_month).aggregate(Sum('total'))['total__sum']
+
+
+    # Current Yr
+    current_time = timezone.now()
+    current_year = timezone.now().year
+    start_date = current_time.replace(current_year, 1, 1)
+    end_date = current_time.replace(current_year, 12, 31)
+
+    """ Total Loans per Month Charts """
+    lc_labels = []
+    lc_data = []
+
+    with connection.cursor() as cursor:
+        cursor.execute("CALL sp_loan_per_month(%s, %s)",(start_date,end_date))
+        loan_per_month = dictfetchall(cursor)
+    
+
+    for lpm in loan_per_month: 
+        lc_labels.append(lpm['month'])
+        lc_data.append(str(lpm['total_amount']))
+    
+    """ Total Loan per Year Charts """
+
+    ly_labels = []
+    ly_data = []
+
+    with connection.cursor() as cursor:
+        cursor.execute("CALL sp_loan_per_year")
+        loan_per_year = dictfetchall(cursor)
+    
+
+    for lpy in loan_per_year: 
+        ly_labels.append(int(lpy['year']))
+        ly_data.append(str(lpy['total_amount']))
+    
+    trans = Payments.objects.all()[:5]
+    
+    
+    context = {
+        's_members' : s_members,
+        's_paid_reg' : s_paid_reg,
+        's_unpaid_reg' : s_unpaid_reg,
+        's_loans' : s_loans,
+        's_paid_loans' : s_paid_loans,
+        's_unpaid_loans' : s_unpaid_loans,
+        's_users' : s_users,
+        's_active_users' : s_active_users,
+        's_inactive_users' : s_inactive_users,
+        't_loans' : t_loans,
+        'l_this_month' : l_this_month,
+        'l_last_month' : l_last_month,
+        'lc_labels' : lc_labels,
+        'lc_data' : lc_data,
+        'ly_labels' : ly_labels,
+        'ly_data' : ly_data,
+        'trans' : trans
+        }
+
     return render(request, 'sacco/index.html', context)
 
 """ User """
@@ -115,7 +208,7 @@ def add_user(request):
                     
 
                 messages.success(request,  username + " has been created successfully")
-                return redirect('mambers')
+                return redirect('members')
     else:
        
         form = CreateUserForm()
@@ -260,7 +353,7 @@ def add_registration(request):
     if request.method == 'POST':
       
         amount = request.POST['amount']
-
+        
         if not amount:
             messages.error(request, 'Amount is required')
             return render(request, 'sacco/registration/add-registration.html', context)
@@ -271,6 +364,10 @@ def add_registration(request):
 
 
         member = User.objects.get(id=request.POST.get('member'))
+
+        if Registration.objects.filter(member=request.POST.get('member')):
+            messages.error(request, 'Registration amount exists')
+            return render(request, 'sacco/registration/add-registration.html', context)
 
         if not member:
             messages.error(request, 'Member is required')
