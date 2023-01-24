@@ -26,8 +26,12 @@ from .functions import *
 import decimal
 from django.utils.timezone import make_aware
 import pytz
+from .forms import SettingsForm
 
+
+group = Group.objects.get(name='Member')
 # Create your views here.
+@unauthenticated_user
 def sign_in(request):
 
 	if request.method == 'POST':
@@ -44,21 +48,21 @@ def sign_in(request):
 			messages.info(request, 'Username or password is incorrect')
 
 	context = {}
-	return render(request, 'expense/auth/sign-in.html', context)
+	return render(request, 'sacco/auth/sign-in.html', context)
 
 def sign_out(request):
 	logout(request)
 	return redirect('sign-in')
-
+@login_required(login_url='sign-in')
 def index(request):
-
-    group = Group.objects.get(name='Member')
     """ Get the current date """
     today = datetime.now().date()
     tomorrow = today + timedelta(1)
     today_start = datetime.combine(today, time())
     today_end = datetime.combine(tomorrow, time())
-    
+    this_year =  datetime.now().year
+    last_year =  datetime.now().year - 1
+
     month = today + timedelta(30)
     m_today_start = datetime.combine(today, time())
     m_today_end = datetime.combine(month, time())
@@ -79,13 +83,17 @@ def index(request):
 
     # LOANS
     s_loans = Loan.objects.all().count()
-    s_paid_loans = Loan.objects.filter(is_paid=1).aggregate(Sum('balance'))['balance__sum']
+    s_paid_loans = Loan.objects.filter(is_paid=1).aggregate(Sum('total'))['total__sum']
     s_unpaid_loans = Loan.objects.filter(is_paid=0).aggregate(Sum('balance'))['balance__sum']
     t_loans = Loan.objects.all().aggregate(Sum('total'))['total__sum']
 
-    """ This/Last month's float """
+    """ This/Last month's Loans """
     l_this_month = Loan.objects.filter(created_on__month=this_month).aggregate(Sum('total'))['total__sum']
     l_last_month = Loan.objects.filter(created_on__month=last_month).aggregate(Sum('total'))['total__sum']
+
+    """ This/Last Year's Loans """
+    l_this_year = Loan.objects.filter(created_on__year=this_year).aggregate(Sum('total'))['total__sum']
+    l_last_year = Loan.objects.filter(created_on__year=last_year).aggregate(Sum('total'))['total__sum']
 
 
     # Current Yr
@@ -137,6 +145,8 @@ def index(request):
         't_loans' : t_loans,
         'l_this_month' : l_this_month,
         'l_last_month' : l_last_month,
+        'l_this_year': l_this_year, 
+        'l_last_year': l_last_year,
         'lc_labels' : lc_labels,
         'lc_data' : lc_data,
         'ly_labels' : ly_labels,
@@ -147,17 +157,17 @@ def index(request):
     return render(request, 'sacco/index.html', context)
 
 """ User """
-
+@login_required(login_url='sign-in')
 def users(request):
     users = User.objects.all()
     context = {'users': users }
     return render(request, 'sacco/users/users.html', context)
-
+@login_required(login_url='sign-in')
 def members(request):
     users = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
     context = {'users': users }
     return render(request, 'sacco/users/members.html', context)
-
+@login_required(login_url='sign-in')
 def add_user(request):
     form = CreateUserForm()
     groups = Group.objects.all()
@@ -222,7 +232,7 @@ def add_user(request):
         messages.error(request,  "Error! Roles are not added, Please contact system administrator")
         return render(request, 'sacco/error.html', context)
 
-
+@login_required(login_url='sign-in')
 def edit_user(request, id):
     user = User.objects.get(pk=id)
 
@@ -272,7 +282,7 @@ def edit_user(request, id):
                 return redirect('members')
 
     return render(request, 'sacco/users/edit-user.html', context)
-
+@login_required(login_url='sign-in')
 def profile(request, id):
     user = User.objects.get(pk=id)
 
@@ -307,7 +317,7 @@ def profile(request, id):
         return render(request, 'sacco/users/profile.html', context)
     else:
         return render(request, 'sacco/access.html')
-
+@login_required(login_url='sign-in')
 def member(request, id):
     user = User.objects.get(pk=id)
     registration = Registration.objects.filter(member=id)
@@ -318,7 +328,7 @@ def member(request, id):
         'loan': loan
     }
     return render(request, 'sacco/users/member.html', context)
-  
+@login_required(login_url='sign-in')
 def delete_user(request, id):
     with connection.cursor() as cursor:
         cursor.execute("call sp_delete_user(%s)", [id])
@@ -330,13 +340,14 @@ def delete_user(request, id):
 
 
 """ Registration """
+@login_required(login_url='sign-in')
 def registration(request):
     registration = Registration.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_registration(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -346,7 +357,7 @@ def add_registration(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -355,22 +366,22 @@ def add_registration(request):
         amount = request.POST['amount']
         
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
         
         if int(amount) != int(REGISTRATION_FEE):
-            messages.error(request, 'Amount must be ' + str(REGISTRATION_FEE))
+            messages.error(request, ERROR_INC_AMOUNT + str(REGISTRATION_FEE) )
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if Registration.objects.filter(member=request.POST.get('member')):
-            messages.error(request, 'Registration amount exists')
+            messages.error(request, ERROR_REG_EXISTS)
             return render(request, 'sacco/registration/add-registration.html', context)
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -379,17 +390,19 @@ def add_registration(request):
         Registration.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Registration Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('registration')
-
+@login_required(login_url='sign-in')
 def edit_registration(request, id):
     registration = Registration.objects.get(pk=id)
+    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
 
     context = {
         'values': registration, 
-        'registration' : registration 
+        'registration' : registration,
+        'members' : members
     }
 
     if request.method == 'GET':
@@ -401,35 +414,43 @@ def edit_registration(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
+
+        if int(float(amount)) != REGISTRATION_FEE:
+            messages.error(request, ERROR_INC_AMOUNT + str(REGISTRATION_FEE))
+            return render(request, 'sacco/registration/add-registration.html', context)
        
         registration.amount = amount
+        registration.updated_on = timezone.now()
+        registration.updated_by = request.user
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Registration Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('registration')
 
 
 """ Loans """
+@login_required(login_url='sign-in')
 def loan(request):
     registration = Loan.objects.filter(is_paid=0)
     context = { 'registration' : registration}
     return render(request, 'sacco/loan/loan.html', context)
-
+@login_required(login_url='sign-in')
 def loan_info(request, id):
     loan = Loan.objects.get(pk=id)
     context = { 'loan' : loan }
     return render(request, 'sacco/loan/loan-info.html', context)
-
+@login_required(login_url='sign-in')
 def add_loan(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
+    st = Settings.objects.get(pk=1)
 
-    context = {'values': request.POST, 'members' : members }
+    context = {'values': request.POST, 'members' : members, 'st' : st }
 
     print(request.POST)
 
@@ -437,7 +458,7 @@ def add_loan(request):
         if members:
             return render(request, 'sacco/loan/add-loan.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -446,27 +467,27 @@ def add_loan(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/add-loan.html', context)
         
-        if int(amount) < MIN_LOAN:
-            messages.error(request, 'Min Loan is ' + str(MIN_LOAN))
+        if int(amount) < int(MIN_LOAN):
+            messages.error(request, ERROR_MIN_LOAN)
             return render(request, 'sacco/loan/add-loan.html', context)
         
-        if int(amount) > MAX_LOAN:
-            messages.error(request, 'Max Loan is ' + str(MAX_LOAN))
+        if int(amount) > int(MAX_LOAN):
+            messages.error(request, ERROR_MAX_LOAN)
             return render(request, 'sacco/loan/add-loan.html', context)
 
         loan_fee = request.POST['loan_fee']
 
         if not loan_fee:
-            messages.error(request, 'Loan fee is required')
+            messages.error(request, LOAN_REQUIRED)
             return render(request, 'sacco/loan/add-loan.html', context)
         
         duration = request.POST['duration']
 
         if not duration:
-            messages.error(request, 'Duration in months is required')
+            messages.error(request, LOAN_DURATION)
             return render(request, 'sacco/loan/add-loan.html', context)
         else:
             due_date = add_months(int(duration))
@@ -474,43 +495,40 @@ def add_loan(request):
         interest = request.POST['interest']
 
         if not interest:
-            messages.error(request, 'Error! interest is required')
+            messages.error(request, LOAN_INTEREST_REQ)
             return render(request, 'sacco/loan/add-loan.html', context)
 
         total_interest =    (float(amount) * (float(INTEREST) / 100)) * float(duration)
-        form_interest = float(interest) * float(duration)
+        # form_interest = float(interest) * float(duration)
+        form_interest = float(interest)
+
+
         if  form_interest != total_interest:
-            messages.error(request, 'Error! during interest calculation')
+            messages.error(request, LOAN_INTEREST_CALC)
             return render(request, 'sacco/loan/add-loan.html', context)
         
         insurance = request.POST['insurance']
 
         if not insurance:
-            messages.error(request, 'Error! insuarance is required')
+            messages.error(request, LOAN_INSURANCE_REQ)
             return render(request, 'sacco/loan/add-loan.html', context)
         
         total_insurance = float(amount) * (float(INSUARANCE) / 100)
-        print(total_insurance)
+
         if  float(insurance) != total_insurance:
-            messages.error(request, 'Error! during insurance calculation')
+            messages.error(request, LOAN_INSURANCE_CALC)
             return render(request, 'sacco/loan/add-loan.html', context)
 
         total = float(amount) + float(total_interest) + float(total_insurance) + float(loan_fee)
         
-        
-
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/add-loan.html', context)
 
         
-       
-        # if no error we save the data into database
-        # we use the expense model
-        # create the expense
         Loan.objects.create( 
             member=member, 
             amount=amount, 
@@ -526,22 +544,27 @@ def add_loan(request):
             is_paid = 0, 
             created_by=request.user)
 
-        # saving the expense in the database after creating it
-        messages.success(request, 'Loan Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
-        # redirect to the expense page to see the expenses]
         return redirect('loan')
-
+@login_required(login_url='sign-in')
 def edit_loan(request, id):
-    registration = Loan.objects.get(pk=id)
+    l = Loan.objects.get(pk=id)
+    st = Settings.objects.get(pk=1)
+    p = Payments.objects.filter(loan=id)
 
     context = {
-        'values': registration, 
-        'registration' : registration 
+        'values': l, 
+        'l' : l,
+        'st' : st
     }
 
+    if p:
+        messages.error(request,  ERROR_LOAN_EDIT)
+        return render(request, 'sacco/error.html', context)
+
     if request.method == 'GET':
-        return render(request, 'sacco/registration/edit-registration.html', context)
+         return render(request, 'sacco/loan/edit-loan.html', context)
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -549,11 +572,63 @@ def edit_loan(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
-            return render(request, 'sacco/registration/edit-registration.html', context)
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan/edit-loan.html', context)
+        
+        if int(float(amount)) < int(MIN_LOAN):
+            messages.error(request, ERROR_MIN_LOAN)
+            return render(request, 'sacco/loan/edit-loan.html', context)
+        
+        if int(float(amount)) > int(MAX_LOAN):
+            messages.error(request, ERROR_MAX_LOAN)
+            return render(request, 'sacco/loan/edit-loan.html', context)
+
+        loan_fee = request.POST['loan_fee']
+
+        if not loan_fee:
+            messages.error(request, LOAN_REQUIRED)
+            return render(request, 'sacco/loan/edit-loan.html', context)
+        
+        duration = request.POST['duration']
+
+        if not duration:
+            messages.error(request, LOAN_DURATION)
+            return render(request, 'sacco/loan/edit-loan.html', context)
+        else:
+            due_date = add_months(int(duration))
+
+        interest = (float(amount) * (float(INTEREST) / 100)) * float(duration)
+
+    
+        
+        insurance = float(amount) * (float(INSUARANCE) / 100)
+
+    
+
+        total = float(amount) + float(interest) + float(insurance) + float(loan_fee)
+        
+
+        member = User.objects.get(id=request.POST.get('member'))
+
+        if not member:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan/edit-loan.html', context)
        
-        registration.amount = amount
-        registration.save()
+        
+        l.member=member
+        l.amount=amount 
+        l.interest_rate=INTEREST
+        l.interest=interest
+        l.insuarance_rate=INSUARANCE
+        l.insurance=insurance
+        l.loan_fee=loan_fee
+        l.due_date=due_date 
+        l.balance=total
+        l.months=duration
+        l.total=total
+        l.updated_by = request.user
+        l.updated_on = timezone.now()
+        l.save()
     
 
         # saving the expense in the database after creating it
@@ -561,7 +636,7 @@ def edit_loan(request, id):
 
         # redirect to the expense page to see the expenses
         return redirect('loan')
-
+@login_required(login_url='sign-in')
 def loan_payments(request, id):
     loan = Loan.objects.get(pk=id)
     context = { 'loan' : loan }
@@ -608,25 +683,26 @@ def loan_payments(request, id):
         return redirect('loan')
     
     return render(request, 'sacco/loan/loan-payments.html', context)
-
+@login_required(login_url='sign-in')
 def paid_loan(request):
     registration = Loan.objects.filter(is_paid=1)
     context = { 'registration' : registration}
     return render(request, 'sacco/loan/loan.html', context)
-
+@login_required(login_url='sign-in')
 def unpaid_loan(request):
     registration = Loan.objects.filter(is_paid=0)
     context = { 'registration' : registration}
     return render(request, 'sacco/loan/loan.html', context)
 
 """ Capital Shares """
+@login_required(login_url='sign-in')
 def capital_shares(request):
     registration = CapitalShares.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_capital_shares(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -636,7 +712,7 @@ def add_capital_shares(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -650,14 +726,14 @@ def add_capital_shares(request):
             return render(request, 'sacco/registration/add-registration.html', context)
 
         if int(amount) != CAPITAL_SHARE:
-            messages.error(request, 'Amount should be ' + str(CAPITAL_SHARE))
+            messages.error(request, ERROR_INC_AMOUNT + str(CAPITAL_SHARE))
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
         
         import datetime
@@ -669,7 +745,7 @@ def add_capital_shares(request):
         today_end = datetime.datetime.combine(tomorrow, time())
         member_current_month = CapitalShares.objects.filter(member=member, created_on__range=(today_start, today_end))
         if member_current_month:
-            messages.error(request, 'Payment for ' + str(calendar.month_abbr[current_month])  + ' exists')
+            messages.error(request, str(calendar.month_abbr[current_month])  + ERROR_CS_MONTH_PAYMENT)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -682,7 +758,7 @@ def add_capital_shares(request):
 
         # redirect to the expense page to see the expenses
         return redirect('capital-shares')
-
+@login_required(login_url='sign-in')
 def edit_capital_shares(request, id):
     registration = CapitalShares.objects.get(pk=id)
 
@@ -700,7 +776,7 @@ def edit_capital_shares(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
         
         if float(amount) != float(CAPITAL_SHARE):
@@ -708,23 +784,26 @@ def edit_capital_shares(request, id):
             return render(request, 'sacco/registration/edit-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Capital Shares Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('capital-shares')
 
 """  Shares """
+@login_required(login_url='sign-in')
 def shares(request):
     registration = Shares.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_shares(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -734,7 +813,7 @@ def add_shares(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -744,33 +823,30 @@ def add_shares(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request,ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
 
         if int(amount) < SHARES_MIN:
-            messages.error(request, 'Amount should not be less than ' + str(SHARES_MIN))
+            messages.error(request, ERROR_SHARE_MIN + str(SHARES_MIN))
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, MEMBERS_EXIST)
             return render(request, 'sacco/registration/add-registration.html', context)
         
        
-       
-        # if no error we save the data into database
-        # we use the expense model
-        # create the expense
+    
         Shares.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'shares Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('shares')
-
+@login_required(login_url='sign-in')
 def edit_shares(request, id):
     registration = Shares.objects.get(pk=id)
 
@@ -788,32 +864,35 @@ def edit_shares(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
         
         if float(amount) < float(SHARES_MIN):
-            messages.error(request, 'Amount should not be less than ' + str(SHARES_MIN))
+            messages.error(request, ERROR_SHARE_MIN + str(SHARES_MIN))
             return render(request, 'sacco/registration/add-registration.html', context)
 
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Shares Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('shares')
 
 """ NHIF """
+@login_required(login_url='sign-in')
 def nhif(request):
     registration = NHIF.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_nhif(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -823,7 +902,7 @@ def add_nhif(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -832,14 +911,14 @@ def add_nhif(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -848,11 +927,11 @@ def add_nhif(request):
         NHIF.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'NHIF Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('nhif')
-
+@login_required(login_url='sign-in')
 def edit_nhif(request, id):
     registration = NHIF.objects.get(pk=id)
 
@@ -870,28 +949,30 @@ def edit_nhif(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'NHIF Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('nhif')
 
-
 """ Cheque """
+@login_required(login_url='sign-in')
 def cheque(request):
     registration = Cheque.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_cheque(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -901,7 +982,7 @@ def add_cheque(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -910,14 +991,14 @@ def add_cheque(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -926,11 +1007,11 @@ def add_cheque(request):
         Cheque.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Cheque Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('cheque')
-
+@login_required(login_url='sign-in')
 def edit_cheque(request, id):
     registration = Cheque.objects.get(pk=id)
 
@@ -948,28 +1029,31 @@ def edit_cheque(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Cheque Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('cheque')
 
 
 """ Account """
+@login_required(login_url='sign-in')
 def account(request):
     registration = Account.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_account(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -979,7 +1063,7 @@ def add_account(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     
@@ -991,18 +1075,18 @@ def add_account(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
         
         if int(amount) != ACCOUNT:
-            messages.error(request, 'Amount should be ' + str(ACCOUNT))
+            messages.error(request,ERROR_INC_AMOUNT + str(ACCOUNT))
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -1011,11 +1095,11 @@ def add_account(request):
         Account.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Account Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('account')
-
+@login_required(login_url='sign-in')
 def edit_account(request, id):
     registration = Account.objects.get(pk=id)
 
@@ -1033,32 +1117,35 @@ def edit_account(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
         
         if float(amount) != float(ACCOUNT):
-            messages.error(request, 'Amount should be ' + str(ACCOUNT))
+            messages.error(request, ERROR_INC_AMOUNT+ str(ACCOUNT))
             return render(request, 'sacco/registration/add-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Account Fees updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('account')
 
 
 """ Processing Fee """
+@login_required(login_url='sign-in')
 def processing(request):
     registration = Processing.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_processing(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -1069,7 +1156,7 @@ def add_processing(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request, MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -1078,19 +1165,19 @@ def add_processing(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
         
 
         if int(amount) != PROCESSING_FEE:
-            messages.error(request, 'Amount should be ' + str(PROCESSING_FEE))
+            messages.error(request, ERROR_INC_AMOUNT + str(PROCESSING_FEE))
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -1099,11 +1186,11 @@ def add_processing(request):
         Processing.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Processing Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('processing')
-
+@login_required(login_url='sign-in')
 def edit_processing(request, id):
     registration = Processing.objects.get(pk=id)
 
@@ -1121,33 +1208,35 @@ def edit_processing(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
         
         if float(amount) != float(PROCESSING_FEE):
-            messages.error(request, 'Amount should be ' + str(PROCESSING_FEE))
+            messages.error(request, ERROR_INC_AMOUNT + str(PROCESSING_FEE))
             return render(request, 'sacco/registration/add-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Processing Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('processing')
 
 
-
 """ Passbook """
+@login_required(login_url='sign-in')
 def passbook(request):
     registration = Passbook.objects.all()
     context = { 'registration' : registration}
     return render(request, 'sacco/registration/registration.html', context)
-
+@login_required(login_url='sign-in')
 def add_passbook(request):
-    members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
+    members = User.objects.filter(groups=group)
 
     context = {'values': request.POST, 'members' : members }
 
@@ -1157,7 +1246,7 @@ def add_passbook(request):
         if members:
             return render(request, 'sacco/registration/add-registration.html', context)
         else:
-            messages.error(request,  "Error! Pleae add sacco members")
+            messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -1166,18 +1255,18 @@ def add_passbook(request):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request,  ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
 
         if float(amount) != float(PASSBOOK):
-            messages.error(request, 'Amount should be ' + str(PASSBOOK))
+            messages.error(request, ERROR_INC_AMOUNT + str(PASSBOOK))
             return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
-            messages.error(request, 'Member is required')
+            messages.error(request, ERROR_REG_MEMBER)
             return render(request, 'sacco/registration/add-registration.html', context)
        
         # if no error we save the data into database
@@ -1186,11 +1275,11 @@ def add_passbook(request):
         Passbook.objects.create( member=member, amount=amount, created_by=request.user)
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Passbook Fee saved successfully')
+        messages.success(request, SUCCESS_FEE_SAVED)
 
         # redirect to the expense page to see the expenses
         return redirect('passbook')
-
+@login_required(login_url='sign-in')
 def edit_passbook(request, id):
     registration = Passbook.objects.get(pk=id)
 
@@ -1208,22 +1297,70 @@ def edit_passbook(request, id):
         amount = request.POST['amount']
 
         if not amount:
-            messages.error(request, 'Amount is required')
+            messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
         
         if float(amount) != float(PASSBOOK):
-            messages.error(request, 'Amount should be ' + str(PASSBOOK))
+            messages.error(request, ERROR_INC_AMOUNT + str(PASSBOOK))
             return render(request, 'sacco/registration/add-registration.html', context)
        
         registration.amount = amount
+        registration.updated_by = request.user
+        registration.updated_on = timezone.now()
         registration.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Passbook Fee updated successfully')
+        messages.success(request, SUCCESS_FEE_EDITED)
 
         # redirect to the expense page to see the expenses
         return redirect('passbook')
+
+@login_required(login_url='sign-in')
+def settings(request):
+    values = Settings.objects.get(pk=1)
+    print(request.POST)
+
+    context = {'values' : values }
+    
+    if request.method == 'GET':
+        return render(request, 'sacco/settings.html', context)
+
+    if request.method == 'POST':
+        REGISTRATION_FEE = request.POST['REGISTRATION_FEE']
+        MIN_LOAN = request.POST['MIN_LOAN']
+        MAX_LOAN = request.POST['MAX_LOAN']
+        CAPITAL_SHARE = request.POST['CAPITAL_SHARE']
+        SHARES_MIN = request.POST['SHARES_MIN']
+        ACCOUNT = request.POST['ACCOUNT']
+        ACCOUNT_WITHDRAWAL = request.POST['ACCOUNT_WITHDRAWAL']
+        PROCESSING_FEE = request.POST['PROCESSING_FEE']
+        PASSBOOK = request.POST['PASSBOOK']
+        INTEREST = request.POST['INTEREST']
+        INSUARANCE = request.POST['INSUARANCE']
+        PHONE_NUMBER = request.POST['PHONE_NUMBER']
+
+
+
+        values.REGISTRATION_FEE=REGISTRATION_FEE
+        values.MIN_LOAN=MIN_LOAN
+        values.MAX_LOAN=MAX_LOAN 
+        values.CAPITAL_SHARE=CAPITAL_SHARE 
+        values.SHARES_MIN=SHARES_MIN
+        values.ACCOUNT=ACCOUNT
+        values.ACCOUNT_WITHDRAWAL=ACCOUNT_WITHDRAWAL
+        values.PROCESSING_FEE=PROCESSING_FEE
+        values.PASSBOOK=PASSBOOK
+        values.INTEREST=INTEREST 
+        values.INSUARANCE=INSUARANCE 
+        values.PHONE_NUMBER=PHONE_NUMBER
+        values.created_by=request.user
+        values.save()
+
+
+        messages.success(request, 'Settings updated successfully')
+       
+        return redirect('settings')
 
 
 

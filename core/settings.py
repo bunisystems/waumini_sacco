@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 
-    'mathfilters'
+    'mathfilters',
+
+    'crispy_forms', # Crispy forms
 
 ]
 

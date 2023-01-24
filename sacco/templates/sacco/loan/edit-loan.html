@@ -47,18 +47,24 @@
 
                                             <div class="mb-3">
                                                 
-                                                <label  for="validationCustom03" class="form-label">Member</label>
+                                                <label  for="validationCustom03" class="form-label">Loan No:</label>
+                                                <select class="form-control select2" id="validationCustom03" name="loan_no" required>
+                                                    <option name="loan" value="{{ l.id }}">{{  l.loan_no }}</option>
+                                                    
+                                                   
+                                                </select>
+
+                                                <div class="invalid-tooltip">
+                                                    Please select a loan
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationCustom03" class="form-label">Member:</label>
                                                 <select class="form-control select2" id="validationCustom03" name="member" required>
-                                                    <option value="" selected disabled>Choose...</option>
-                                                    <optgroup label="AVAILABLE MEMBERS">
-
-                                                        {% for m in members %}
-                                                        <option name="member" value="{{m.id}}">{{m.first_name}} {{m.last_name}}</option>
-                                
-                                                        {% endfor  %}
-
-                                        
-                                                    </optgroup>
+                                                    <option name="member" value="{{ l.member.id }}">{{  l.member.first_name }} {{  l.member.last_name }}</option>
+                                                    
                                                    
                                                 </select>
 
@@ -80,7 +86,7 @@
                                                         </div>
                                                         <input type="number" class="form-control" id="amount"
                                                             placeholder="0.00" min="1"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ values.amount }}" required>
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ l.amount }}" required>
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>
@@ -99,7 +105,7 @@
                                                         </div>
                                                         <input type="number" class="form-control" id="duration"
                                                             placeholder="0"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="duration" value="{{ values.duration }}" required>
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="duration" value="{{ l.months }}" required>
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>
@@ -119,7 +125,7 @@
                                                         </div>
                                                         <input type="number" class="form-control" id="loan_fee"
                                                             placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="loan_fee" value="{{ values.loan_fee }}" required>
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="loan_fee" value="{{ l.loan_fee }}" required>
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>
@@ -128,41 +134,8 @@
                                             </div>
 
 
-                                            <div class="mb-3">
-                                                <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label">Interest</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"
-                                                                id="validationTooltipUsernamePrepend">{{ st.INTEREST }}%</span>
-                                                        </div>
-                                                        <input type="text" class="form-control" id="interest"
-                                                            placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="interest" value="{{ values.interest }}" required readonly>
-                                                        <div class="invalid-tooltip">
-                                                            Please provide an amount.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label">Insurance</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"
-                                                                id="validationTooltipUsernamePrepend">{{ st.INSUARANCE }}%</span>
-                                                        </div>
-                                                        <input type="text" class="form-control" id="insurance"
-                                                            placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="insurance" value="{{ values.insurance }}" required>
-                                                        <div class="invalid-tooltip">
-                                                            Please provide an amount.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                           
+                                          
 
                                                                     
                             
@@ -196,43 +169,5 @@
         
         </div>
         <!-- END layout-wrapper -->
-
-
-
-        <script>
-            var amount = document.getElementById("amount");
-            var interest = document.getElementById("interest");
-            var insurance = document.getElementById("insurance");
-            var duration = document.getElementById("duration");
-
-        
-            amount.oninput = function() {
-                interest.value = parseFloat(this.value * ({{ st.INTEREST | safe  }} / 100));
-                insurance.value = parseFloat(this.value * ({{ st.INSUARANCE | safe  }} / 100));
-            }
-
-
-            duration.oninput = function() {
-                // var finalValue = parseFloat(amount.value) + parseFloat(interest.value) + parseFloat(insurance.value) + (parseFloat(amount.value) * (parseFloat(duration.value) / 100));
-                var finalValue = parseFloat(interest.value) * parseFloat(duration.value);
-                document.getElementById("interest").value = finalValue;
-            }
-
-
-
-    
-
-            // OR
-
-           /*  document.getElementById("input1").addEventListener("input", myFunction);
-
-            function myFunction() {
-                document.getElementById("input2").value = this.value;
-            } */
-
-        </script>
-
-
-
 
 {% endblock %}

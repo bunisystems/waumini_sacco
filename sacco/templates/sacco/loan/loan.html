@@ -47,9 +47,17 @@
                                     <th>Balance</th>
                                     <th>Created By</th>
                                     <th>Created On</th>
+
+
+                        
+
                                     <th>Actions</th>
                                     <th>Actions</th>
                                     <th>Actions</th>
+
+                              
+
+                                  
                                     </tr>
                                     </thead>
 
@@ -101,9 +109,26 @@
                                             <a href="{% url 'edit-passbook' r.id %}">
                                                 <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
                                             </a>
+                                        {% elif request.path|slice:"1:" == 'paid-loan'%} 
+                                           --
+                                        {% elif request.path|slice:"1:" == 'paid-loan'%} 
+                                           --
                                         {% endif %}
                                     
                                     </td>
+
+                                    {% if request.path|slice:"1:" == 'paid-loan'%} 
+
+                                    <td>
+                                        --
+                                    </td>
+
+                                    <td>
+                                       --
+                                    </td>
+                                    
+
+                                    {% elif request.path|slice:"1:" == 'unpaid-loan'  %}
 
                                     <td>
                                         <a href="{% url 'loan-info' r.id %}">
@@ -116,6 +141,25 @@
                                             <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Make Payments</button>
                                         </a>
                                     </td>
+
+                                    {% else %}
+
+                                    <td>
+                                        <a href="{% url 'loan-info' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">View</button>
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        <a href="{% url 'loan-payments' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Make Payments</button>
+                                        </a>
+                                    </td>
+
+
+                                    {% endif %}
+
+                                    
                                     
                                     </tr>    
                                     {% endfor %}                                       

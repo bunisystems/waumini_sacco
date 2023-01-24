@@ -4,6 +4,8 @@ from datetime import datetime
 from django.db.models.deletion import CASCADE
 from django.db.models.expressions import OrderBy
 from sacco.functions import *
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 
 # Create your models here.
@@ -337,3 +339,30 @@ class Passbook(models.Model):
             self.passbook_no = 'WPB' + current_time.strftime("%Y%m%d%H%M%S")
             self.transaction_id = generate_transaction_uuid()
             super().save(*args, **kwargs)
+    
+
+class Settings(models.Model):
+    
+    REGISTRATION_FEE = models.IntegerField()
+    MIN_LOAN = models.IntegerField() 
+    MAX_LOAN = models.IntegerField()
+    CAPITAL_SHARE = models.IntegerField()
+    SHARES_MIN = models.IntegerField()
+    ACCOUNT = models.IntegerField()
+    ACCOUNT_WITHDRAWAL = models.IntegerField()
+    PROCESSING_FEE = models.IntegerField()
+    PASSBOOK = models.IntegerField()
+    INTEREST = models.IntegerField()
+    INSUARANCE = models.IntegerField()
+    PHONE_NUMBER = models.IntegerField()
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="settings_updated_by", null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="settings_deleted_by", null=True, blank=True)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(null=True)
+    deleted_on = models.DateTimeField(null=True)
+
+
+

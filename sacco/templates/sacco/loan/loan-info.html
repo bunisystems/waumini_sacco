@@ -60,7 +60,7 @@
                                         </tr>
                                         
                                         <tr>
-                                            <th scope="row">Interest </th>
+                                            <th scope="row">Interest ({{ loan.interest_rate }}%)</th>
                                             <td>{{ loan.interest }} </td>
                                         </tr>  
 
@@ -92,6 +92,21 @@
                                         <tr>
                                             <th scope="row">Created On</th>
                                             <td>{{ loan.created_on }}</td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th scope="row">Updated On</th>
+                                            <td>{{ loan.updated_on }}</td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th scope="row">Created By</th>
+                                            <td>{{ loan.created_by }}</td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th scope="row">Updated By</th>
+                                            <td>{{ loan.updated_by }}</td>
                                         </tr> 
 
                                         <tr>
