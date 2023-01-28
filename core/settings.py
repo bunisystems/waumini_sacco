@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 import socket
+from celery import Celery
 import mimetypes
 mimetypes.add_type("text/css", ".css", True)
 
@@ -50,7 +51,12 @@ INSTALLED_APPS = [
 
     'mathfilters',
 
-    'crispy_forms', # Crispy forms
+    'crispy_forms',
+
+    'debug_toolbar',
+    'sacco.celery'
+  
+
 
 ]
 
@@ -64,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -104,7 +112,7 @@ if HOSTNAME  == 'DESKTOP-6FABKOP':
         }
     }
 
-else:
+elif HOSTNAME == 'DESKTOP-M0QNIIU':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -115,9 +123,17 @@ else:
             'PORT': '3306',
         }
     }
-
-    DEFAULT_FILE_STORAGE = 'storages.backends.ftp.FTPStorage'
-    FTP_STORAGE_LOCATION = 'ftp://maxx@nivishefoundation.org:5xtxUq6K@nivishefoundation.org:21'
+else:
+     DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'w_sacco',
+            'USER': 'inv-pane',
+            'PASSWORD': 'bf8b7947ddbb93',
+            'HOST': '35.224.216.30',
+            'PORT': '3306',
+        }
+    }
 
 
 # Password validation
@@ -175,9 +191,60 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+HASHIDS_SALT = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+
+        "KEY_PREFIX": "v1"
+    }
+}
+
+# Cache time to live is 15 minutes.
+CACHE_TTL = 60 * 15
+
 """ 
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
     'https://example.com',
     'https://subdomain.example.com',
 ] """
+
+
+
+#SMTP
+DEFAULT_FROM_EMAIL = 'no-reply@jenga-systems.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtppro.zoho.com'
+EMAIL_PORT =  587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'no-reply@jenga-systems.com'
+EMAIL_HOST_PASSWORD = '@Jenga-systems123'
+
+
+
+#Celery
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+app = Celery('sacco')
+
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
+
+
+
+app.conf.broker_url = 'redis://localhost:6379'
+app.conf.result_backend = 'redis://localhost:6379'
+
+

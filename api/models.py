@@ -4,11 +4,24 @@ from datetime import datetime
 from django.db.models.deletion import CASCADE
 from django.db.models.expressions import OrderBy
 from sacco.functions import *
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 
-# Create your models here.
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    member_no = models.CharField(max_length=200, unique=True, null=True)
+
+    def __str__(self):
+        return self.user.username
+        
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
 
 class Registration(models.Model):
     reg_no = models.CharField(max_length=200, unique=True)

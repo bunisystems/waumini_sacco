@@ -2,9 +2,7 @@
 
 {% block content %}
 
-{% load static %}
-
-{% load group_tags %}
+{% load static%}
 
  <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
@@ -47,38 +45,12 @@
                                                 
                                                 <label  for="validationTooltip01" class="form-label">Role</label>
                                                 <select class="form-control select2" id="validationTooltip01" name="group" required>
-
-                                                    <!-- <option value='
-                                                    {% if values|has_group:"SystemAdmin" %} 
-                                                        System Admin 
-                                                    {% elif values|has_group:"SystemAccountant" %} 
-                                                        System Accountant
-                                                    {% elif values|has_group:"SystemUser" %} 
-                                                        System User
-                                                    {% else %}
-                                                        No Role
-                                                    {% endif %}'
-                                                    selected>
-                                                    
-                                                    {% if values|has_group:"SystemAdmin" %} 
-                                                        System Admin 
-                                                    {% elif values|has_group:"SystemAccountant" %} 
-                                                        System Accountant
-                                                    {% elif values|has_group:"SystemUser" %} 
-                                                        System User
-                                                    {% else %}
-                                                        No Role
-                                                    {% endif %}
-                                                
-                                                    </option> -->
-                                                    
-                                                  
-
+                                                    <option value=""  disabled>Choose...</option>
                                                     
                                                     <optgroup label="ROLES">
 
                                                         {% for g in groups %}
-                                                        <option value="{{ g.id }}">{{g.name}}</option>
+                                                        <option value="{{ g.id }}" {% if g.selected %} selected {% endif %}  >{{g.name}}</option>
                                 
                                                         {% endfor  %}
 
@@ -93,18 +65,6 @@
 
         
         
-        
-                                            <div class="mb-3">
-                                                <label>E-Mail</label>
-                                                <div>
-                                                    <input type="email" class="form-control" required name="email"
-                                                            parsley-type="email" placeholder="Enter a valid e-mail" value="{{ values.email }}"/>
-                                                </div>
-
-                                                <div style="color: red;">
-                                                    {{form.errors.email }}
-                                                </div>
-                                            </div>
 
                                         <div class="row">
                                             <div class="col-md-6">
@@ -112,7 +72,7 @@
                                                 <label>First Name</label>
                                                 <div>
                                                     <input data-parsley-type="alphanum" type="text"
-                                                            class="form-control" required name="first_name" value="{{ values.first_name }}"
+                                                            class="form-control" required name="first_name"  value="{{values.first_name}}"
                                                             placeholder="Enter alphanumeric value"/>
                                                 </div>
 
@@ -128,7 +88,7 @@
                                             <div class="mb-3">
                                                 <label>Last Name</label>
                                                 <div>
-                                                    <input data-parsley-type="alphanum" type="text" name="last_name" value="{{ values.last_name }}"
+                                                    <input data-parsley-type="alphanum" type="text" name="last_name" value="{{values.last_name}}"
                                                             class="form-control" required
                                                             placeholder="Enter alphanumeric value"/>
                                                 </div>
@@ -141,18 +101,34 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label>Username</label>
+                                            <label>Phone Number</label>
                                             
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="" type="text" name="username" value="{{ values.username }}"
+                                                <input data-parsley-type="number" type="number" id="username" name="username" value="{{values.username}}"
                                                         class="form-control" required
-                                                        placeholder="Enter alphanumeric value"/>
+                                                        placeholder="Enter numerical value"/>
                                             </div>
 
                                             <div style="color: red;">
                                                 {{form.errors.username }}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>Member No</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="text" type="text" id="member" name="member_no" value="{{values.member_no}}"
+                                                        class="form-control" required  readonly
+                                                        placeholder="Enter Some value"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{user_form.errors.member_no }}
                                             </div>
                                         </div>
 
@@ -165,21 +141,13 @@
                                                         <i class="ri-check-line align-middle me-2"></i> Submit
                                                     </button>
                                                     
-                                                    <a href="{% url 'users' %}">
+                                                    <a href="{% url 'members' %}">
                                                    
                                                         <button type="button" class="btn btn-warning waves-effect waves-light">
                                                             <i class="ri-error-warning-line align-middle me-2"></i> Cancel
                                                         </button>
                                                      
                                                     </a>
-
-                                                    
-                                                        <button type="button" class="btn btn-danger waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#myModal">
-                                                            <i class="ri-close-line align-middle me-2"></i> Delete
-                                                        </button>
-                                                     
-                                                    </a>
-
                                                 </div>
                                             </div>
                                         </form>
@@ -198,6 +166,31 @@
         <!-- END layout-wrapper -->
 
 
-        {% include 'partials/als_modal.html' %} 
+        <script>
+            function makeid(length) {
+                let result = '';
+                const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                const charactersLength = characters.length;
+                let counter = 0;
+                while (counter < length) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                    counter += 1;
+                }
+                return result;
+            }
+            
+            console.log(makeid(5));
+
+            var member = document.getElementById("member");
+            var date = new Date();
+            var toMySQL = date.toISOString().slice(0, 19).replace('T', '').replace('-', '').replace(':', '').replace(' ', '').replace(':', '')
+
+    
+            username.oninput = function() {
+                member.value = 'WS' + toMySQL
+            }
+            
+
+        </script>
 
 {% endblock %}

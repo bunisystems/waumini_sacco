@@ -1,4 +1,5 @@
 from api.models import Settings
+
 values = Settings.objects.get(pk=1)
 
 REGISTRATION_FEE = values.REGISTRATION_FEE
@@ -40,3 +41,10 @@ LOAN_INTEREST_CALC = 'An error occured calculating interest'
 LOAN_INSURANCE_REQ = 'Insurance is required'
 LOAN_INSURANCE_CALC = 'An error occured calculating insuarance'
 ERROR_LOAN_EDIT = 'This loan cannot be edited because of an existing payment'
+ERROR_404 = 'This page does not exist'
+
+MEMBER_EMAIL_EXISTS = "Something went wrong"
+ERROR_PK_CONSTRAINT = "This member cannot be deleted because of existing payements and loans"
+
+
+

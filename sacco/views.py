@@ -1,9 +1,8 @@
-from venv import create
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from pytz import timezone
 from api.models import *
-# Create your views here.
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum, F
@@ -25,12 +24,21 @@ import calendar
 from .functions import *
 import decimal
 from django.utils.timezone import make_aware
-import pytz
 from .forms import SettingsForm
+from django.views.decorators.cache import cache_page
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from random import randint
+from django.db import transaction
+from django.core.cache import cache
+from.decorators import *
+from.celery import *
+
 
 
 group = Group.objects.get(name='Member')
-# Create your views here.
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+
 @unauthenticated_user
 def sign_in(request):
 
@@ -53,6 +61,9 @@ def sign_in(request):
 def sign_out(request):
 	logout(request)
 	return redirect('sign-in')
+
+
+@cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def index(request):
     """ Get the current date """
@@ -157,68 +168,61 @@ def index(request):
     return render(request, 'sacco/index.html', context)
 
 """ User """
+
+@clear_cache
+@cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def users(request):
-    users = User.objects.all()
+    users = User.objects.filter(is_active=1, is_superuser=0)
     context = {'users': users }
     return render(request, 'sacco/users/users.html', context)
-@login_required(login_url='sign-in')
-def members(request):
-    users = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
-    context = {'users': users }
-    return render(request, 'sacco/users/members.html', context)
+
 @login_required(login_url='sign-in')
 def add_user(request):
     form = CreateUserForm()
-    groups = Group.objects.all()
+    groups = Group.objects.all().exclude(name="Member")
     values = request.POST
+    
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
         email = request.POST['email']
         username = request.POST['username']
+        f_name = request.POST['first_name']
+        l_name = request.POST['last_name']
+        url = request.META['HTTP_HOST'] + '/reset_password/'
 
-       
         print('Printing POST:', request.POST)
         print('Printing Errors:', form.errors )
-        if num_length(username) != PHONE_NUMBER:
-            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
-        elif(starts_with_zero(username) == False):       
-            messages.error(request, "Phone number number must begin with 0")    
+        
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists")
         else:
             if form.is_valid():
                
                 user = form.save(commit=False)
+                user.password = User.objects.make_random_password()
                 user.save()
 
-            
                 username = form.cleaned_data.get('username')
     
-
                 g = form.cleaned_data.get('group')
 
-        
-            
+    
                 print('selected user role:',g)
-                
-                if g == 'SystemAdmin':
-                    g = Group.objects.get(name='SystemAdmin')
-                    g.user_set.add(user)
-                elif g == 'SystemAccountant':
-                    g = Group.objects.get(name='SystemAccountant')
-                    g.user_set.add(user)
-                elif g == 'SystemUser':
-                    g = Group.objects.get(name='SystemUser')
-                    g.user_set.add(user)
-                elif g == 'Member':
-                    g = Group.objects.get(name='Member')
-                    g.user_set.add(user)
-                else:
-                    messages.error(request,  username + " cannot be added to a group")
-                    return redirect('member')
+            
+                group = Group.objects.get(id=g)
+                # Add user to group
+                user.groups.add(group)
+
+                send_account_creation_email(email, f_name, l_name, username, url)
+
+               
                     
 
                 messages.success(request,  username + " has been created successfully")
-                return redirect('members')
+                cache.clear()
+                return redirect('users')
+                
     else:
        
         form = CreateUserForm()
@@ -234,11 +238,13 @@ def add_user(request):
 
 @login_required(login_url='sign-in')
 def edit_user(request, id):
-    user = User.objects.get(pk=id)
+    try:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM `auth_group`")
-        groups = dictfetchall(cursor)
+    groups = Group.objects.all().exclude(name="Member")
 
     context = {
         'groups': groups, 
@@ -252,36 +258,42 @@ def edit_user(request, id):
         e = request.POST['email']
         u = request.POST['username']
 
-    
 
-             
-        # if User.objects.exclude(pk=id).filter(email=e):
-        #     messages.error(request, "Email already exists")
-        #     return render(request, 'sacco/users/edit-user.html', context)
 
-        if User.objects.exclude(pk=id).filter(username=u):
-            messages.error(request, "Phone number already exists")
-        elif(num_length(u) != PHONE_NUMBER):
-            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits starting with 0') 
-        elif(starts_with_zero(u) == False):       
-            messages.error(request, "Phone number number must begin with 0")  
+        if User.objects.exclude(pk=id).filter(email=e):
+            messages.error(request, "Email already exists")
+            return render(request, 'sacoo/users/edit-user.html', context)
+        elif User.objects.exclude(pk=id).filter(username=u):
+            messages.error(request, "Username already exists")
+            return render(request, 'sacoo/users/edit-user.html', context)
         else:
-            email = request.POST['email']
-            username = request.POST['username']
-            first_name = request.POST['first_name']
-            last_name = request.POST['last_name']
-            g = request.POST['group']
+            
+             # Get user information from form
+            user.username = request.POST['username']
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.email = request.POST['email']
+            user.password = User.objects.make_random_password()
+
+            # Save user
+            user.save()
+            # Remove user from group           
+            user.groups.set([])
+            
+            g  = request.POST['group']
+            group = Group.objects.get(id=g)
+            # Add user to group
+            user.groups.add(group)
 
             print('selected user role:',g)
-
-
-            with connection.cursor() as cursor:
-                cursor.execute("call sp_update_user(%s, %s, %s, %s, %s, %s)", (id, username, first_name, last_name, email, g))
-                data = cursor.fetchone()
-                messages.success(request,  username + " has been updated successfully")
-                return redirect('members')
+          
+            messages.success(request,  user.username + " has been updated successfully")
+            cache.clear()
+            return redirect('users')
 
     return render(request, 'sacco/users/edit-user.html', context)
+
+
 @login_required(login_url='sign-in')
 def profile(request, id):
     user = User.objects.get(pk=id)
@@ -330,17 +342,223 @@ def member(request, id):
     return render(request, 'sacco/users/member.html', context)
 @login_required(login_url='sign-in')
 def delete_user(request, id):
-    with connection.cursor() as cursor:
-        cursor.execute("call sp_delete_user(%s)", [id])
-        data = cursor.fetchone()
-        messages.success(request, 'User deleted')
-        return redirect('users')
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("call sp_delete_user(%s)", [id])
+            data = cursor.fetchone()
+            messages.success(request, 'Deleted')
+            cache.clear()
+            return redirect('users')
+    except:
+        messages.error(request, ERROR_PK_CONSTRAINT)
+        return render(request, 'sacco/error.html')
 
 """ User End """
 
+""" Add Member """
+@clear_cache
+@cache_page(CACHE_TTL)
+@login_required(login_url='sign-in')
+def members(request):
+    users = User.objects.filter(groups=group)
+    context = {'users': users }
+    return render(request, 'sacco/users/members.html', context)
+
+@login_required(login_url='sign-in')
+def add_member(request):
+    form = CreateUserForm()
+    user_profile = UserProfileForm()
+    groups = Group.objects.all()
+    values = request.POST
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        
+        username = request.POST['username']
+        member_no = request.POST['member_no']
+       
+        print('Printing POST:', request.POST)
+        print('Printing Errors:', form.errors )
+        if num_length(username) != PHONE_NUMBER:
+            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
+        elif(starts_with_zero(username) == False):       
+            messages.error(request, "Phone number number must begin with 0")   
+        elif not (member_no):
+            messages.error(request, "Member Number is required")
+        elif(UserProfile.objects.filter(member_no=member_no)):
+            messages.error(request, "Member Number Exists") 
+        else:
+            if form.is_valid():
+               
+                user = form.save(commit=False)
+                user.email = f'user{randint(1, 99999)}@example.com'
+                user.password = User.objects.make_random_password()
+                user.save()
+                user = User.objects.get(pk=user.id) 
+               
+             
+                user_profile_form = UserProfileForm(request.POST, instance=user.userprofile)
+                if user_profile_form.is_valid():
+                    profile = user_profile_form.save(commit=False)
+                    profile.save()
+
+                
+
+                username = form.cleaned_data.get('username')    
+                g = form.cleaned_data.get('group')
+            
+                print('selected user role:',g)
+                
+                group = Group.objects.get(id=g)
+                # Add user to group
+                user.groups.add(group)
+            
+                    
+                cache.clear()
+                messages.success(request,  username + " has been created successfully")
+                
+                return redirect('members')
+    else:
+        
+        form = CreateUserForm()
+
+    
+    context = {'groups': groups, 'form': form, 'values' : values, 'user_profile' : user_profile}
+
+    if groups:
+        return render(request, 'sacco/users/add-member.html', context)
+    else:
+        messages.error(request,  "Error! Roles are not added, Please contact system administrator")
+        return render(request, 'sacco/error.html', context)
+
+@login_required(login_url='sign-in')
+def edit_member(request, id):
+    # Check if user exists
+    groups = Group.objects.all()
+    try:
+        user = User.objects.get(pk=id)
+
+    except User.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
+
+    user_profile = UserProfileForm(request.POST, instance=user.userprofile)
+    """ try:
+        user_profile = UserProfileForm(request.POST, instance=user.userprofile)
+    except UserProfile.DoesNotExist:
+        UserProfile.objects.create(user=user, member_no=randint(1, 99999))
+        return redirect('members') """
+
+    context = {
+        'groups': groups, 
+        'values': user,
+        'user_profile' : user_profile,
+        }
+    
+
+
+    if request.method == 'GET':
+        return render(request, 'sacco/users/edit-member.html', context)
+
+    if request.method == 'POST':
+        e = request.POST['email']
+        u = request.POST['username']
+        member_no = request.POST['member_no']
+
+        if User.objects.exclude(pk=id).filter(email=e):
+            messages.error(request, MEMBER_EMAIL_EXISTS)
+            return render(request, 'sacco/users/edit-member.html', context)
+
+        if User.objects.exclude(pk=id).filter(username=u):
+            messages.error(request, "Phone number already exists")
+        elif(num_length(u) != PHONE_NUMBER):
+            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits starting with 0') 
+        elif(starts_with_zero(u) == False):       
+            messages.error(request, "Phone number number must begin with 0")  
+        elif not (member_no):
+            messages.error(request, "Member Number is required")
+        elif(UserProfile.objects.exclude(user=id).filter(member_no=member_no)):
+            messages.error(request, "Member Number Exists")
+        else:
+            # Get user information from form
+            user.username = request.POST['username']
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.email = f'user{randint(1, 99999)}@example.com'
+            user.password = User.objects.make_random_password()
+
+            # Save user
+            user.save()
+            # Remove user from group           
+            user.groups.set([])
+            
+            g  = request.POST['group']
+            group = Group.objects.get(id=g)
+            # Add user to group
+            user.groups.add(group)
+
+            print('selected user role:',g)
+
+            if UserProfileForm.is_valid:
+                user_profile.save()
+
+            
+            cache.clear()
+            messages.success(request,  user.username + " has been updated successfully")
+            return redirect('members')
+
+    return render(request, 'sacco/users/edit-member.html', context)
+
+@login_required(login_url='sign-in')
+def profile(request, id):
+    user = User.objects.get(pk=id)
+
+    if request.user.id == id:
+        context = { 'values': user }
+
+        if request.method == 'GET':
+            return render(request, 'sacco/users/profile.html', context)
+
+        if request.method == 'POST':
+            e = request.POST['email']
+            u = request.POST['username']
+                
+            if User.objects.exclude(pk=id).filter(email=e):
+                messages.error(request, "Email already exists")
+                return render(request, 'expense/users/profile.html', context)
+            elif User.objects.exclude(pk=id).filter(username=u):
+                messages.error(request, "Username already exists")
+                return render(request, 'expense/users/profile.html', context)
+            else:
+                email = request.POST['email']
+                username = request.POST['username']
+                first_name = request.POST['first_name']
+                last_name = request.POST['last_name']
+            
+                with connection.cursor() as cursor:
+                    cursor.execute("call sp_update_profile(%s, %s, %s, %s, %s)", (id, username, first_name, last_name, email))
+                    data = cursor.fetchone()
+                    messages.success(request,  username + " has been updated successfully")
+                    return redirect('profile', id)
+        
+        return render(request, 'sacco/users/profile.html', context)
+    else:
+        return render(request, 'sacco/access.html')
+@login_required(login_url='sign-in')
+def member(request, id):
+    user = User.objects.get(pk=id)
+    registration = Registration.objects.filter(member=id)
+    loan = Loan.objects.filter(member=id)
+    context = { 
+        'user': user , 
+        'registration':registration,
+        'loan': loan
+    }
+    return render(request, 'sacco/users/member.html', context)
+
+""" Member End """
 
 """ Registration """
-@login_required(login_url='sign-in')
+@login_required(login_url='sign-in') 
 def registration(request):
     registration = Registration.objects.all()
     context = { 'registration' : registration}
@@ -396,7 +614,11 @@ def add_registration(request):
         return redirect('registration')
 @login_required(login_url='sign-in')
 def edit_registration(request, id):
-    registration = Registration.objects.get(pk=id)
+    try:
+        registration = Registration.objects.get(pk=id)
+    except Registration.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
     members = User.objects.all().exclude(is_superuser=1).exclude(is_staff=1)
 
     context = {
@@ -549,7 +771,11 @@ def add_loan(request):
         return redirect('loan')
 @login_required(login_url='sign-in')
 def edit_loan(request, id):
-    l = Loan.objects.get(pk=id)
+    try:
+        l = Loan.objects.get(pk=id)
+    except Loan.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
     st = Settings.objects.get(pk=1)
     p = Payments.objects.filter(loan=id)
 
@@ -760,7 +986,11 @@ def add_capital_shares(request):
         return redirect('capital-shares')
 @login_required(login_url='sign-in')
 def edit_capital_shares(request, id):
-    registration = CapitalShares.objects.get(pk=id)
+    try:
+        registration = CapitalShares.objects.get(pk=id)
+    except CapitalShares.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -848,7 +1078,11 @@ def add_shares(request):
         return redirect('shares')
 @login_required(login_url='sign-in')
 def edit_shares(request, id):
-    registration = Shares.objects.get(pk=id)
+    try:
+        registration = Shares.objects.get(pk=id)
+    except Shares.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -933,7 +1167,11 @@ def add_nhif(request):
         return redirect('nhif')
 @login_required(login_url='sign-in')
 def edit_nhif(request, id):
-    registration = NHIF.objects.get(pk=id)
+    try:
+        registration = NHIF.objects.get(pk=id)
+    except NHIF.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -1013,7 +1251,11 @@ def add_cheque(request):
         return redirect('cheque')
 @login_required(login_url='sign-in')
 def edit_cheque(request, id):
-    registration = Cheque.objects.get(pk=id)
+    try:
+        registration = Cheque.objects.get(pk=id)
+    except Cheque.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -1101,7 +1343,11 @@ def add_account(request):
         return redirect('account')
 @login_required(login_url='sign-in')
 def edit_account(request, id):
-    registration = Account.objects.get(pk=id)
+    try:
+        registration = Account.objects.get(pk=id)
+    except Account.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -1192,7 +1438,11 @@ def add_processing(request):
         return redirect('processing')
 @login_required(login_url='sign-in')
 def edit_processing(request, id):
-    registration = Processing.objects.get(pk=id)
+    try:    
+        registration = Processing.objects.get(pk=id)
+    except Processing.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
     context = {
         'values': registration, 
@@ -1281,7 +1531,14 @@ def add_passbook(request):
         return redirect('passbook')
 @login_required(login_url='sign-in')
 def edit_passbook(request, id):
-    registration = Passbook.objects.get(pk=id)
+    
+
+    try:
+        registration = Passbook.objects.get(pk=id)
+    except Passbook.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
+       
 
     context = {
         'values': registration, 
@@ -1290,6 +1547,7 @@ def edit_passbook(request, id):
 
     if request.method == 'GET':
         return render(request, 'sacco/registration/edit-registration.html', context)
+    
 
     # The view to handle the form POST requests
     if request.method == 'POST':

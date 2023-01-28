@@ -2,14 +2,23 @@ from django.forms import ModelForm, widgets
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
-from .models import *
+from api.models import *
 from api.models import Settings
 
 class CreateUserForm(UserCreationForm):
 	group = forms.CharField()
+	email = forms.EmailField(required=False)
+	password1 = forms.CharField(required=False)
+	password2 = forms.CharField(required=False)
 	class Meta:
 		model = User
 		fields = UserCreationForm.Meta.fields + ('username', 'email', 'first_name', 'last_name', 'group')
+		required_fields = ('group', 'first_name', 'last_name', 'username')
+
+class UserProfileForm(forms.ModelForm):
+	class Meta:
+		model = UserProfile
+		fields = ('member_no',)
 	
 class  SettingsForm(forms.ModelForm):
 	class Meta:

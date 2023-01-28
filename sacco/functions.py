@@ -3,6 +3,8 @@ from django.utils import timezone
 import datetime
 from datetime import datetime, timedelta
 import uuid
+from django.conf import settings
+
 
 def dictfetchall(cursor):
     "Return all rows from a cursor as a dict"
@@ -54,6 +56,8 @@ def generate_transaction_uuid():
     return transaction_uuid
 
 
+
+
 # USE als_expense;
 # DELIMITER // ;
 # CREATE PROCEDURE `sp_update_user`(IN usr_id INT, IN user_username varchar(20), IN user_first_name  varchar(20), IN user_last_name varchar(20), IN user_email varchar(20), IN g_id INT)
@@ -65,13 +69,14 @@ def generate_transaction_uuid():
 
 
             
-# USE als_expense;
-# DELIMITER // ;
-# CREATE PROCEDURE `sp_delete_user` (IN usr_id INT)
-# BEGIN
-# 	DELETE FROM auth_user_groups WHERE user_id = usr_id;
-#     DELETE FROM auth_user WHERE id = usr_id;
-# END
+""" DELIMITER // 
+CREATE PROCEDURE `sp_delete_user` (IN usr_id INT)
+BEGIN
+	DELETE FROM auth_user_groups WHERE user_id = usr_id;
+    DELETE FROM api_userprofile WHERE user_id = usr_id;
+    DELETE FROM auth_user WHERE id = usr_id;
+END
+ """
 
 
 # USE als_expense;

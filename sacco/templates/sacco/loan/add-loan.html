@@ -156,7 +156,7 @@
                                                         </div>
                                                         <input type="text" class="form-control" id="insurance"
                                                             placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="insurance" value="{{ values.insurance }}" required>
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="insurance" value="{{ values.insurance }}" required readonly>
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>
@@ -207,14 +207,14 @@
 
         
             amount.oninput = function() {
-                interest.value = parseFloat(this.value * ({{ st.INTEREST | safe  }} / 100));
+                // interest.value = parseFloat(this.value * ({{ st.INTEREST | safe  }} / 100));
                 insurance.value = parseFloat(this.value * ({{ st.INSUARANCE | safe  }} / 100));
             }
 
 
             duration.oninput = function() {
                 // var finalValue = parseFloat(amount.value) + parseFloat(interest.value) + parseFloat(insurance.value) + (parseFloat(amount.value) * (parseFloat(duration.value) / 100));
-                var finalValue = parseFloat(interest.value) * parseFloat(duration.value);
+                var finalValue =  (parseFloat(amount.value * ({{ st.INTEREST | safe  }} / 100)) * parseFloat(duration.value));
                 document.getElementById("interest").value = finalValue;
             }
 

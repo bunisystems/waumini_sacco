@@ -50,7 +50,7 @@
                                                     <optgroup label="ROLES">
 
                                                         {% for g in groups %}
-                                                        <option value="{{ g.name }}" {% if g.selected %} selected {% endif %}  >{{g.name}}</option>
+                                                        <option value="{{ g.id }}" {% if g.selected %} selected {% endif %}  >{{g.name}}</option>
                                 
                                                         {% endfor  %}
 
@@ -63,35 +63,13 @@
                                             </div>
 
 
+
         
                                             <div class="mb-3">
-                                                <!-- <label>Password</label> -->
+                                                <label>E-Mail</label>
                                                 <div>
-                                                    <input type="password" id="pass2" class="form-control" required name="password1" value="ijarubtd"
-                                                            placeholder="Password" hidden/>
-                                                </div>
-
-                                                <div style="color: red;">
-                                                    {{form.errors.password1 }}
-                                                </div>
-
-                                                <div class="mt-2">
-                                                    <input type="password" class="form-control" required name="password2" value="ijarubtd"
-                                                            data-parsley-equalto="#pass2"
-                                                            placeholder="Re-Type Password" hidden/>
-                                                </div>
-
-                                                <div style="color: red;">
-                                                    {{form.errors.password2 }}
-                                                </div>
-
-                                            </div>
-        
-                                            <div class="mb-3">
-                                                <!-- <label>E-Mail</label> -->
-                                                <div>
-                                                    <input type="email" class="form-control" required name="email" value="admin@admin.com"
-                                                            parsley-type="email" placeholder="Enter a valid e-mail" hidden/>
+                                                    <input type="email" class="form-control" required name="email" value="{{ value.email }}"
+                                                            parsley-type="email" placeholder="Enter a valid e-mail" />
                                                 </div>
 
                                                 <div style="color: red;">
@@ -134,14 +112,14 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label>Phone Number</label>
+                                            <label>Username</label>
                                             
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="number" type="number" name="username" value="{{values.username}}"
+                                                <input data-parsley-type="alphanum" type="text" name="username" value="{{values.username}}"
                                                         class="form-control" required
-                                                        placeholder="Enter numerical value"/>
+                                                        placeholder="Enter Alpha numerical value"/>
                                             </div>
 
                                             <div style="color: red;">
