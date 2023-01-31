@@ -56,11 +56,20 @@
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{% url 'registration' %}">Registration</a></li>
                         <li><a href="{% url 'capital-shares' %}">Capital Shares</a></li>
-                        <li><a href="{% url 'shares' %}">Shares</a></li>
                         <li><a href="{% url 'nhif' %}">NHIF</a></li>
-                        <li><a href="{% url 'cheque' %}">Cheque</a></li>
-                        <li><a href="{% url 'account' %}">Account</a></li>
+                        <li><a href="{% url 'account' %}">Savings Account</a></li>
+                        <li><a href="{% url 'shares' %}">Shares Account</a></li>
                         <li><a href="{% url 'processing' %}">Processing Fee</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-mail-send-line"></i>
+                        <span>Products</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'cheque' %}">Cheque</a></li>
                         <li><a href="{% url 'passbook' %}">Passbook</a></li>
                     </ul>
                 </li>
@@ -78,47 +87,20 @@
                     </ul>
                 </li>
 
-           
-    
+               
                 
-                <!-- <li class="menu-title">Daily Reports</li> -->
+                <li class="menu-title">Reports</li>
                 
-               <!--  <li>
-                    <a href="" class=" waves-effect">
+               <li>
+                    <a href="{% url 'statement' %}" class=" waves-effect">
                         <i class="ri-file-fill"></i>
-                        <span>Foat vs Expense</span>
+                        <span>Statements</span>
                     </a>
                 </li>
 
-                <li>
-                    <a href="" class=" waves-effect">
-                        <i class="ri-file-fill"></i>
-                        <span>My Expense</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="" class=" waves-effect">
-                        <i class="ri-file-fill"></i>
-                        <span>All User Expense</span>
-                    </a>
-                </li>
- -->
-                <!-- <li class="menu-title">Advanced Reports</li> -->
-
-                <!-- <li>
-                    <a href="" class=" waves-effect">
-                        <i class="ri-file-fill"></i>
-                        <span>User Expense</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="" class=" waves-effect">
-                        <i class="ri-file-fill"></i>
-                        <span>Float vs Expense</span>
-                    </a>
-                </li> -->
+                
+ 
+               
 
             </ul>
         </div>

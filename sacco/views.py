@@ -33,6 +33,7 @@ from django.db import transaction
 from django.core.cache import cache
 from.decorators import *
 from.celery import *
+from django.db.models import Q
 
 
 
@@ -83,6 +84,7 @@ def index(request):
     last_month = datetime.now().month - 1
 
     # USERS
+    group = Group.objects.get(name='Member')
     s_users = User.objects.all().exclude(groups=group).count()
     s_active_users = User.objects.filter(is_active=1).exclude(groups=group).count()
     s_inactive_users = User.objects.filter(is_active=0).exclude(groups=group).count()
@@ -356,11 +358,13 @@ def delete_user(request, id):
 """ User End """
 
 """ Add Member """
-@clear_cache
-@cache_page(CACHE_TTL)
+# @clear_cache
+# @cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def members(request):
-    users = User.objects.filter(groups=group)
+    
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+
     context = {'users': users }
     return render(request, 'sacco/users/members.html', context)
 
@@ -422,7 +426,7 @@ def add_member(request):
         form = CreateUserForm()
 
     
-    context = {'groups': groups, 'form': form, 'values' : values, 'user_profile' : user_profile}
+    context = {'groups': groups, 'form': form, 'values' : values, 'user_profile' : user_profile }
 
     if groups:
         return render(request, 'sacco/users/add-member.html', context)
@@ -724,7 +728,8 @@ def add_loan(request):
         # form_interest = float(interest) * float(duration)
         form_interest = float(interest)
 
-
+        print('Form : ' + str(form_interest ))
+        print('total : ' + str(total_interest))
         if  form_interest != total_interest:
             messages.error(request, LOAN_INTEREST_CALC)
             return render(request, 'sacco/loan/add-loan.html', context)
@@ -1573,6 +1578,79 @@ def edit_passbook(request, id):
 
         # redirect to the expense page to see the expenses
         return redirect('passbook')
+    
+@login_required(login_url='sign-in')
+def statement(request):
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    context = { 'users': users  }
+    
+    print(request.POST)
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/reports/statements.html', context)
+            else:
+                m = User.objects.get(id=user)
+                rg = Registration.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                cs = CapitalShares.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                nhif = NHIF.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                sa = Account.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                sc = Shares.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                pf = Processing.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                cq = Cheque.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                pb = Cheque.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                l = Loan.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+
+                
+                context = { 
+                    'rg': rg,
+                    'cs': cs,
+                    'nhif' : nhif,
+                    'cq' : cq,
+                    'sa' : sa,
+                    'sc': sc,
+                    'pf' : pf,
+                    'l' : l,
+                    'm' : m,
+                    'pb' : pb,
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/reports/statements.html', context)
+
+    return render(request, 'sacco/reports/statements.html', context)
+
+
+@login_required(login_url='sign-in')
+def statement_details(request, id):
+    rg = Registration.objects.filter(member=id)
+    cs = CapitalShares.objects.filter(member=id)
+    nhif = NHIF.objects.filter(member=id)
+    sa = Account.objects.filter(member=id)
+    s = Shares.objects.filter(member=id)
+    p = Processing.objects.filter(member=id)
+    c = Cheque.objects.filter(member=id)
+    pb = Passbook.objects.filter(member=id)
+
+    context = {
+        'rg': rg,
+        'cs' : cs,
+        'nhif' : nhif,
+        'sa' : sa,
+        's' : s,
+        'p' : p,
+        'c' : c,
+        'pb' : pb, 
+    }
+    return render(request, 'sacco/reports/statement-details.html', context)
 
 @login_required(login_url='sign-in')
 def settings(request):

@@ -1,6 +1,7 @@
 from api.models import Settings
 
 values = Settings.objects.get(pk=1)
+values.refresh_from_db()
 
 REGISTRATION_FEE = values.REGISTRATION_FEE
 MIN_LOAN = values.MIN_LOAN 
@@ -39,7 +40,7 @@ LOAN_DURATION = 'Duration in months is required'
 LOAN_INTEREST_REQ = 'interest is required'
 LOAN_INTEREST_CALC = 'An error occured calculating interest'
 LOAN_INSURANCE_REQ = 'Insurance is required'
-LOAN_INSURANCE_CALC = 'An error occured calculating insuarance'
+LOAN_INSURANCE_CALC = 'An error occured calculating insuarance, please refresh the page'
 ERROR_LOAN_EDIT = 'This loan cannot be edited because of an existing payment'
 ERROR_404 = 'This page does not exist'
 

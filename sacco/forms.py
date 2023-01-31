@@ -18,7 +18,7 @@ class CreateUserForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
-		fields = ('member_no',)
+		fields = ('member_no', 'id_no')
 	
 class  SettingsForm(forms.ModelForm):
 	class Meta:

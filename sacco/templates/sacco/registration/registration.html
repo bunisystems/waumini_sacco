@@ -65,9 +65,9 @@
                                     <td>{{ r.amount | intcomma }}</td>
                                     <td>{{ r.transaction_id}}</td>
                                     <td>{{ r.created_by  }}</td>
-                                    <td>{{ r.created_on | naturaltime  }}</td>
+                                    <td>{{ r.created_on }}</td>
                                     <td>{{ r.updated_by }}</td>
-                                    <td>{{ r.updated_on | naturaltime  }}</td>
+                                    <td>{{ r.updated_on }}</td>
 
                                     <td>
                                         {% if request.path|slice:"1:" == 'registration' %}

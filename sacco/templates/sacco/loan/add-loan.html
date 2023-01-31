@@ -209,6 +209,7 @@
             amount.oninput = function() {
                 // interest.value = parseFloat(this.value * ({{ st.INTEREST | safe  }} / 100));
                 insurance.value = parseFloat(this.value * ({{ st.INSUARANCE | safe  }} / 100));
+                console.log("Insurance" + interest.value)
             }
 
 
@@ -216,6 +217,7 @@
                 // var finalValue = parseFloat(amount.value) + parseFloat(interest.value) + parseFloat(insurance.value) + (parseFloat(amount.value) * (parseFloat(duration.value) / 100));
                 var finalValue =  (parseFloat(amount.value * ({{ st.INTEREST | safe  }} / 100)) * parseFloat(duration.value));
                 document.getElementById("interest").value = finalValue;
+                console.log("Interest" + finalValue)
             }
 
 

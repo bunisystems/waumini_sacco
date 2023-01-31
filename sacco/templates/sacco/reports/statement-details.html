@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static%}
+
+{% load mathfilters%}
+
+{% load humanize %}
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- Header-->
+            {% include "partials/als_header.html" %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            {% include "partials/als_left_sidebar.html" %}
+            <!-- Left Sidebar End -->
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                         <!-- start page title -->
+                         {% include "partials/als_page_title.html" %}
+                        <!-- end page title -->
+
+
+                        {% include 'sacco/reports/partials/reg.html' %} 
+                        {% include 'sacco/reports/partials/cs.html' %}
+                        {% include 'sacco/reports/partials/nhif.html' %}
+                        {% include 'sacco/reports/partials/sa.html' %}
+                        {% include 'sacco/reports/partials/s.html' %}
+                        {% include 'sacco/reports/partials/p.html' %}
+                        {% include 'sacco/reports/partials/c.html' %}
+                        {% include 'sacco/reports/partials/pb.html' %}
+                         
+
+
+                        
+
+                      
+                    </div>
+                  </div>  
+            </div>
+        
+        </div>
+        <!-- END layout-wrapper -->
+
+
+{% endblock %}

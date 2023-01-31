@@ -157,6 +157,23 @@
                                         </div>
 
                                         <div class="mb-3">
+                                            <label>ID Number</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.userprofile.id_no}}"
+                                                        class="form-control" required
+                                                        placeholder="Enter numerical value"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{form.errors.id_no }}
+                                            </div>
+                                        </div>
+
+
+                                        <div class="mb-3">
                                             <label>Member No</label>
                                             
                                             <div>
