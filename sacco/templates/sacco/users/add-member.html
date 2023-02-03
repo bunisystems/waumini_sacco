@@ -136,18 +136,36 @@
                                         
 
                                         <div class="mb-3">
-                                            <label>Member No</label>
+                                            <label>Member No (Shares Account)</label>
                                             
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="text" type="text" id="member" name="member_no" value="{{values.member_no}}"
-                                                        class="form-control" required  readonly
-                                                        placeholder="System Generated"/>
+                                                <input data-parsley-type="text" type="text" id="" name="member_no_shares" value="{{values.member_no_shares}}"
+                                                        class="form-control" required  
+                                                        placeholder="Member # Shares Account"/>
                                             </div>
 
                                             <div style="color: red;">
-                                                {{user_form.errors.member_no }}
+                                                {{user_form.errors.member_no_shares }}
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                        
+                                        <div class="mb-3">
+                                            <label>Member No (Savings Account)</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="text" type="text" id="" name="member_no_savings" value="{{values.member_no_savings}}"
+                                                        class="form-control" required  
+                                                        placeholder="Member # Savings Account"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{user_form.errors.member_no_savings }}
                                             </div>
                                         </div>
 

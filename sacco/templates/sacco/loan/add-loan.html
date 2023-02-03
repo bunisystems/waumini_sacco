@@ -127,6 +127,24 @@
                                                 </div>
                                             </div>
 
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Proccessing Fee</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="processing_fee"
+                                                            placeholder="0.00"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="processing_fee" value="{{ st.PROCESSING_FEE }}" required readonly>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
 
                                             <div class="mb-3">
                                                 <div class="mb-3 position-relative">
@@ -161,6 +179,27 @@
                                                             Please provide an amount.
                                                         </div>
                                                     </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationCustom03" class="form-label">Status</label>
+                                                <select class="form-control" id="validationCustom03" name="status" required>
+                                                    <option value="" selected disabled>Choose...</option>
+                                                    <optgroup label="">
+                                                        <option name="status" value="Pending">Pending</option>                     
+                                                        <option name="status" value="Processing">Processing</option>                     
+                                                        <option name="status" value="Approved">Approved</option>  
+                                                        <option name="status" value="Rejected">Rejected</option>                        
+                                                        <option name="status" value="Disbursed">Disbursed</option>                     
+                                                        
+                                                    </optgroup>
+                                                   
+                                                </select>
+
+                                                <div class="invalid-tooltip">
+                                                    Please select status
                                                 </div>
                                             </div>
 
@@ -204,6 +243,7 @@
             var interest = document.getElementById("interest");
             var insurance = document.getElementById("insurance");
             var duration = document.getElementById("duration");
+            
 
         
             amount.oninput = function() {

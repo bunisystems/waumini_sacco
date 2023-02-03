@@ -50,6 +50,11 @@
                                     <tbody>
 
                                         <tr>
+                                            <th scope="row">Status</th>
+                                            <td>{{ loan.status }}</td>
+                                        </tr>
+
+                                        <tr>
                                             <th scope="row">Loan No.</th>
                                             <td>{{ loan.loan_no }}</td>
                                         </tr> 
@@ -90,6 +95,11 @@
                                         </tr>
 
                                         <tr>
+                                            <th scope="row">Processing Fee</th>
+                                            <td>{{ loan.processing_fee }}</td>
+                                        </tr> 
+
+                                        <tr>
                                             <th scope="row">Created On</th>
                                             <td>{{ loan.created_on }}</td>
                                         </tr> 
@@ -118,6 +128,10 @@
                                             <th scope="row">Transaction ID</th>
                                             <td>{{ loan.transaction_id }}</td>
                                         </tr> 
+                                        
+                                       
+
+                                        
  
                                     </tbody>
                                 </table>

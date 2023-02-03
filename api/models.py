@@ -11,7 +11,8 @@ from django.db.models.signals import post_save
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    member_no = models.CharField(max_length=200, unique=True, null=True)
+    member_no_shares = models.CharField(max_length=200, unique=True, null=True)
+    member_no_savings = models.CharField(max_length=200, unique=True, null=True)
     id_no = models.CharField(max_length=200, unique=True, null=True)
 
     def __str__(self):
@@ -28,7 +29,10 @@ class Registration(models.Model):
     reg_no = models.CharField(max_length=200, unique=True)
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
     member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_registration")
-    amount = models.DecimalField(max_digits=8, decimal_places=2)
+
+    shares_entrance_fee = models.DecimalField(max_digits=8, decimal_places=2)
+    shares_application_fee = models.DecimalField(max_digits=8, decimal_places=2)
+    savings_entrance_fee = models.DecimalField(max_digits=8, decimal_places=2)
 
     is_deleted = models.BooleanField(default=0)
 
@@ -54,6 +58,7 @@ class Registration(models.Model):
             super().save(*args, **kwargs)
 
 class Loan(models.Model):
+
     loan_no = models.CharField(max_length=200, unique=True)
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
     member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_loan")
@@ -63,9 +68,11 @@ class Loan(models.Model):
     insuarance_rate = models.IntegerField()
     insurance = models.DecimalField(max_digits=8, decimal_places=2)
     loan_fee = models.DecimalField(max_digits=8, decimal_places=2)
+    processing_fee = models.DecimalField(max_digits=8, decimal_places=2)
     balance = models.DecimalField(max_digits=8, decimal_places=2)
     total = models.DecimalField(max_digits=8, decimal_places=2)
     is_paid = models.BooleanField(default=0)
+    status = models.CharField(max_length=200)
     months = models.IntegerField()
     due_date = models.DateTimeField()
 
@@ -213,8 +220,16 @@ class Shares(models.Model):
 class NHIF(models.Model):
     nhif_no = models.CharField(max_length=200, unique=True)
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
-    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_nhif")
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_nhif", null=True, blank=True)
     amount = models.DecimalField(max_digits=8, decimal_places=2)
+
+    is_member = models.BooleanField(default=0)
+    commission = models.DecimalField(max_digits=8, decimal_places=2)
+    f_name = models.CharField(max_length=200, null=True, blank=True)
+    l_name  = models.CharField(max_length=200, null=True, blank=True)
+    phone_number  = models.CharField(max_length=200, unique=True, null=True, blank=True)
+    id_no = models.CharField(max_length=200, unique=True, null=True, blank=True)
+
 
     is_deleted = models.BooleanField(default=0)
 
@@ -244,6 +259,7 @@ class Cheque(models.Model):
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
     member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_cheque")
     amount = models.DecimalField(max_digits=8, decimal_places=2)
+    commission = models.DecimalField(max_digits=8, decimal_places=2)
     is_deleted = models.BooleanField(default=0)
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -295,34 +311,6 @@ class Account(models.Model):
             self.transaction_id = generate_transaction_uuid()
             super().save(*args, **kwargs)
 
-class Processing(models.Model):
-    processing_no = models.CharField(max_length=200, unique=True)
-    transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
-    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_processing")
-    amount = models.DecimalField(max_digits=8, decimal_places=2)
-
-    is_deleted = models.BooleanField(default=0)
-
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="processing_updated_by", null=True, blank=True)
-    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="processing_deleted_by", null=True, blank=True)
-
-    created_on = models.DateTimeField(auto_now_add=True)
-    updated_on = models.DateTimeField(null=True)
-    deleted_on = models.DateTimeField(null=True)
-    
-    def __str__(self):
-        return self.member
-    
-    def save(self, *args, **kwargs):
-        processing_id = self.id
-        if Processing.objects.filter(id=processing_id).exists():
-            super(Processing, self).save()
-        else:
-            current_time = datetime.now()
-            self.processing_no = 'WPR' + current_time.strftime("%Y%m%d%H%M%S")
-            self.transaction_id = generate_transaction_uuid()
-            super().save(*args, **kwargs)
 
 class Passbook(models.Model):
     passbook_no = models.CharField(max_length=200, unique=True)
@@ -357,18 +345,20 @@ class Passbook(models.Model):
 
 class Settings(models.Model):
     
-    REGISTRATION_FEE = models.IntegerField()
-    MIN_LOAN = models.IntegerField() 
-    MAX_LOAN = models.IntegerField()
-    CAPITAL_SHARE = models.IntegerField()
-    SHARES_MIN = models.IntegerField()
-    ACCOUNT = models.IntegerField()
-    ACCOUNT_WITHDRAWAL = models.IntegerField()
-    PROCESSING_FEE = models.IntegerField()
-    PASSBOOK = models.IntegerField()
-    INTEREST = models.IntegerField()
-    INSUARANCE = models.IntegerField()
-    PHONE_NUMBER = models.IntegerField()
+    SHARES_ENTRANCE_FEE = models.IntegerField(null=True, blank=True)
+    SHARES_APPLICATION_FEE = models.IntegerField(null=True, blank=True)
+    SAVINGS_ENTRANCE_FEE = models.IntegerField(null=True, blank=True)
+    MIN_LOAN = models.IntegerField(null=True, blank=True) 
+    MAX_LOAN = models.IntegerField(null=True, blank=True)
+    CAPITAL_SHARE = models.IntegerField(null=True, blank=True)
+    SHARES_MIN = models.IntegerField(null=True, blank=True)
+    ACCOUNT = models.IntegerField(null=True, blank=True)
+    ACCOUNT_WITHDRAWAL = models.IntegerField(null=True, blank=True)
+    PROCESSING_FEE = models.IntegerField(null=True, blank=True)
+    PASSBOOK = models.IntegerField(null=True, blank=True)
+    INTEREST = models.IntegerField(null=True, blank=True)
+    INSUARANCE = models.IntegerField(null=True, blank=True)
+    PHONE_NUMBER = models.IntegerField(null=True, blank=True)
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="settings_updated_by", null=True, blank=True)

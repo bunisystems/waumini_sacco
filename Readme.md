@@ -87,3 +87,8 @@ virtualenv myenv
 
 ******
 1. Loan Calculaor
+
+
+
+
+pip freeze | ForEach-Object { $_.Split("==")[0] } > .\requirements.txt

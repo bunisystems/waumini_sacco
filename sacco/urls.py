@@ -57,12 +57,6 @@ urlpatterns = [
     path('edit-account/<hashid:id>', views.edit_account, name="edit-account"),
 
 
-    # Processing
-    path('processing', views.processing, name="processing"),
-    path('add-processing', views.add_processing, name="add-processing"),
-    path('edit-processing/<hashid:id>', views.edit_processing, name="edit-processing"),
-
-
      # Passbook
     path('passbook', views.passbook, name="passbook"),
     path('add-passbook', views.add_passbook, name="add-passbook"),

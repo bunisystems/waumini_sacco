@@ -1,7 +1,12 @@
 Changed naturaltime to time in payements datetime fields
 Split passsbook and chequebook to products section
 Added member statements
+auto log off
+
+
+
 
 Limitations
 Error calculating interest when settings are changed
+
 

@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%37)^wh@6fucyn6=+vo+xvrdpoel!0c!69&aqy=99x@4qn7gg9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -74,6 +74,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+
+    'sacco.middleware.SessionTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -162,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -248,5 +250,7 @@ app.autodiscover_tasks()
 
 app.conf.broker_url = 'redis://localhost:6379'
 app.conf.result_backend = 'redis://localhost:6379'
+
+
 
 

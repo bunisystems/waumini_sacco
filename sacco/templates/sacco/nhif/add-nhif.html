@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static%}
+
+ <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- Header-->
+            {% include "partials/als_header.html" %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            {% include "partials/als_left_sidebar.html" %}
+            <!-- Left Sidebar End -->
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                         <!-- start page title -->
+                         {% include "partials/als_page_title.html" %}
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <!-- <h4 class="card-title">Validation type</h4>
+                                        <p class="card-title-desc">Parsley is a javascript form validation
+                                            library. It helps you provide your users with feedback on their form
+                                            submission before sending it to your server.</p> -->
+
+                                            {% include 'partials/als_messages.html' %} 
+                                            
+                                        <form class="custom-validation" action="" method="POST">
+                                            {% csrf_token %}
+
+                                        
+
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationCustom03" class="form-label">Member</label>
+                                                
+                                                <select class="form-control select2" id="dropdown" name="member" onchange="onChangeText()" required>
+                                                    <option value="" selected disabled>Choose...</option>
+                                                    <option name="member" value="0">Non - Member </option>                                                    
+
+                                                    <optgroup label="AVAILABLE MEMBERS">
+                                                        
+                                                        
+                                                        {% for m in members %}
+                                                        
+                                                        <option name="member" value="{{m.id}}">{{m.first_name}} {{m.last_name}}</option>
+                                
+                                                        {% endfor  %}
+
+                                        
+                                                    </optgroup>
+                                                   
+                                                </select>
+
+                                                <div class="invalid-tooltip">
+                                                    Please select a member
+                                                </div>
+                                            </div>
+
+
+                                        
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">NHIF Amount</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="validationTooltipUsername"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ values.amount }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3" >
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">NHIF Commission</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="validationTooltipUsername"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="commission" value="{{ values.commission }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="formFields" style="display:none">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label>First Name</label>
+                                                    <div>
+                                                        <input data-parsley-type="alphanum" type="text"
+                                                                class="form-control" name="first_name"  value="{{values.first_name}}"
+                                                                placeholder="Enter alphanumeric value"/>
+                                                    </div>
+    
+                                                   
+                                                </div>
+    
+    
+                                                </div>
+                                                <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label>Last Name</label>
+                                                    <div>
+                                                        <input data-parsley-type="alphanum" type="text" name="last_name" value="{{values.last_name}}"
+                                                                class="form-control" 
+                                                                placeholder="Enter alphanumeric value"/>
+                                                    </div>
+    
+                                                   
+                                                </div>
+                                                </div>
+                                            </div>
+    
+                                            <div class="mb-3">
+                                                <label>Phone Number</label>
+                                                
+                                                <div>
+                                                    
+                                                    
+                                                    <input data-parsley-type="number" type="number" id="number" name="number" value="{{values.number}}"
+                                                            class="form-control" 
+                                                            placeholder="Enter numerical value"/>
+                                                </div>
+    
+                                               
+                                            </div>
+    
+    
+                                            <div class="mb-3">
+                                                <label>ID Number</label>
+                                                
+                                                <div>
+                                                    
+                                                    
+                                                    <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.id_no}}"
+                                                            class="form-control"
+                                                            placeholder="Enter numerical value"/>
+                                                </div>
+    
+                                               
+                                            </div>
+                                            </div>
+                                        
+
+
+        
+                            
+                                            <div class="mb-0">
+                                                <div>
+                                                    <button type="submit" class="btn btn-success waves-effect waves-light">
+                                                        <i class="ri-check-line align-middle me-2"></i> Submit
+                                                    </button>
+                                                    
+                                                    <a href="{% url 'nhif' %}">
+                                                   
+                                                        <button type="button" class="btn btn-warning waves-effect waves-light">
+                                                            <i class="ri-error-warning-line align-middle me-2"></i> Cancel
+                                                        </button>
+                                                     
+                                                    </a>
+                                                </div>
+
+                                            </div>
+                                            
+
+                                        </form>
+                                   
+        
+                                    </div>
+                                </div>
+                            </div> <!-- end col -->
+                        <!-- end row -->
+                    </div>
+                  </div>  
+            </div>
+        
+        </div>
+        <!-- END layout-wrapper -->
+
+<script>
+
+
+function onChangeText() {
+        //Getting Value
+        
+
+        var selObj = document.getElementById("dropdown");
+        var selValue = selObj.options[selObj.selectedIndex].text;
+        
+        console.log(selValue)
+
+        if (selValue === "Non - Member") {
+            document.getElementById("formFields").style.display = "block";
+        } else {
+            document.getElementById("formFields").style.display = "none";
+        }
+    }
+
+
+</script>
+
+        
+
+{% endblock %}

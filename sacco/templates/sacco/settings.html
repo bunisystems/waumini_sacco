@@ -52,7 +52,7 @@
 
                                             <div class="mb-3">
                                                 <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label"> REGISTRATION FEE</label>
+                                                    <label for="validationTooltipUsername" class="form-label">SHARES ENTRANCE FEE </label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text"
@@ -60,7 +60,43 @@
                                                         </div>
                                                         <input type="number" class="form-control" id="amount"
                                                             placeholder="0.00" min="1"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="REGISTRATION_FEE" value="{{ values.REGISTRATION_FEE }}" required>
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="SHARES_ENTRANCE_FEE" value="{{ values.SHARES_ENTRANCE_FEE }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label"> SHARES APPLICATION FEE</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="amount"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="SHARES_APPLICATION_FEE" value="{{ values.SHARES_APPLICATION_FEE }}" required>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label"> SAVINGS ENTRANCE FEE</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="amount"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="SAVINGS_ENTRANCE_FEE" value="{{ values.SAVINGS_ENTRANCE_FEE }}" required>
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>

@@ -11,53 +11,52 @@ from django.db import connection
 from .functions import dictfetchall
 from datetime import datetime, timedelta, time, date
 import datetime
-from django.db.models.functions import Coalesce
-from django.utils.timezone import make_aware
 from django.contrib.auth.models import Group
-from django.contrib.auth.forms import UserCreationForm
 from .forms import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .decorators import unauthenticated_user, allowed_users
-from .constants import *
+from .decorators import *
 import calendar
 from .functions import *
 import decimal
 from django.utils.timezone import make_aware
-from .forms import SettingsForm
 from django.views.decorators.cache import cache_page
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from random import randint
-from django.db import transaction
 from django.core.cache import cache
-from.decorators import *
 from.celery import *
 from django.db.models import Q
+from .constants import *
 
+try:
+    group = Group.objects.get(name='Member')
+except Exception as e:
+    group = 'Member'
 
-
-group = Group.objects.get(name='Member')
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 @unauthenticated_user
 def sign_in(request):
-
-	if request.method == 'POST':
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-
-		user = authenticate(request, username=username, password=password)
-
-		if user is not None:
-			login(request, user)
-			return redirect('index')
-
-		else:
-			messages.info(request, 'Username or password is incorrect')
-
-	context = {}
-	return render(request, 'sacco/auth/sign-in.html', context)
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        next_page = request.GET.get('next')
+        
+        if user is not None:
+            if next_page:
+                login(request, user)
+                return redirect(next_page)
+            else:
+                login(request, user)
+                return redirect('index')    
+        else:
+            messages.info(request, 'Username or password is incorrect')
+            
+    context = {}
+    return render(request, 'sacco/auth/sign-in.html', context)
 
 def sign_out(request):
 	logout(request)
@@ -67,11 +66,19 @@ def sign_out(request):
 @cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def index(request):
-    """ Get the current date """
-    today = datetime.now().date()
+
+    # 2023-02-01
+    today = timezone.now().date()
+    # 2023-02-02
     tomorrow = today + timedelta(1)
-    today_start = datetime.combine(today, time())
-    today_end = datetime.combine(tomorrow, time())
+    
+    today_start = timezone.now().combine(today, time())
+
+   
+    
+    today_end = timezone.now().combine(tomorrow, time())
+
+    
     this_year =  datetime.now().year
     last_year =  datetime.now().year - 1
 
@@ -110,6 +117,7 @@ def index(request):
 
 
     # Current Yr
+    # 09:11:57.225475+00:00
     current_time = timezone.now()
     current_year = timezone.now().year
     start_date = current_time.replace(current_year, 1, 1)
@@ -378,7 +386,8 @@ def add_member(request):
         form = CreateUserForm(request.POST)
         
         username = request.POST['username']
-        member_no = request.POST['member_no']
+        member_no_shares = request.POST['member_no_shares']
+        member_no_savings = request.POST['member_no_savings']
        
         print('Printing POST:', request.POST)
         print('Printing Errors:', form.errors )
@@ -386,15 +395,15 @@ def add_member(request):
             messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
         elif(starts_with_zero(username) == False):       
             messages.error(request, "Phone number number must begin with 0")   
-        elif not (member_no):
+        elif not (member_no_shares) and (member_no_savings):
             messages.error(request, "Member Number is required")
-        elif(UserProfile.objects.filter(member_no=member_no)):
+        elif(UserProfile.objects.filter(member_no_shares=member_no_shares, member_no_savings=member_no_savings)):
             messages.error(request, "Member Number Exists") 
         else:
             if form.is_valid():
                
                 user = form.save(commit=False)
-                user.email = f'user{randint(1, 99999)}@example.com'
+                user.email = f'user{randint(1, 99999)}@jenga-systems.com'
                 user.password = User.objects.make_random_password()
                 user.save()
                 user = User.objects.get(pk=user.id) 
@@ -466,7 +475,8 @@ def edit_member(request, id):
     if request.method == 'POST':
         e = request.POST['email']
         u = request.POST['username']
-        member_no = request.POST['member_no']
+        member_no_shares = request.POST['member_no_shares']
+        member_no_savings = request.POST['member_no_savings']
 
         if User.objects.exclude(pk=id).filter(email=e):
             messages.error(request, MEMBER_EMAIL_EXISTS)
@@ -478,9 +488,9 @@ def edit_member(request, id):
             messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits starting with 0') 
         elif(starts_with_zero(u) == False):       
             messages.error(request, "Phone number number must begin with 0")  
-        elif not (member_no):
+        elif not (member_no_shares) and (member_no_savings):
             messages.error(request, "Member Number is required")
-        elif(UserProfile.objects.exclude(user=id).filter(member_no=member_no)):
+        elif(UserProfile.objects.filter(member_no_shares=member_no_shares, member_no_savings=member_no_savings)):
             messages.error(request, "Member Number Exists")
         else:
             # Get user information from form
@@ -566,7 +576,7 @@ def member(request, id):
 def registration(request):
     registration = Registration.objects.all()
     context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    return render(request, 'sacco/reg/registration.html', context)
 @login_required(login_url='sign-in')
 def add_registration(request):
     members = User.objects.filter(groups=group)
@@ -577,7 +587,7 @@ def add_registration(request):
 
     if request.method == 'GET':
         if members:
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/reg/add-registration.html', context)
         else:
             messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
@@ -585,31 +595,56 @@ def add_registration(request):
     # The view to handle the form POST requests
     if request.method == 'POST':
       
-        amount = request.POST['amount']
+        shares_entrance_fee = request.POST['shares_entrance_fee']
         
-        if not amount:
+        if not shares_entrance_fee:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/reg/add-registration.html', context)
         
-        if int(amount) != int(REGISTRATION_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(REGISTRATION_FEE) )
-            return render(request, 'sacco/registration/add-registration.html', context)
+        if int(shares_entrance_fee) != int(SHARES_ENTRANCE_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        shares_application_fee = request.POST['shares_application_fee']
+        
+        if not shares_application_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        if int(shares_application_fee) != int(SHARES_APPLICATION_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_APPLICATION_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        savings_entrance_fee = request.POST['savings_entrance_fee']
+        
+        if not savings_entrance_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        if int(savings_entrance_fee) != int(SAVINGS_ENTRANCE_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if Registration.objects.filter(member=request.POST.get('member')):
             messages.error(request, ERROR_REG_EXISTS)
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/reg/add-registration.html', context)
 
         if not member:
             messages.error(request, ERROR_REG_MEMBER)
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/reg/add-registration.html', context)
        
         # if no error we save the data into database
         # we use the expense model
         # create the expense
-        Registration.objects.create( member=member, amount=amount, created_by=request.user)
+        Registration.objects.create( 
+            member=member, 
+            shares_entrance_fee=shares_entrance_fee,
+            shares_application_fee=shares_application_fee,
+            savings_entrance_fee=savings_entrance_fee,
+            created_by=request.user)
 
         # saving the expense in the database after creating it
         messages.success(request, SUCCESS_FEE_SAVED)
@@ -632,22 +667,44 @@ def edit_registration(request, id):
     }
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/edit-registration.html', context)
+        return render(request, 'sacco/reg/edit-registration.html', context)
 
     # The view to handle the form POST requests
     if request.method == 'POST':
       
-        amount = request.POST['amount']
-
-        if not amount:
+        shares_entrance_fee = request.POST['shares_entrance_fee']
+        
+        if not shares_entrance_fee:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/edit-registration.html', context)
-
-        if int(float(amount)) != REGISTRATION_FEE:
-            messages.error(request, ERROR_INC_AMOUNT + str(REGISTRATION_FEE))
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        if int(float(shares_entrance_fee)) != int(SHARES_ENTRANCE_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        shares_application_fee = request.POST['shares_application_fee']
+        
+        if not shares_application_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        if int(float(shares_application_fee)) != int(SHARES_APPLICATION_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_APPLICATION_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        savings_entrance_fee = request.POST['savings_entrance_fee']
+        
+        if not savings_entrance_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/reg/add-registration.html', context)
+        
+        if int(float(savings_entrance_fee)) != int(SAVINGS_ENTRANCE_FEE):
+            messages.error(request, ERROR_INC_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/add-registration.html', context)
        
-        registration.amount = amount
+        registration.shares_entrance_fee = shares_entrance_fee
+        registration.shares_application_fee = shares_application_fee
+        registration.savings_entrance_fee = savings_entrance_fee
         registration.updated_on = timezone.now()
         registration.updated_by = request.user
         registration.save()
@@ -674,7 +731,10 @@ def loan_info(request, id):
 @login_required(login_url='sign-in')
 def add_loan(request):
     members = User.objects.filter(groups=group)
-    st = Settings.objects.get(pk=1)
+    try: 
+        st = Settings.objects.get(pk=1)
+    except Settings.DoesNotExist:
+        pass
 
     context = {'values': request.POST, 'members' : members, 'st' : st }
 
@@ -693,6 +753,19 @@ def add_loan(request):
         amount = request.POST['amount']
 
         if not amount:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan/add-loan.html', context)
+        
+        status = request.POST['status']
+        print(status)
+
+        if not status:
+            messages.error(request, "Status is required")
+            return render(request, 'sacco/loan/add-loan.html', context)
+
+        processing_fee = request.POST['processing_fee']
+
+        if not processing_fee:
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/add-loan.html', context)
         
@@ -746,7 +819,7 @@ def add_loan(request):
             messages.error(request, LOAN_INSURANCE_CALC)
             return render(request, 'sacco/loan/add-loan.html', context)
 
-        total = float(amount) + float(total_interest) + float(total_insurance) + float(loan_fee)
+        total = float(amount) + float(total_interest) + float(total_insurance) + float(loan_fee) + float(processing_fee)
         
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -768,7 +841,9 @@ def add_loan(request):
             balance=total,
             months=duration,
             total=total, 
-            is_paid = 0, 
+            is_paid = 0,
+            status = status,
+            processing_fee=processing_fee,
             created_by=request.user)
 
         messages.success(request, SUCCESS_FEE_SAVED)
@@ -778,11 +853,14 @@ def add_loan(request):
 def edit_loan(request, id):
     try:
         l = Loan.objects.get(pk=id)
+        st = Settings.objects.get(pk=1)
     except Loan.DoesNotExist:
         messages.error(request, ERROR_404)
         return render(request, 'sacco/error.html')
-    st = Settings.objects.get(pk=1)
+    
     p = Payments.objects.filter(loan=id)
+
+    print(request.POST)
 
     context = {
         'values': l, 
@@ -805,6 +883,18 @@ def edit_loan(request, id):
         if not amount:
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/edit-loan.html', context)
+    
+        status = request.POST['status']
+
+        if not status:
+            messages.error(request, "Status is required")
+            return render(request, 'sacco/loan/edit-loan.html', context)
+        
+        processing_fee = request.POST['processing_fee']
+
+        if not processing_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan/add-loan.html', context)
         
         if int(float(amount)) < int(MIN_LOAN):
             messages.error(request, ERROR_MIN_LOAN)
@@ -836,7 +926,7 @@ def edit_loan(request, id):
 
     
 
-        total = float(amount) + float(interest) + float(insurance) + float(loan_fee)
+        total = float(amount) + float(interest) + float(insurance) + float(loan_fee) + float(processing_fee)
         
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -857,6 +947,8 @@ def edit_loan(request, id):
         l.balance=total
         l.months=duration
         l.total=total
+        l.processing_fee = processing_fee
+        l.status = status
         l.updated_by = request.user
         l.updated_on = timezone.now()
         l.save()
@@ -1128,48 +1220,130 @@ def edit_shares(request, id):
 def nhif(request):
     registration = NHIF.objects.all()
     context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    return render(request, 'sacco/nhif/nhif.html', context)
 @login_required(login_url='sign-in')
 def add_nhif(request):
-    members = User.objects.filter(groups=group)
+    try:
+        members = User.objects.filter(groups=group)
+    
+        context = {'values': request.POST, 'members' : members }
 
-    context = {'values': request.POST, 'members' : members }
+        print(request.POST)
 
-    print(request.POST)
+        if request.method == 'GET':
+            if members:
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            else:
+                messages.error(request,  MEMBERS_EXIST)
+                return render(request, 'sacco/error.html')
 
-    if request.method == 'GET':
-        if members:
-            return render(request, 'sacco/registration/add-registration.html', context)
-        else:
-            messages.error(request,  MEMBERS_EXIST)
-            return render(request, 'sacco/error.html')
-
-    # The view to handle the form POST requests
-    if request.method == 'POST':
-      
-        amount = request.POST['amount']
-
-        if not amount:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/add-registration.html', context)
+        # The view to handle the form POST requests
+        if request.method == 'POST':
+        
+            amount = request.POST['amount']
+            if not amount:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/nhif/add-nhif.html', context)
 
 
-        member = User.objects.get(id=request.POST.get('member'))
+            member = User.objects.get(id=request.POST.get('member'))
+            if not member:
+                messages.error(request, ERROR_REG_MEMBER)
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            
+            commission = request.POST['commission']
+            if not commission:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            
+            
+        
+    
+            NHIF.objects.create( 
+                member=member, 
+                amount=amount, 
+                commission=commission,
+                created_by=request.user)
 
-        if not member:
-            messages.error(request, ERROR_REG_MEMBER)
-            return render(request, 'sacco/registration/add-registration.html', context)
-       
-        # if no error we save the data into database
-        # we use the expense model
-        # create the expense
-        NHIF.objects.create( member=member, amount=amount, created_by=request.user)
+            
+            messages.success(request, SUCCESS_FEE_SAVED)
 
-        # saving the expense in the database after creating it
-        messages.success(request, SUCCESS_FEE_SAVED)
+            
+            return redirect('nhif')
+    except User.DoesNotExist:
+        context = {'values': request.POST, 'members' : members }
 
-        # redirect to the expense page to see the expenses
-        return redirect('nhif')
+        print(request.POST)
+
+        if request.method == 'GET':
+            if members:
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            else:
+                messages.error(request,  MEMBERS_EXIST)
+                return render(request, 'sacco/error.html')
+
+        # The view to handle the form POST requests
+        if request.method == 'POST':
+        
+            amount = request.POST['amount']
+            if not amount:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+
+
+            member = request.POST.get('member')
+            if member != '0':
+                messages.error(request, "Something went wrong")
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            
+            commission = request.POST['commission']
+            if not commission:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+
+            
+            f_name = request.POST['first_name']
+            l_name = request.POST['last_name']
+
+            if not l_name and f_name:
+                messages.error(request, "This is required")  
+                return render(request, 'sacco/nhif/add-nhif.html', context)  
+
+            number = request.POST['number']
+
+            if num_length(number) != PHONE_NUMBER:
+                messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
+                return render(request, 'sacco/nhif/add-nhif.html', context)
+            elif(NHIF.objects.filter(phone_number=number)):
+                messages.error(request, "Phone number exists") 
+                return render(request, 'sacco/nhif/add-nhif.html', context) 
+
+            
+            id_no = request.POST['id_no']
+            if not id_no:
+                messages.error(request, "This is required")  
+                return render(request, 'sacco/nhif/add-nhif.html', context) 
+            elif(NHIF.objects.filter(id_no=id_no)):
+                messages.error(request, "ID number exists") 
+                return render(request, 'sacco/nhif/add-nhif.html', context) 
+            
+    
+            NHIF.objects.create( 
+                amount=amount, 
+                commission=commission,
+                f_name=f_name,
+                l_name=l_name,
+                id_no=id_no,
+                phone_number=number,
+                is_member=member,
+                created_by=request.user)
+
+            
+            messages.success(request, SUCCESS_FEE_SAVED)
+
+            
+            return redirect('nhif')
+
 @login_required(login_url='sign-in')
 def edit_nhif(request, id):
     try:
@@ -1178,13 +1352,18 @@ def edit_nhif(request, id):
         messages.error(request, ERROR_404)
         return render(request, 'sacco/error.html')
 
+    next_page = request.GET.get('nxt')
+
     context = {
         'values': registration, 
-        'registration' : registration 
+        'registration' : registration,
+        'next_page' : next_page
     }
 
+    
+    
     if request.method == 'GET':
-        return render(request, 'sacco/registration/edit-registration.html', context)
+        return render(request, 'sacco/nhif/edit-nhif.html', context)
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -1193,26 +1372,76 @@ def edit_nhif(request, id):
 
         if not amount:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/edit-registration.html', context)
+            return render(request, 'sacco/nhif/edit-nhif.html', context)
+        
+        commission = request.POST['commission']
+        if not commission:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/nhif/add-nhif.html', context)
+        
+
+        f_name = request.POST['first_name']
+        l_name = request.POST['last_name']
+
+        if not l_name and f_name:
+            messages.error(request, "This is required")  
+            return render(request, 'sacco/nhif/add-nhif.html', context)  
+
+        number = request.POST['number']
+
+        if num_length(number) != PHONE_NUMBER:
+            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
+            return render(request, 'sacco/nhif/add-nhif.html', context)
+        elif(NHIF.objects.filter(phone_number=number).exclude(phone_number=number)):
+            messages.error(request, "Phone number exists") 
+            return render(request, 'sacco/nhif/add-nhif.html', context) 
+
+        
+        id_no = request.POST['id_no']
+        if not id_no:
+            messages.error(request, "This is required")  
+            return render(request, 'sacco/nhif/add-nhif.html', context) 
+        elif(NHIF.objects.filter(id_no=id_no).exclude(id_no=id_no)):
+            messages.error(request, "ID number exists") 
+            return render(request, 'sacco/nhif/add-nhif.html', context) 
        
-        registration.amount = amount
-        registration.updated_by = request.user
-        registration.updated_on = timezone.now()
-        registration.save()
-    
+        if next_page:
+            registration.f_name = f_name
+            registration.l_name= l_name
+            registration.id_no = id_no
+            registration.phone_number = number
+            registration.amount = amount
+            registration.commission = commission
+            registration.updated_by = request.user
+            registration.updated_on = timezone.now()
+            registration.save()
+        
 
-        # saving the expense in the database after creating it
-        messages.success(request, SUCCESS_FEE_EDITED)
+            # saving the expense in the database after creating it
+            messages.success(request, SUCCESS_FEE_EDITED)
 
-        # redirect to the expense page to see the expenses
-        return redirect('nhif')
+            # redirect to the expense page to see the expenses
+            return redirect('nhif' )
+        else:
+            registration.amount = amount
+            registration.commission = commission
+            registration.updated_by = request.user
+            registration.updated_on = timezone.now()
+            registration.save()
+        
+
+            # saving the expense in the database after creating it
+            messages.success(request, SUCCESS_FEE_EDITED)
+
+            # redirect to the expense page to see the expenses
+            return redirect('nhif' )
 
 """ Cheque """
 @login_required(login_url='sign-in')
 def cheque(request):
     registration = Cheque.objects.all()
     context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    return render(request, 'sacco/cheque/cheque.html', context)
 @login_required(login_url='sign-in')
 def add_cheque(request):
     members = User.objects.filter(groups=group)
@@ -1223,7 +1452,7 @@ def add_cheque(request):
 
     if request.method == 'GET':
         if members:
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/cheque/add-cheque.html', context)
         else:
             messages.error(request,  MEMBERS_EXIST)
             return render(request, 'sacco/error.html')
@@ -1235,19 +1464,25 @@ def add_cheque(request):
 
         if not amount:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/cheque/add-cheque.html', context)
+
+        commission = request.POST['commission']
+
+        if not commission:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/cheque/add-cheque.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
 
         if not member:
             messages.error(request, ERROR_REG_MEMBER)
-            return render(request, 'sacco/registration/add-registration.html', context)
+            return render(request, 'sacco/cheque/add-cheque.html', context)
        
         # if no error we save the data into database
         # we use the expense model
         # create the expense
-        Cheque.objects.create( member=member, amount=amount, created_by=request.user)
+        Cheque.objects.create( member=member, amount=amount, commission=commission, created_by=request.user)
 
         # saving the expense in the database after creating it
         messages.success(request, SUCCESS_FEE_SAVED)
@@ -1268,7 +1503,7 @@ def edit_cheque(request, id):
     }
 
     if request.method == 'GET':
-        return render(request, 'sacco/registration/edit-registration.html', context)
+        return render(request, 'sacco/cheque/edit-cheque.html', context)
 
     # The view to handle the form POST requests
     if request.method == 'POST':
@@ -1277,9 +1512,16 @@ def edit_cheque(request, id):
 
         if not amount:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/edit-registration.html', context)
-       
+            return render(request, 'sacco/cheque/edit-cheque.html', context)
+        
+        commission = request.POST['commission']
+
+        if not commission:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/cheque/add-cheque.html', context)
+
         registration.amount = amount
+        registration.commission = commission
         registration.updated_by = request.user
         registration.updated_on = timezone.now()
         registration.save()
@@ -1654,50 +1896,78 @@ def statement_details(request, id):
 
 @login_required(login_url='sign-in')
 def settings(request):
-    values = Settings.objects.get(pk=1)
-    print(request.POST)
+    try:
+        values = Settings.objects.get(pk=1)
 
-    context = {'values' : values }
-    
-    if request.method == 'GET':
-        return render(request, 'sacco/settings.html', context)
+        print(request.POST)
 
-    if request.method == 'POST':
-        REGISTRATION_FEE = request.POST['REGISTRATION_FEE']
-        MIN_LOAN = request.POST['MIN_LOAN']
-        MAX_LOAN = request.POST['MAX_LOAN']
-        CAPITAL_SHARE = request.POST['CAPITAL_SHARE']
-        SHARES_MIN = request.POST['SHARES_MIN']
-        ACCOUNT = request.POST['ACCOUNT']
-        ACCOUNT_WITHDRAWAL = request.POST['ACCOUNT_WITHDRAWAL']
-        PROCESSING_FEE = request.POST['PROCESSING_FEE']
-        PASSBOOK = request.POST['PASSBOOK']
-        INTEREST = request.POST['INTEREST']
-        INSUARANCE = request.POST['INSUARANCE']
-        PHONE_NUMBER = request.POST['PHONE_NUMBER']
+        context = {'values' : values }
+        
+        if request.method == 'GET':
+            return render(request, 'sacco/settings.html', context)
 
-
-
-        values.REGISTRATION_FEE=REGISTRATION_FEE
-        values.MIN_LOAN=MIN_LOAN
-        values.MAX_LOAN=MAX_LOAN 
-        values.CAPITAL_SHARE=CAPITAL_SHARE 
-        values.SHARES_MIN=SHARES_MIN
-        values.ACCOUNT=ACCOUNT
-        values.ACCOUNT_WITHDRAWAL=ACCOUNT_WITHDRAWAL
-        values.PROCESSING_FEE=PROCESSING_FEE
-        values.PASSBOOK=PASSBOOK
-        values.INTEREST=INTEREST 
-        values.INSUARANCE=INSUARANCE 
-        values.PHONE_NUMBER=PHONE_NUMBER
-        values.created_by=request.user
-        values.save()
+        if request.method == 'POST':
+            SHARES_ENTRANCE_FEE = request.POST['SHARES_ENTRANCE_FEE']
+            SHARES_APPLICATION_FEE = request.POST['SHARES_APPLICATION_FEE']
+            SAVINGS_ENTRANCE_FEE = request.POST['SAVINGS_ENTRANCE_FEE']
+            MIN_LOAN = request.POST['MIN_LOAN']
+            MAX_LOAN = request.POST['MAX_LOAN']
+            CAPITAL_SHARE = request.POST['CAPITAL_SHARE']
+            SHARES_MIN = request.POST['SHARES_MIN']
+            ACCOUNT = request.POST['ACCOUNT']
+            ACCOUNT_WITHDRAWAL = request.POST['ACCOUNT_WITHDRAWAL']
+            PROCESSING_FEE = request.POST['PROCESSING_FEE']
+            PASSBOOK = request.POST['PASSBOOK']
+            INTEREST = request.POST['INTEREST']
+            INSUARANCE = request.POST['INSUARANCE']
+            PHONE_NUMBER = request.POST['PHONE_NUMBER']
 
 
-        messages.success(request, 'Settings updated successfully')
-       
+            values.SHARES_ENTRANCE_FEE=SHARES_ENTRANCE_FEE
+            values.SHARES_APPLICATION_FEE=SHARES_APPLICATION_FEE
+            values.SAVINGS_ENTRANCE_FEE=SAVINGS_ENTRANCE_FEE
+            values.MIN_LOAN=MIN_LOAN
+            values.MAX_LOAN=MAX_LOAN 
+            values.CAPITAL_SHARE=CAPITAL_SHARE 
+            values.SHARES_MIN=SHARES_MIN
+            values.ACCOUNT=ACCOUNT
+            values.ACCOUNT_WITHDRAWAL=ACCOUNT_WITHDRAWAL
+            values.PROCESSING_FEE=PROCESSING_FEE
+            values.PASSBOOK=PASSBOOK
+            values.INTEREST=INTEREST 
+            values.INSUARANCE=INSUARANCE 
+            values.PHONE_NUMBER=PHONE_NUMBER
+            values.created_by=request.user
+            values.save()
+
+
+            messages.success(request, 'Settings updated successfully')
+        
+            return redirect('settings')
+        
+    except Settings.DoesNotExist:
+        Settings.objects.create(
+            SHARES_ENTRANCE_FEE = 0,
+            SHARES_APPLICATION_FEE = 0,
+            SAVINGS_ENTRANCE_FEE = 0,
+            MIN_LOAN = 0,
+            MAX_LOAN = 0,
+            CAPITAL_SHARE = 0,
+            SHARES_MIN = 0,
+            ACCOUNT = 0,
+            ACCOUNT_WITHDRAWAL = 0,
+            PROCESSING_FEE = 0,
+            PASSBOOK = 0,
+            INTEREST = 0,
+            INSUARANCE = 0,
+            PHONE_NUMBER = 0,
+            created_by=request.user           
+
+        )
+
+        messages.success(request, 'Settings created  successfully')
+        
         return redirect('settings')
-
 
 
 

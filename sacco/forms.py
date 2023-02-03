@@ -18,13 +18,15 @@ class CreateUserForm(UserCreationForm):
 class UserProfileForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
-		fields = ('member_no', 'id_no')
+		fields = ('member_no_shares', 'member_no_savings', 'id_no')
 	
 class  SettingsForm(forms.ModelForm):
 	class Meta:
 		model = Settings
 		fields = [
-			'REGISTRATION_FEE',
+			'SHARES_ENTRANCE_FEE',
+			'SHARES_APPLICATION_FEE',
+			'SAVINGS_ENTRANCE_FEE',
 			'MIN_LOAN',
 			'MAX_LOAN',
 			'CAPITAL_SHARE',
