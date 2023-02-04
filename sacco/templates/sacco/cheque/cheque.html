@@ -47,6 +47,7 @@
                                     <tr>
                                     <th>Member</th>
                                     <th>Amount</th>
+                                    <th>Commision</th>
                                     <th>Transaction ID</th>
                                     <th>Created By</th>
                                     <th>Created On</th>
@@ -63,6 +64,7 @@
                                     
                                     <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
                                     <td>{{ r.amount | intcomma }}</td>
+                                    <td>{{ r.commission | intcomma }}</td>
                                     <td>{{ r.transaction_id}}</td>
                                     <td>{{ r.created_by  }}</td>
                                     <td>{{ r.created_on }}</td>

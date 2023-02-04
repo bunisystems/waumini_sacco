@@ -29,6 +29,7 @@ from.celery import *
 from django.db.models import Q
 from .constants import *
 
+
 try:
     group = Group.objects.get(name='Member')
 except Exception as e:
@@ -150,7 +151,7 @@ def index(request):
         ly_labels.append(int(lpy['year']))
         ly_data.append(str(lpy['total_amount']))
     
-    trans = Payments.objects.all()[:5]
+    trans = Payments.objects.all().order_by('-created_on')[:5]
     
     
     context = {
@@ -306,39 +307,54 @@ def edit_user(request, id):
 
 @login_required(login_url='sign-in')
 def profile(request, id):
-    user = User.objects.get(pk=id)
+    try:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
 
-    if request.user.id == id:
-        context = { 'values': user }
+    groups = Group.objects.all().exclude(name="Member")
 
-        if request.method == 'GET':
-            return render(request, 'sacco/users/profile.html', context)
-
-        if request.method == 'POST':
-            e = request.POST['email']
-            u = request.POST['username']
-                
-            if User.objects.exclude(pk=id).filter(email=e):
-                messages.error(request, "Email already exists")
-                return render(request, 'expense/users/profile.html', context)
-            elif User.objects.exclude(pk=id).filter(username=u):
-                messages.error(request, "Username already exists")
-                return render(request, 'expense/users/profile.html', context)
-            else:
-                email = request.POST['email']
-                username = request.POST['username']
-                first_name = request.POST['first_name']
-                last_name = request.POST['last_name']
-            
-                with connection.cursor() as cursor:
-                    cursor.execute("call sp_update_profile(%s, %s, %s, %s, %s)", (id, username, first_name, last_name, email))
-                    data = cursor.fetchone()
-                    messages.success(request,  username + " has been updated successfully")
-                    return redirect('profile', id)
-        
+    context = {
+        'groups': groups, 
+        'values': user
+        }
+    
+    if request.method == 'GET':
         return render(request, 'sacco/users/profile.html', context)
-    else:
-        return render(request, 'sacco/access.html')
+
+    if request.method == 'POST':
+        e = request.POST['email']
+        u = request.POST['username']
+
+
+
+        if User.objects.exclude(pk=id).filter(email=e):
+            messages.error(request, "Email already exists")
+            return render(request, 'sacco/users/profile.html', context)
+        elif User.objects.exclude(pk=id).filter(username=u):
+            messages.error(request, "Username already exists")
+            return render(request, 'sacco/users/profile.html', context)
+        else:
+            
+             # Get user information from form
+            user.username = request.POST['username']
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.email = request.POST['email']
+           
+
+            # Save user
+            user.save()
+            # Remove user from group           
+            user.groups.set([])
+            
+
+          
+            messages.success(request, "Profile has been updated successfully")
+            cache.clear()
+            return redirect('profile', user.id)
+
 @login_required(login_url='sign-in')
 def member(request, id):
     user = User.objects.get(pk=id)
@@ -350,6 +366,7 @@ def member(request, id):
         'loan': loan
     }
     return render(request, 'sacco/users/member.html', context)
+
 @login_required(login_url='sign-in')
 def delete_user(request, id):
     try:
@@ -490,7 +507,7 @@ def edit_member(request, id):
             messages.error(request, "Phone number number must begin with 0")  
         elif not (member_no_shares) and (member_no_savings):
             messages.error(request, "Member Number is required")
-        elif(UserProfile.objects.filter(member_no_shares=member_no_shares, member_no_savings=member_no_savings)):
+        elif(UserProfile.objects.filter(member_no_shares=member_no_shares, member_no_savings=member_no_savings)).exclude(member_no_shares=member_no_shares, member_no_savings=member_no_savings):
             messages.error(request, "Member Number Exists")
         else:
             # Get user information from form
@@ -522,41 +539,7 @@ def edit_member(request, id):
 
     return render(request, 'sacco/users/edit-member.html', context)
 
-@login_required(login_url='sign-in')
-def profile(request, id):
-    user = User.objects.get(pk=id)
 
-    if request.user.id == id:
-        context = { 'values': user }
-
-        if request.method == 'GET':
-            return render(request, 'sacco/users/profile.html', context)
-
-        if request.method == 'POST':
-            e = request.POST['email']
-            u = request.POST['username']
-                
-            if User.objects.exclude(pk=id).filter(email=e):
-                messages.error(request, "Email already exists")
-                return render(request, 'expense/users/profile.html', context)
-            elif User.objects.exclude(pk=id).filter(username=u):
-                messages.error(request, "Username already exists")
-                return render(request, 'expense/users/profile.html', context)
-            else:
-                email = request.POST['email']
-                username = request.POST['username']
-                first_name = request.POST['first_name']
-                last_name = request.POST['last_name']
-            
-                with connection.cursor() as cursor:
-                    cursor.execute("call sp_update_profile(%s, %s, %s, %s, %s)", (id, username, first_name, last_name, email))
-                    data = cursor.fetchone()
-                    messages.success(request,  username + " has been updated successfully")
-                    return redirect('profile', id)
-        
-        return render(request, 'sacco/users/profile.html', context)
-    else:
-        return render(request, 'sacco/access.html')
 @login_required(login_url='sign-in')
 def member(request, id):
     user = User.objects.get(pk=id)
@@ -602,7 +585,7 @@ def add_registration(request):
             return render(request, 'sacco/reg/add-registration.html', context)
         
         if int(shares_entrance_fee) != int(SHARES_ENTRANCE_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_ENTRANCE_FEE) )
+            messages.error(request, ERROR_SEF_AMOUNT + str(SHARES_ENTRANCE_FEE) )
             return render(request, 'sacco/reg/add-registration.html', context)
         
         shares_application_fee = request.POST['shares_application_fee']
@@ -612,7 +595,7 @@ def add_registration(request):
             return render(request, 'sacco/reg/add-registration.html', context)
         
         if int(shares_application_fee) != int(SHARES_APPLICATION_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_APPLICATION_FEE) )
+            messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
             return render(request, 'sacco/reg/add-registration.html', context)
         
         savings_entrance_fee = request.POST['savings_entrance_fee']
@@ -622,7 +605,7 @@ def add_registration(request):
             return render(request, 'sacco/reg/add-registration.html', context)
         
         if int(savings_entrance_fee) != int(SAVINGS_ENTRANCE_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
+            messages.error(request, ERROR_SaEF_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
             return render(request, 'sacco/reg/add-registration.html', context)
 
 
@@ -676,31 +659,32 @@ def edit_registration(request, id):
         
         if not shares_entrance_fee:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
+
+            return render(request, 'sacco/reg/edit-registration.html', context)
         
         if int(float(shares_entrance_fee)) != int(SHARES_ENTRANCE_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+            messages.error(request, ERROR_SEF_AMOUNT + str(SHARES_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/edit-registration.html', context)
         
         shares_application_fee = request.POST['shares_application_fee']
         
         if not shares_application_fee:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
+            return render(request, 'sacco/reg/edit-registration.html', context)
         
         if int(float(shares_application_fee)) != int(SHARES_APPLICATION_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SHARES_APPLICATION_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+            messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
+            return render(request, 'sacco/reg/edit-registration.html', context)
         
         savings_entrance_fee = request.POST['savings_entrance_fee']
         
         if not savings_entrance_fee:
             messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
+            return render(request, 'sacco/reg/edit-registration.html', context)
         
         if int(float(savings_entrance_fee)) != int(SAVINGS_ENTRANCE_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+            messages.error(request, ERROR_SaEF_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
+            return render(request, 'sacco/reg/edit-registration.html', context)
        
         registration.shares_entrance_fee = shares_entrance_fee
         registration.shares_application_fee = shares_application_fee
@@ -985,7 +969,7 @@ def loan_payments(request, id):
         if not paid_amount:
             messages.error(request, 'Amount is required')
             return render(request, 'sacco/loan/loan-payments.html', context)
-        elif(float(paid_amount) > loan.balance):
+        elif(float(paid_amount) > float(loan.balance)):
             messages.error(request, 'Amount cannot be greater than ' + str(loan.balance))
             return render(request, 'sacco/loan/loan-payments.html', context)
         else:
@@ -1303,10 +1287,15 @@ def add_nhif(request):
 
             
             f_name = request.POST['first_name']
+            
+            if not f_name:
+                messages.error(request, ERROR_F_L_REQUIRED)  
+                return render(request, 'sacco/nhif/add-nhif.html', context)  
+            
             l_name = request.POST['last_name']
 
-            if not l_name and f_name:
-                messages.error(request, "This is required")  
+            if not l_name:
+                messages.error(request, ERROR_F_L_REQUIRED)  
                 return render(request, 'sacco/nhif/add-nhif.html', context)  
 
             number = request.POST['number']
@@ -1321,7 +1310,7 @@ def add_nhif(request):
             
             id_no = request.POST['id_no']
             if not id_no:
-                messages.error(request, "This is required")  
+                messages.error(request, ERROR_ID_NO_REQUIRED)  
                 return render(request, 'sacco/nhif/add-nhif.html', context) 
             elif(NHIF.objects.filter(id_no=id_no)):
                 messages.error(request, "ID number exists") 
@@ -1841,25 +1830,28 @@ def statement(request):
                 return render(request, 'sacco/reports/statements.html', context)
             else:
                 m = User.objects.get(id=user)
-                rg = Registration.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                cs = CapitalShares.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                nhif = NHIF.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                sa = Account.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                sc = Shares.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                pf = Processing.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                cq = Cheque.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                pb = Cheque.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
-                l = Loan.objects.filter(created_on__range=(start_date, end_date)).aggregate(Sum('amount'))['amount__sum']
+                shares_a = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('shares_application_fee'))['shares_application_fee__sum']
+                shares_e = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('shares_entrance_fee'))['shares_entrance_fee__sum']
+                savings_e = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('savings_entrance_fee'))['savings_entrance_fee__sum']
+                cs = CapitalShares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                nhif = NHIF.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                sa = Account.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                sc = Shares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                cq = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                pb = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
+                l = Loan.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
 
                 
                 context = { 
-                    'rg': rg,
+                  
                     'cs': cs,
                     'nhif' : nhif,
                     'cq' : cq,
                     'sa' : sa,
                     'sc': sc,
-                    'pf' : pf,
+                    'shares_a' : shares_a,
+                    'shares_e' : shares_e,
+                    'savings_e' : savings_e,
                     'l' : l,
                     'm' : m,
                     'pb' : pb,
@@ -1878,9 +1870,10 @@ def statement_details(request, id):
     nhif = NHIF.objects.filter(member=id)
     sa = Account.objects.filter(member=id)
     s = Shares.objects.filter(member=id)
-    p = Processing.objects.filter(member=id)
+    l = Loan.objects.filter(member=id)
     c = Cheque.objects.filter(member=id)
     pb = Passbook.objects.filter(member=id)
+    p = Payments.objects.filter(member=id)
 
     context = {
         'rg': rg,
@@ -1888,9 +1881,10 @@ def statement_details(request, id):
         'nhif' : nhif,
         'sa' : sa,
         's' : s,
-        'p' : p,
         'c' : c,
+        'l': l,
         'pb' : pb, 
+        'p' : p,
     }
     return render(request, 'sacco/reports/statement-details.html', context)
 

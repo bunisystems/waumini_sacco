@@ -59,6 +59,18 @@ except Exception as e:
 
     print(e)
 
+
+
+
+
+ERROR_SEF_AMOUNT = 'Share Entrance Fee entered is not equal to KES '
+ERROR_SAF_AMOUNT = 'Share Application Fee entered is not equal to KES '
+ERROR_SaEF_AMOUNT = 'Savings Entrance Fee entered is not equal to KES '
+ERROR_F_L_REQUIRED = 'First Name and Last Name are required '
+ERROR_ID_NO_REQUIRED = 'ID Number is required '
+ 
+
+
 ERROR_AMOUNT = 'Amount is required'
 ERROR_INC_AMOUNT = 'Amount entered is not equal to KES ' 
 ERROR_REG_EXISTS = 'This member has already paid registration fee'

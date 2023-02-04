@@ -149,8 +149,8 @@
                                             
                                             <tr>
                                                 
-                                                <td>Registration</td>
-                                                <td>{% if rg == None %} 0 {% else %} {{ rg | intcomma  }} {% endif %}</td>
+                                                <td>Savings Entrance (Registration)</td>
+                                                <td>{% if savings_e == None %} 0 {% else %} {{ savings_e | intcomma  }} {% endif %}</td>
                                                 
                                                 {% if m %}
                                                 <td>{{ m.first_name }} {{ m.last_name }}</td>
@@ -202,7 +202,7 @@
                             
                                             <tr>
                     
-                                                <td>Savings Account</td>
+                                                <td>Savings Account (Registration)</td>
                                                 <td>{% if sa == None %} 0 {% else %} {{ sa | intcomma  }} {% endif %}</td>
                                                 {% if m %}
                                                 <td>{{ m.first_name }} {{ m.last_name }}</td>
@@ -218,8 +218,8 @@
                                             </tr>
                                             <tr>
                                                 
-                                                <td>Shares Account</td>
-                                                <td>{% if sc == None %} 0 {% else %} {{ sc | intcomma  }} {% endif %}</td>
+                                                <td>Shares Application (Registration)</td>
+                                                <td>{% if shares_a == None %} 0 {% else %} {{ shares_a | intcomma  }} {% endif %}</td>
                                                 {% if m %}
                                                 <td>{{ m.first_name }} {{ m.last_name }}</td>
                                                 <td>
@@ -232,10 +232,11 @@
                                                 <td>--</td>
                                                 {% endif %}  
                                             </tr>
+
                                             <tr>
                                                 
-                                                <td>Processing Fee</td>
-                                                <td>{% if pf == None %} 0 {% else %} {{ pf | intcomma  }} {% endif %}</td>
+                                                <td>Shares Entrance</td>
+                                                <td>{% if shares_e == None %} 0 {% else %} {{ shares_e | intcomma  }} {% endif %}</td>
                                                 {% if m %}
                                                 <td>{{ m.first_name }} {{ m.last_name }}</td>
                                                 <td>
@@ -248,6 +249,9 @@
                                                 <td>--</td>
                                                 {% endif %}  
                                             </tr>
+
+
+                        
                                             <tr>
                                                 
                                                 <td>Cheque</td>

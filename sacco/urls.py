@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from sacco.utils import HashIdConverter
+
 from django.urls import URLResolver, path, register_converter
 register_converter(HashIdConverter, "hashid")
 
@@ -67,6 +68,9 @@ urlpatterns = [
     path('statement-details/<hashid:id>', views.statement_details, name="statement-details"),
     
     path('settings', views.settings, name="settings"),
+
+
+    
 
 
 

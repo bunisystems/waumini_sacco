@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                            <h4 class="card-title">Shares Account</h4> 
+                            <h4 class="card-title">Loans</h4> 
                         </div>
                     </div>
                 </div>
@@ -22,7 +22,7 @@
                     <thead>
                     <tr>
                         <th>Transaction ID</th>
-                        <th>Payment No.</th>
+                        <th>Loan No.</th>
                         <th>Amount</th>
                         <th>Created On</th>                                            
                     </tr>
@@ -30,18 +30,15 @@
                 
                 
                     <tbody>
-                        {% for r in s %}
-                    
+                
+                        {% for r in l %} 
                     <tr>
-                       
+                        
                         
                        <th>{{ r.transaction_id }}</th>
-                       <th>{{ r.share_no }}</th>
+                       <th>{{ r.loan_no }}</th>
                        <th>{{ r.amount }}</th>
-                       <th>{{ r.created_on }}</th>
-                
-                      
-                
+                       <th>{{ r.created_on }}</th>                
                     </tr>
                     {% endfor %}
                 
