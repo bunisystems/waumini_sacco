@@ -12,13 +12,14 @@ class CreateUserForm(UserCreationForm):
 	password2 = forms.CharField(required=False)
 	class Meta:
 		model = User
-		fields = UserCreationForm.Meta.fields + ('username', 'email', 'first_name', 'last_name', 'group')
-		required_fields = ('group', 'first_name', 'last_name', 'username')
+		fields = UserCreationForm.Meta.fields + ('username', 'email', 'first_name', 'last_name', 'group', 'is_active')
+		required_fields = ('group', 'first_name', 'last_name', 'username', 'is_active')
 
 class UserProfileForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
 		fields = ('member_no_shares', 'member_no_savings', 'id_no')
+		required_fields = ('id_no',)
 	
 class  SettingsForm(forms.ModelForm):
 	class Meta:

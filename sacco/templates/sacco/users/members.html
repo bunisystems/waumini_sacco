@@ -52,7 +52,8 @@
                                                 <th>Member #(Shares)</th>
                                                 <th>Member #(Savings)</th>
                                                 <th>ID Number</th>
-                                                <th>Role</th>
+                                                <!-- <th>Role</th> -->
+                                                <th>Status</th>
 
                                                 <th>Actions</th>
                                                 <th>Actions</th>
@@ -72,7 +73,7 @@
                                                 <td>{{ u.userprofile.member_no_shares }}</td>
                                                 <td>{{ u.userprofile.member_no_savings }}</td>
                                                 <td>{{ u.userprofile.id_no }}</td>
-                                                <td>
+                                                <!-- <td>
                                                   
                                                     {% if u|has_group:"SystemAdmin" %} 
                                                         System Admin 
@@ -86,7 +87,15 @@
                                                         No Role
                                                     {% endif %}
                                                     
-                                                </td>
+                                                </td> -->
+
+                                                <th>
+                                                    {% if u.is_active %}
+                                                        Member
+                                                    {% else %}
+                                                        Non-Member
+                                                    {% endif %}
+                                                </th>
                                                 
                                                 <!-- <td>{{ u.last_login }}</td> -->
                                                 <td>

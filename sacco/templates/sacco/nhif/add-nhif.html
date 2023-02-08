@@ -49,9 +49,10 @@
                                                 
                                                 <label  for="validationCustom03" class="form-label">Member</label>
                                                 
-                                                <select class="form-control select2" id="dropdown" name="member" onchange="onChangeText()" required>
+                                                <select class="form-control select2" id="dropdown" name="member" required>
+                                                    <!-- <select class="form-control select2" id="dropdown" name="member" onchange="onChangeText()" required> -->
                                                     <option value="" selected disabled>Choose...</option>
-                                                    <option name="member" value="0">Non - Member </option>                                                    
+                                                                                                  
 
                                                     <optgroup label="AVAILABLE MEMBERS">
                                                         
@@ -111,65 +112,7 @@
                                                 </div>
                                             </div>
 
-                                            <div id="formFields" style="display:none">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label>First Name</label>
-                                                    <div>
-                                                        <input data-parsley-type="alphanum" type="text"
-                                                                class="form-control" name="first_name"  value="{{values.first_name}}"
-                                                                placeholder="Enter alphanumeric value"/>
-                                                    </div>
-    
-                                                   
-                                                </div>
-    
-    
-                                                </div>
-                                                <div class="col-md-6">
-                                                <div class="mb-3">
-                                                    <label>Last Name</label>
-                                                    <div>
-                                                        <input data-parsley-type="alphanum" type="text" name="last_name" value="{{values.last_name}}"
-                                                                class="form-control" 
-                                                                placeholder="Enter alphanumeric value"/>
-                                                    </div>
-    
-                                                   
-                                                </div>
-                                                </div>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label>Phone Number</label>
-                                                
-                                                <div>
-                                                    
-                                                    
-                                                    <input data-parsley-type="number" type="number" id="number" name="number" value="{{values.number}}"
-                                                            class="form-control" 
-                                                            placeholder="Enter numerical value"/>
-                                                </div>
-    
-                                               
-                                            </div>
-    
-    
-                                            <div class="mb-3">
-                                                <label>ID Number</label>
-                                                
-                                                <div>
-                                                    
-                                                    
-                                                    <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.id_no}}"
-                                                            class="form-control"
-                                                            placeholder="Enter numerical value"/>
-                                                </div>
-    
-                                               
-                                            </div>
-                                            </div>
+                                        
                                         
 
 

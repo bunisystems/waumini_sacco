@@ -405,6 +405,11 @@ def add_member(request):
         username = request.POST['username']
         member_no_shares = request.POST['member_no_shares']
         member_no_savings = request.POST['member_no_savings']
+        id_number = request.POST['id_no']
+        
+        is_active = request.POST.get('is_active')
+        
+        print(is_active)
        
         print('Printing POST:', request.POST)
         print('Printing Errors:', form.errors )
@@ -422,6 +427,7 @@ def add_member(request):
                 user = form.save(commit=False)
                 user.email = f'user{randint(1, 99999)}@jenga-systems.com'
                 user.password = User.objects.make_random_password()
+                user.is_active = is_active
                 user.save()
                 user = User.objects.get(pk=user.id) 
                
@@ -494,6 +500,11 @@ def edit_member(request, id):
         u = request.POST['username']
         member_no_shares = request.POST['member_no_shares']
         member_no_savings = request.POST['member_no_savings']
+        is_active = request.POST['is_active']
+
+        if not is_active:
+            messages.error(request, "Is Member is required")
+            return render(request, 'sacco/users/edit-member.html', context)
 
         if User.objects.exclude(pk=id).filter(email=e):
             messages.error(request, MEMBER_EMAIL_EXISTS)
@@ -516,6 +527,7 @@ def edit_member(request, id):
             user.last_name = request.POST['last_name']
             user.email = f'user{randint(1, 99999)}@example.com'
             user.password = User.objects.make_random_password()
+            user.is_active = is_active
 
             # Save user
             user.save()
@@ -1368,37 +1380,8 @@ def edit_nhif(request, id):
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/nhif/add-nhif.html', context)
         
-
-        f_name = request.POST['first_name']
-        l_name = request.POST['last_name']
-
-        if not l_name and f_name:
-            messages.error(request, "This is required")  
-            return render(request, 'sacco/nhif/add-nhif.html', context)  
-
-        number = request.POST['number']
-
-        if num_length(number) != PHONE_NUMBER:
-            messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits')    
-            return render(request, 'sacco/nhif/add-nhif.html', context)
-        elif(NHIF.objects.filter(phone_number=number).exclude(phone_number=number)):
-            messages.error(request, "Phone number exists") 
-            return render(request, 'sacco/nhif/add-nhif.html', context) 
-
-        
-        id_no = request.POST['id_no']
-        if not id_no:
-            messages.error(request, "This is required")  
-            return render(request, 'sacco/nhif/add-nhif.html', context) 
-        elif(NHIF.objects.filter(id_no=id_no).exclude(id_no=id_no)):
-            messages.error(request, "ID number exists") 
-            return render(request, 'sacco/nhif/add-nhif.html', context) 
        
         if next_page:
-            registration.f_name = f_name
-            registration.l_name= l_name
-            registration.id_no = id_no
-            registration.phone_number = number
             registration.amount = amount
             registration.commission = commission
             registration.updated_by = request.user

@@ -48,7 +48,6 @@
                                     <th>Member</th>
                                     <th>Amount</th>
                                     <th>Commission</th>
-                                    <th>Names</th>
                                     <th>Created By</th>
                                     <th>Created On</th>
                                     <th>Updated By</th>
@@ -61,19 +60,11 @@
                                     <tbody>
                                     {% for r in registration %}
                                     <tr>
+                                        <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
                                     
-                                        {% if r.member %}
-                                            <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
-                                        {% else %}
-                                            <td>N/A</td>
-                                        {% endif %}
                                     <td>{{ r.amount | intcomma }}</td>
                                     <td>{{ r.commission | intcomma }}</td>
-                                        {% if r.member %}
-                                            <td>N/A</td>
-                                        {% else %}
-                                            <td>{{ r.f_name}} {{r.l_name}}</td>
-                                        {% endif %}
+                                    
                                 
                                     <td>{{ r.created_by  }}</td>
                                     <td>{{ r.created_on }}</td>

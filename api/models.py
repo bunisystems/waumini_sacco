@@ -220,17 +220,10 @@ class Shares(models.Model):
 class NHIF(models.Model):
     nhif_no = models.CharField(max_length=200, unique=True)
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
-    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_nhif", null=True, blank=True)
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_nhif")
     amount = models.DecimalField(max_digits=8, decimal_places=2)
-
-    is_member = models.BooleanField(default=0)
     commission = models.DecimalField(max_digits=8, decimal_places=2)
-    f_name = models.CharField(max_length=200, null=True, blank=True)
-    l_name  = models.CharField(max_length=200, null=True, blank=True)
-    phone_number  = models.CharField(max_length=200, unique=True, null=True, blank=True)
-    id_no = models.CharField(max_length=200, unique=True, null=True, blank=True)
-
-
+    
     is_deleted = models.BooleanField(default=0)
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -44,18 +44,18 @@ except Exception as e:
 
     
 
-    # REGISTRATION_FEE = 0
-    # MIN_LOAN = 0
-    # MAX_LOAN = 0
-    # CAPITAL_SHARE = 0
-    # SHARES_MIN = 0
-    # ACCOUNT = 0
-    # ACCOUNT_WITHDRAWAL = 0
-    # PROCESSING_FEE = 0
-    # PASSBOOK = 0
-    # INTEREST = 0
-    # INSUARANCE = 0
-    # PHONE_NUMBER = 0
+    """ REGISTRATION_FEE = 0
+    MIN_LOAN = 0
+    MAX_LOAN = 0
+    CAPITAL_SHARE = 0
+    SHARES_MIN = 0
+    ACCOUNT = 0
+    ACCOUNT_WITHDRAWAL = 0
+    PROCESSING_FEE = 0
+    PASSBOOK = 0
+    INTEREST = 0
+    INSUARANCE = 0
+    PHONE_NUMBER = 0 """
 
     print(e)
 
