@@ -2024,31 +2024,6 @@ def statement(request):
 
 
 @login_required(login_url='sign-in')
-def statement_details(request, id):
-    rg = Registration.objects.filter(member=id)
-    cs = CapitalShares.objects.filter(member=id)
-    nhif = NHIF.objects.filter(member=id)
-    sa = Account.objects.filter(member=id)
-    s = Shares.objects.filter(member=id)
-    l = Loan.objects.filter(member=id)
-    c = Cheque.objects.filter(member=id)
-    pb = Passbook.objects.filter(member=id)
-    p = Payments.objects.filter(member=id)
-
-    context = {
-        'rg': rg,
-        'cs' : cs,
-        'nhif' : nhif,
-        'sa' : sa,
-        's' : s,
-        'c' : c,
-        'l': l,
-        'pb' : pb, 
-        'p' : p,
-    }
-    return render(request, 'sacco/reports/statement-details.html', context)
-
-@login_required(login_url='sign-in')
 def settings(request):
     try:
         values = Settings.objects.get(pk=1)
@@ -2294,42 +2269,6 @@ def payments_reciept(request, id):
     r = Payments.objects.get(pk=id)
     context = { 'r' : r}
     return render(request, 'sacco/reciept/r9.html', context)
-
-
-
-#####################################################
-@login_required(login_url='sign-in')
-def statements(request):
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
-    context = { 'users': users  }
-    
-    print(request.POST)
-
-    if request.method == 'POST':
-        user = request.POST['user']
-        start = request.POST['start']
-        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
-        end = request.POST['end']
-        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
-
-        if user:
-            if start_date == end_date:
-                messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/reports/statements.html', context)
-            else:
-                m = User.objects.get(id=user)
-                registration = Registration.objects.filter(created_on__range=(start_date, end_date), member=user)
-               
-                
-                context = { 
-                    'registration' : registration,
-                  
-                    'users': users,
-                    'values' : request.POST
-                    }
-                return render(request, 'sacco/reports/statements.html', context)
-
-    return render(request, 'sacco/reports/statements.html', context)
 
 
 

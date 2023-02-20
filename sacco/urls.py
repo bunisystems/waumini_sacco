@@ -69,8 +69,7 @@ urlpatterns = [
     path('edit-passbook/<hashid:id>', views.edit_passbook, name="edit-passbook"),
 
 
-    path('statement', views.statement, name="statement"),
-    path('statement-details/<hashid:id>', views.statement_details, name="statement-details"),
+
     
     path('settings', views.settings, name="settings"),
 
@@ -84,9 +83,6 @@ urlpatterns = [
     path('r7/<hashid:id>', views.cheque_reciept, name="r7"),
     path('r8/<hashid:id>', views.passbook_reciept, name="r8"),
     path('r9/<hashid:id>', views.payments_reciept, name="r9"),
-
-    # Statements
-    path('registration_statement', views.statements, name="registration_statement"),
 
 
     
