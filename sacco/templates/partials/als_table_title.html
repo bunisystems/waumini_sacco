@@ -88,6 +88,12 @@
                         Add User <i class="ri-arrow-right-line align-middle ms-2"></i> 
                         </button>
                     </a>
+                {% elif request.path|slice:"1:" == 'loan-fee'%}    
+                    <a href="{% url 'add-loan-fee' %}">
+                        <button type="button" class="btn btn-primary waves-effect waves-light btn-rounded">
+                        Add Loan Fee <i class="ri-arrow-right-line align-middle ms-2"></i> 
+                        </button>
+                    </a>
                 
                 {% endif %}
                 </div>

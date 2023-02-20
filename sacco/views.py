@@ -387,9 +387,7 @@ def delete_user(request, id):
 # @cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def members(request):
-    
     users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
-
     context = {'users': users }
     return render(request, 'sacco/users/members.html', context)
 
@@ -569,9 +567,44 @@ def member(request, id):
 """ Registration """
 @login_required(login_url='sign-in') 
 def registration(request):
-    registration = Registration.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/reg/registration.html', context)
+
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = Registration.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/reg/registration.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/reg/registration.html', context)
+            else:
+                registration = Registration.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/reg/registration.html', context)
+
+        return render(request, 'sacco/reg/registration.html', context)
+
+
 @login_required(login_url='sign-in')
 def add_registration(request):
     members = User.objects.filter(groups=group)
@@ -593,32 +626,40 @@ def add_registration(request):
         shares_entrance_fee = request.POST['shares_entrance_fee']
         
         if not shares_entrance_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
+            shares_entrance_fee = 0
+            #messages.error(request, ERROR_AMOUNT)
+            #return render(request, 'sacco/reg/add-registration.html', context)
         
-        if int(shares_entrance_fee) != int(SHARES_ENTRANCE_FEE):
-            messages.error(request, ERROR_SEF_AMOUNT + str(SHARES_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+        else:
+
+            if int(shares_entrance_fee) != int(SHARES_ENTRANCE_FEE):
+                messages.error(request, ERROR_SEF_AMOUNT + str(SHARES_ENTRANCE_FEE) )
+                return render(request, 'sacco/reg/add-registration.html', context)
+
         
         shares_application_fee = request.POST['shares_application_fee']
         
         if not shares_application_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
+            #messages.error(request, ERROR_AMOUNT)
+            #return render(request, 'sacco/reg/add-registration.html', context)
+            shares_application_fee = 0
         
-        if int(shares_application_fee) != int(SHARES_APPLICATION_FEE):
-            messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+        else: 
+            if int(shares_application_fee) != int(SHARES_APPLICATION_FEE):
+                messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
+                return render(request, 'sacco/reg/add-registration.html', context)
         
         savings_entrance_fee = request.POST['savings_entrance_fee']
         
         if not savings_entrance_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/add-registration.html', context)
-        
-        if int(savings_entrance_fee) != int(SAVINGS_ENTRANCE_FEE):
-            messages.error(request, ERROR_SaEF_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/add-registration.html', context)
+            savings_entrance_fee = 0
+            #messages.error(request, ERROR_AMOUNT)
+            #return render(request, 'sacco/reg/add-registration.html', context)
+    
+        else:
+            if int(savings_entrance_fee) != int(SAVINGS_ENTRANCE_FEE):
+                messages.error(request, ERROR_SaEF_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
+                return render(request, 'sacco/reg/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -646,6 +687,7 @@ def add_registration(request):
 
         # redirect to the expense page to see the expenses
         return redirect('registration')
+    
 @login_required(login_url='sign-in')
 def edit_registration(request, id):
     try:
@@ -670,33 +712,35 @@ def edit_registration(request, id):
         shares_entrance_fee = request.POST['shares_entrance_fee']
         
         if not shares_entrance_fee:
-            messages.error(request, ERROR_AMOUNT)
-
-            return render(request, 'sacco/reg/edit-registration.html', context)
+            shares_entrance_fee = 0
+            # messages.error(request, ERROR_AMOUNT)
+            # return render(request, 'sacco/reg/edit-registration.html', context)
         
-        if int(float(shares_entrance_fee)) != int(SHARES_ENTRANCE_FEE):
+        """ if int(float(shares_entrance_fee)) != int(SHARES_ENTRANCE_FEE):
             messages.error(request, ERROR_SEF_AMOUNT + str(SHARES_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/edit-registration.html', context)
+            return render(request, 'sacco/reg/edit-registration.html', context) """
         
         shares_application_fee = request.POST['shares_application_fee']
         
         if not shares_application_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/edit-registration.html', context)
+            shares_application_fee = 0
+            # messages.error(request, ERROR_AMOUNT)
+            # return render(request, 'sacco/reg/edit-registration.html', context)
         
-        if int(float(shares_application_fee)) != int(SHARES_APPLICATION_FEE):
-            messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
-            return render(request, 'sacco/reg/edit-registration.html', context)
+        # if int(float(shares_application_fee)) != int(SHARES_APPLICATION_FEE):
+        #     messages.error(request, ERROR_SAF_AMOUNT + str(SHARES_APPLICATION_FEE) )
+        #     return render(request, 'sacco/reg/edit-registration.html', context)
         
         savings_entrance_fee = request.POST['savings_entrance_fee']
         
         if not savings_entrance_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/reg/edit-registration.html', context)
+            savings_entrance_fee = 0
+            # messages.error(request, ERROR_AMOUNT)
+            # return render(request, 'sacco/reg/edit-registration.html', context)
         
-        if int(float(savings_entrance_fee)) != int(SAVINGS_ENTRANCE_FEE):
+        """ if int(float(savings_entrance_fee)) != int(SAVINGS_ENTRANCE_FEE):
             messages.error(request, ERROR_SaEF_AMOUNT + str(SAVINGS_ENTRANCE_FEE) )
-            return render(request, 'sacco/reg/edit-registration.html', context)
+            return render(request, 'sacco/reg/edit-registration.html', context) """
        
         registration.shares_entrance_fee = shares_entrance_fee
         registration.shares_application_fee = shares_application_fee
@@ -712,6 +756,11 @@ def edit_registration(request, id):
         # redirect to the expense page to see the expenses
         return redirect('registration')
 
+@login_required(login_url='sign-in')
+def registration_reciept(request, id):
+    r = Registration.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r1.html', context)
 
 """ Loans """
 @login_required(login_url='sign-in')
@@ -726,7 +775,8 @@ def loan_info(request, id):
     return render(request, 'sacco/loan/loan-info.html', context)
 @login_required(login_url='sign-in')
 def add_loan(request):
-    members = User.objects.filter(groups=group)
+    members = LoanFee.objects.filter(is_issued=0)
+    # members = User.objects.filter(groups=group)
     try: 
         st = Settings.objects.get(pk=1)
     except Settings.DoesNotExist:
@@ -740,7 +790,7 @@ def add_loan(request):
         if members:
             return render(request, 'sacco/loan/add-loan.html', context)
         else:
-            messages.error(request,  MEMBERS_EXIST)
+            messages.error(request,  ERROR_LOAN_FEE)
             return render(request, 'sacco/error.html')
 
     # The view to handle the form POST requests
@@ -759,11 +809,6 @@ def add_loan(request):
             messages.error(request, "Status is required")
             return render(request, 'sacco/loan/add-loan.html', context)
 
-        processing_fee = request.POST['processing_fee']
-
-        if not processing_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/loan/add-loan.html', context)
         
         if int(amount) < int(MIN_LOAN):
             messages.error(request, ERROR_MIN_LOAN)
@@ -773,11 +818,6 @@ def add_loan(request):
             messages.error(request, ERROR_MAX_LOAN)
             return render(request, 'sacco/loan/add-loan.html', context)
 
-        loan_fee = request.POST['loan_fee']
-
-        if not loan_fee:
-            messages.error(request, LOAN_REQUIRED)
-            return render(request, 'sacco/loan/add-loan.html', context)
         
         duration = request.POST['duration']
 
@@ -815,31 +855,31 @@ def add_loan(request):
             messages.error(request, LOAN_INSURANCE_CALC)
             return render(request, 'sacco/loan/add-loan.html', context)
 
-        total = float(amount) + float(total_interest) + float(total_insurance) + float(loan_fee) + float(processing_fee)
+        total = float(amount) + float(total_interest) + float(total_insurance)
         
 
-        member = User.objects.get(id=request.POST.get('member'))
+        member = LoanFee.objects.get(id=request.POST.get('member'))
 
         if not member:
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/add-loan.html', context)
 
         
+
+        
         Loan.objects.create( 
-            member=member, 
+            loan_fees=member, 
             amount=amount, 
             interest_rate=INTEREST ,
             interest=total_interest,
             insuarance_rate=INSUARANCE, 
             insurance=total_insurance,
-            loan_fee=loan_fee,
             due_date=due_date, 
             balance=total,
             months=duration,
             total=total, 
             is_paid = 0,
             status = status,
-            processing_fee=processing_fee,
             created_by=request.user)
 
         messages.success(request, SUCCESS_FEE_SAVED)
@@ -886,11 +926,6 @@ def edit_loan(request, id):
             messages.error(request, "Status is required")
             return render(request, 'sacco/loan/edit-loan.html', context)
         
-        processing_fee = request.POST['processing_fee']
-
-        if not processing_fee:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/loan/add-loan.html', context)
         
         if int(float(amount)) < int(MIN_LOAN):
             messages.error(request, ERROR_MIN_LOAN)
@@ -898,12 +933,6 @@ def edit_loan(request, id):
         
         if int(float(amount)) > int(MAX_LOAN):
             messages.error(request, ERROR_MAX_LOAN)
-            return render(request, 'sacco/loan/edit-loan.html', context)
-
-        loan_fee = request.POST['loan_fee']
-
-        if not loan_fee:
-            messages.error(request, LOAN_REQUIRED)
             return render(request, 'sacco/loan/edit-loan.html', context)
         
         duration = request.POST['duration']
@@ -916,13 +945,18 @@ def edit_loan(request, id):
 
         interest = (float(amount) * (float(INTEREST) / 100)) * float(duration)
 
+        fines = request.POST['fine']
+        if not fines:
+            fines = 0
+
+
     
         
         insurance = float(amount) * (float(INSUARANCE) / 100)
 
     
 
-        total = float(amount) + float(interest) + float(insurance) + float(loan_fee) + float(processing_fee)
+        total = float(amount) + float(interest) + float(insurance) + float(fines)
         
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -930,6 +964,9 @@ def edit_loan(request, id):
         if not member:
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/loan/edit-loan.html', context)
+
+
+        
        
         
         l.member=member
@@ -938,12 +975,11 @@ def edit_loan(request, id):
         l.interest=interest
         l.insuarance_rate=INSUARANCE
         l.insurance=insurance
-        l.loan_fee=loan_fee
         l.due_date=due_date 
         l.balance=total
         l.months=duration
         l.total=total
-        l.processing_fee = processing_fee
+        l.fines=fines
         l.status = status
         l.updated_by = request.user
         l.updated_on = timezone.now()
@@ -1013,12 +1049,48 @@ def unpaid_loan(request):
     context = { 'registration' : registration}
     return render(request, 'sacco/loan/loan.html', context)
 
+
+
 """ Capital Shares """
 @login_required(login_url='sign-in')
 def capital_shares(request):
-    registration = CapitalShares.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = CapitalShares.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/registration/registration.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/registration/registration.html', context)
+            else:
+                registration = CapitalShares.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/registration/registration.html', context)
+
+        return render(request, 'sacco/registration/registration.html', context)
+
+
 @login_required(login_url='sign-in')
 def add_capital_shares(request):
     members = User.objects.filter(groups=group)
@@ -1118,12 +1190,50 @@ def edit_capital_shares(request, id):
         # redirect to the expense page to see the expenses
         return redirect('capital-shares')
 
+@login_required(login_url='sign-in')
+def capitalshare_reciept(request, id):
+    r = CapitalShares.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r2.html', context)
+
 """  Shares """
 @login_required(login_url='sign-in')
 def shares(request):
-    registration = Shares.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = Shares.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/registration/registration.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/registration/registration.html', context)
+            else:
+                registration = Shares.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/registration/registration.html', context)
+
+        return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
 def add_shares(request):
     members = User.objects.filter(groups=group)
@@ -1211,12 +1321,53 @@ def edit_shares(request, id):
         # redirect to the expense page to see the expenses
         return redirect('shares')
 
+
+@login_required(login_url='sign-in')
+def shares_reciept(request, id):
+    r = Shares.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r5.html', context)
+
 """ NHIF """
 @login_required(login_url='sign-in')
 def nhif(request):
-    registration = NHIF.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/nhif/nhif.html', context)
+
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = NHIF.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/nhif/nhif.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/nhif/nhif.html', context)
+            else:
+                registration = NHIF.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/nhif/nhif.html', context)
+
+        return render(request, 'sacco/nhif/nhif.html', context)
+
 @login_required(login_url='sign-in')
 def add_nhif(request):
     try:
@@ -1408,12 +1559,52 @@ def edit_nhif(request, id):
             # redirect to the expense page to see the expenses
             return redirect('nhif' )
 
+@login_required(login_url='sign-in')
+def nhif_reciept(request, id):
+    r = NHIF.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r3.html', context)
+
 """ Cheque """
 @login_required(login_url='sign-in')
 def cheque(request):
-    registration = Cheque.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/cheque/cheque.html', context)
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = Cheque.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/cheque/cheque.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/cheque/cheque.html', context)
+            else:
+                registration = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/cheque/cheque.html', context)
+
+        return render(request, 'sacco/cheque/cheque.html', context)
+    
+
 @login_required(login_url='sign-in')
 def add_cheque(request):
     members = User.objects.filter(groups=group)
@@ -1504,14 +1695,51 @@ def edit_cheque(request, id):
 
         # redirect to the expense page to see the expenses
         return redirect('cheque')
-
+    
+@login_required(login_url='sign-in')
+def cheque_reciept(request, id):
+    r = Cheque.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r7.html', context)
 
 """ Account """
 @login_required(login_url='sign-in')
 def account(request):
-    registration = Account.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = Account.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/registration/registration.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/registration/registration.html', context)
+            else:
+                registration = Account.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/registration/registration.html', context)
+
+        return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
 def add_account(request):
     members = User.objects.filter(groups=group)
@@ -1539,9 +1767,9 @@ def add_account(request):
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/add-registration.html', context)
         
-        if int(amount) != ACCOUNT:
-            messages.error(request,ERROR_INC_AMOUNT + str(ACCOUNT))
-            return render(request, 'sacco/registration/add-registration.html', context)
+        # if int(amount) != ACCOUNT:
+        #     messages.error(request,ERROR_INC_AMOUNT + str(ACCOUNT))
+        #     return render(request, 'sacco/registration/add-registration.html', context)
 
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -1584,10 +1812,7 @@ def edit_account(request, id):
         if not amount:
             messages.error(request, ERROR_AMOUNT)
             return render(request, 'sacco/registration/edit-registration.html', context)
-        
-        if float(amount) != float(ACCOUNT):
-            messages.error(request, ERROR_INC_AMOUNT+ str(ACCOUNT))
-            return render(request, 'sacco/registration/add-registration.html', context)
+    
        
         registration.amount = amount
         registration.updated_by = request.user
@@ -1602,107 +1827,52 @@ def edit_account(request, id):
         return redirect('account')
 
 
-""" Processing Fee """
 @login_required(login_url='sign-in')
-def processing(request):
-    registration = Processing.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
-@login_required(login_url='sign-in')
-def add_processing(request):
-    members = User.objects.filter(groups=group)
-
-    context = {'values': request.POST, 'members' : members }
-
-    print(request.POST)
-
-    if request.method == 'GET':
-
-        if members:
-            return render(request, 'sacco/registration/add-registration.html', context)
-        else:
-            messages.error(request, MEMBERS_EXIST)
-            return render(request, 'sacco/error.html')
-
-    # The view to handle the form POST requests
-    if request.method == 'POST':
-      
-        amount = request.POST['amount']
-
-        if not amount:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/add-registration.html', context)
-        
-
-        if int(amount) != PROCESSING_FEE:
-            messages.error(request, ERROR_INC_AMOUNT + str(PROCESSING_FEE))
-            return render(request, 'sacco/registration/add-registration.html', context)
-
-
-        member = User.objects.get(id=request.POST.get('member'))
-
-        if not member:
-            messages.error(request, ERROR_REG_MEMBER)
-            return render(request, 'sacco/registration/add-registration.html', context)
-       
-        # if no error we save the data into database
-        # we use the expense model
-        # create the expense
-        Processing.objects.create( member=member, amount=amount, created_by=request.user)
-
-        # saving the expense in the database after creating it
-        messages.success(request, SUCCESS_FEE_SAVED)
-
-        # redirect to the expense page to see the expenses
-        return redirect('processing')
-@login_required(login_url='sign-in')
-def edit_processing(request, id):
-    try:    
-        registration = Processing.objects.get(pk=id)
-    except Processing.DoesNotExist:
-        messages.error(request, ERROR_404)
-        return render(request, 'sacco/error.html')
-
-    context = {
-        'values': registration, 
-        'registration' : registration 
-    }
-
-    if request.method == 'GET':
-        return render(request, 'sacco/registration/edit-registration.html', context)
-
-    # The view to handle the form POST requests
-    if request.method == 'POST':
-      
-        amount = request.POST['amount']
-
-        if not amount:
-            messages.error(request, ERROR_AMOUNT)
-            return render(request, 'sacco/registration/edit-registration.html', context)
-        
-        if float(amount) != float(PROCESSING_FEE):
-            messages.error(request, ERROR_INC_AMOUNT + str(PROCESSING_FEE))
-            return render(request, 'sacco/registration/add-registration.html', context)
-       
-        registration.amount = amount
-        registration.updated_by = request.user
-        registration.updated_on = timezone.now()
-        registration.save()
-    
-
-        # saving the expense in the database after creating it
-        messages.success(request, SUCCESS_FEE_EDITED)
-
-        # redirect to the expense page to see the expenses
-        return redirect('processing')
+def account_reciept(request, id):
+    r = Account.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r4.html', context)
 
 
 """ Passbook """
 @login_required(login_url='sign-in')
 def passbook(request):
-    registration = Passbook.objects.all()
-    context = { 'registration' : registration}
-    return render(request, 'sacco/registration/registration.html', context)
+
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = Passbook.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/registration/registration.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/registration/registration.html', context)
+            else:
+                registration = Passbook.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/registration/registration.html', context)
+
+        return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
 def add_passbook(request):
     members = User.objects.filter(groups=group)
@@ -1792,6 +1962,13 @@ def edit_passbook(request, id):
 
         # redirect to the expense page to see the expenses
         return redirect('passbook')
+
+
+@login_required(login_url='sign-in')
+def passbook_reciept(request, id):
+    r = Passbook.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r8.html', context)
     
 @login_required(login_url='sign-in')
 def statement(request):
@@ -1945,6 +2122,215 @@ def settings(request):
         messages.success(request, 'Settings created  successfully')
         
         return redirect('settings')
+
+""" Loan Fee """
+@login_required(login_url='sign-in')
+def loan_fee(request):
+
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+  
+    if request.method == 'GET':
+
+        registration = LoanFee.objects.all()
+        context = { 'registration' : registration, 'users' : users} 
+        return render(request, 'sacco/loan_fee/loan-fee.html', context)
+   
+    print(request.POST)
+
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/loan_fee/loan-fee.html', context)
+            else:
+                registration = LoanFee.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/loan_fee/loan-fee.html', context)
+
+        return render(request, 'sacco/registration/registration.html', context)
+
+@login_required(login_url='sign-in')
+def add_loan_fee(request):
+    
+        members = User.objects.filter(groups=group)
+    
+        context = {'values': request.POST, 'members' : members }
+
+        print(request.POST)
+
+        if request.method == 'GET':
+            if members:
+                return render(request, 'sacco/loan_fee/add-loan-fee.html', context)
+            else:
+                messages.error(request,  MEMBERS_EXIST)
+                return render(request, 'sacco/loan_fee/add-loan-fee.html', context)
+
+        # The view to handle the form POST requests
+        if request.method == 'POST':
+        
+            loan_fee = request.POST['loan_fee']
+            if not loan_fee:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/loan_fee/add-loan-fee.html', context)
+
+
+            member = User.objects.get(id=request.POST.get('member'))
+            if not member:
+                messages.error(request, ERROR_REG_MEMBER)
+                return render(request, 'sacco/loan_fee/add-loan-fee.html', context)
+            
+            processing = request.POST['processing']
+            if not processing:
+                messages.error(request, ERROR_AMOUNT)
+                return render(request, 'sacco/loan_fee/add-loan-fee.html', context)
+            
+            
+        
+    
+            LoanFee.objects.create( 
+                member=member, 
+                loan_fee=loan_fee, 
+                processing=processing,
+                created_by=request.user)
+
+            
+            messages.success(request, SUCCESS_FEE_SAVED)
+
+            
+            return redirect('loan-fee')
+
+@login_required(login_url='sign-in')
+def edit_loan_fee(request, id):
+    try:
+        registration = LoanFee.objects.get(pk=id)
+    except LoanFee.DoesNotExist:
+        messages.error(request, ERROR_404)
+        return render(request, 'sacco/error.html')
+
+    next_page = request.GET.get('nxt')
+
+    context = {
+        'values': registration, 
+        'registration' : registration,
+        'next_page' : next_page
+    }
+
+    
+    
+    if request.method == 'GET':
+        return render(request, 'sacco/loan_fee/edit-loan-fee.html', context)
+
+    # The view to handle the form POST requests
+    if request.method == 'POST':
+      
+        loan_fee = request.POST['loan_fee']
+
+        if not loan_fee:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan_fee/edit-loan-fee.html', context)
+        
+        processing = request.POST['processing']
+        if not processing:
+            messages.error(request, ERROR_AMOUNT)
+            return render(request, 'sacco/loan_fee/edit-loan-fee.html', context)
+        
+       
+        if next_page:
+            registration.loan_fee = loan_fee
+            registration.processing = processing
+            registration.updated_by = request.user
+            registration.updated_on = timezone.now()
+            registration.save()
+        
+
+            # saving the expense in the database after creating it
+            messages.success(request, SUCCESS_FEE_EDITED)
+
+            # redirect to the expense page to see the expenses
+            return redirect('nhif' )
+        else:
+            registration.loan_fee = loan_fee
+            registration.processing = processing
+            registration.updated_by = request.user
+            registration.updated_on = timezone.now()
+            registration.save()
+        
+
+            # saving the expense in the database after creating it
+            messages.success(request, SUCCESS_FEE_EDITED)
+
+            # redirect to the expense page to see the expenses
+            return redirect('loan-fee' )
+
+
+@login_required(login_url='sign-in')
+def loanfee_reciept(request, id):
+    r = LoanFee.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r6.html', context)
+
+@login_required(login_url='sign-in')
+def payments(request):
+    r = Payments.objects.all()
+    context = { 'r' : r}
+    return render(request, 'sacco/loan/payments.html', context)
+
+@login_required(login_url='sign-in')
+def payments_reciept(request, id):
+    r = Payments.objects.get(pk=id)
+    context = { 'r' : r}
+    return render(request, 'sacco/reciept/r9.html', context)
+
+
+
+#####################################################
+@login_required(login_url='sign-in')
+def statements(request):
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    context = { 'users': users  }
+    
+    print(request.POST)
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/reports/statements.html', context)
+            else:
+                m = User.objects.get(id=user)
+                registration = Registration.objects.filter(created_on__range=(start_date, end_date), member=user)
+               
+                
+                context = { 
+                    'registration' : registration,
+                  
+                    'users': users,
+                    'values' : request.POST
+                    }
+                return render(request, 'sacco/reports/statements.html', context)
+
+    return render(request, 'sacco/reports/statements.html', context)
+
 
 
 

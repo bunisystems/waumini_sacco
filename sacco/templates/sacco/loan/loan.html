@@ -67,70 +67,19 @@
                                     {% for r in registration %}
                                     <tr>
                                     
-                                    <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
+                                    <td>{{ r.loan_fees.member.first_name }} {{ r.loan_fees.member.last_name }}</td>
                                     <td>{{ r.total}}</td>
                                     <td>{{ r.balance}}</td>
                                     <td>{{ r.status}}</td>
                                     <td>{{ r.created_by }}</td>
                                     <td>{{ r.created_on }}</td>
 
+                                    {% if request.path|slice:"1:" == 'loan'%} 
                                     <td>
-                                        {% if request.path|slice:"1:" == 'registration' %}
-                                            <a href="{% url 'edit-registration' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'loan'%} 
-                                            <a href="{% url 'edit-loan' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'capital-shares'%} 
-                                            <a href="{% url 'edit-capital-shares' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'shares'%} 
-                                            <a href="{% url 'edit-shares' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'nhif'%} 
-                                            <a href="{% url 'edit-nhif' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'cheque'%} 
-                                            <a href="{% url 'edit-cheque' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'account'%} 
-                                            <a href="{% url 'edit-account' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'processing'%} 
-                                            <a href="{% url 'edit-processing' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'passbook'%} 
-                                            <a href="{% url 'edit-passbook' r.id %}">
-                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
-                                            </a>
-                                        {% elif request.path|slice:"1:" == 'paid-loan'%} 
-                                           --
-                                        {% elif request.path|slice:"1:" == 'paid-loan'%} 
-                                           --
-                                        {% endif %}
-                                    
+                                        <a href="{% url 'edit-loan' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                        </a>
                                     </td>
-
-                                    {% if request.path|slice:"1:" == 'paid-loan'%} 
-
-                                    <td>
-                                        --
-                                    </td>
-
-                                    <td>
-                                       --
-                                    </td>
-                                    
-
-                                    {% elif request.path|slice:"1:" == 'unpaid-loan'  %}
 
                                     <td>
                                         <a href="{% url 'loan-info' r.id %}">
@@ -144,22 +93,25 @@
                                         </a>
                                     </td>
 
-                                    {% else %}
-
-                                    <td>
-                                        <a href="{% url 'loan-info' r.id %}">
-                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">View</button>
-                                        </a>
-                                    </td>
-
-                                    <td>
-                                        <a href="{% url 'loan-payments' r.id %}">
-                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Make Payments</button>
-                                        </a>
-                                    </td>
-
-
+                                    {% elif request.path|slice:"1:" == 'paid-loan'%} 
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                    {% elif request.path|slice:"1:" == 'unpaid-loan'%} 
+                                        <td>--</td>
+                                        <td>
+                                            <a href="{% url 'loan-info' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">View</button>
+                                            </a>
+                                        </td>
+    
+                                        <td>
+                                            <a href="{% url 'loan-payments' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Make Payments</button>
+                                            </a>
+                                        </td>
                                     {% endif %}
+
 
                                     
                                     

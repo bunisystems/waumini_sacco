@@ -1,0 +1,154 @@
+{% load mathfilters %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Receipt</title>
+	<style>
+		/* Set page size to 80mm by 160mm */
+		@media print {
+			@page {
+				size: 80mm 160mm;
+			}
+
+			/* Hide print and download buttons */
+			.btn-print,
+			.btn-download {
+				display: none !important;
+			}
+
+			/* Hide URL link */
+			.url-link {
+				display: none;
+			}
+		}
+
+		body {
+			font-family: Arial, sans-serif;
+			font-size: 10pt;
+			line-height: 1.2;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th, td {
+			padding: 4px;
+			text-align: left;
+			border-bottom: 1px solid #ddd;
+      font-size: 8pt;
+		}
+
+		th {
+			background-color: #f2f2f2;
+		}
+
+		.btn {
+			background-color: #4CAF50;
+			color: white;
+			padding: 8px 16px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.btn-print {
+			background-color: #008CBA;
+		}
+
+		.btn-download {
+			background-color: #f44336;
+		}
+
+    h5 {
+			text-align: center;
+		}
+    
+    .receipt-footer {
+      margin-top: 50px;
+      text-align: center;
+    }
+
+	</style>
+</head>
+<body>
+  <h5><small>LAARE CATHOLIC WAUMINI SACCO LTD</small><br><small>TEL: 0717688631</small></h5>
+	<table>
+		
+		<tbody>
+			<tr>
+				<td colspan="2">Date:</td>
+				<td colspan="2"><small>{{ r.created_on }}</small></td>
+			</tr>
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.nhif_no }}</td>
+			</tr>
+			<tr>
+				<td colspan="2">Payee:</td>
+				<td colspan="2">{{ r.member.first_name }} {{ r.member.last_name }}</td>
+			</tr>
+      <tr>
+				<td colspan="2">Member No. (Shares):</td>
+				<td colspan="2">{{ r.member.userprofile.member_no_shares }}</td>
+			</tr>
+      <tr>
+				<td colspan="2">Member No. (Savings):</td>
+				<td colspan="2">{{ r.member.userprofile.member_no_savings }}</td>
+			</tr>
+      <tr>
+				<td colspan="2">ID No.:</td>
+				<td colspan="2">{{ r.member.userprofile.id_no }}</td>
+			</tr>
+
+      
+        <tr>
+          <th colspan="2">Description</th>
+          <th colspan="2">Amount</th>
+        </tr>
+      
+
+
+      <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+            <tr>
+				<td colspan="2">Commission:</td>
+				<td colspan="2">KES {{ r.commission }}</td>
+			</tr>
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount|add:r.commission }}.00</td>
+			</tr>
+		</tbody>
+	</table>
+
+  <div class="receipt-footer">
+    <h5><small>{{ r.transaction_id }}</small></h5>
+    <h5><small>You were served by {{ request.user.first_name }}  {{ request.user.last_name }}</small></h5>
+  </div>
+
+	<div style="margin-top: 20px;">
+		<a href="#" class="btn btn-print" onclick="window.print();">Print</a>
+		<a href="#" class="btn btn-download" download>Download</a>
+		
+	</div>
+
+	<script>
+		// Hide print and download buttons when printing or downloading
+		window.onbeforeprint = function() {
+			document.querySelector('.btn-print').style.display = 'none';
+			document.querySelector('.btn-download').style.display = 'none';
+		}
+
+		window.onafterprint = function() {
+			document.querySelector('.btn-print').style.display = 'inline-block';
+			document.querySelector('.btn-download').style.display = 'inline-block';
+		}
+
+</script>

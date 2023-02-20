@@ -20,7 +20,8 @@ class UserProfileForm(forms.ModelForm):
 		model = UserProfile
 		fields = ('member_no_shares', 'member_no_savings', 'id_no')
 		required_fields = ('id_no',)
-	
+
+
 class  SettingsForm(forms.ModelForm):
 	class Meta:
 		model = Settings

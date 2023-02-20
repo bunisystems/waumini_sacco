@@ -1,0 +1,88 @@
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-body">
+
+               
+               <!--  <h4 class="card-title">Bootstrap Validation - Normal</h4>
+                <p class="card-title-desc">Provide valuable, actionable feedback to your users with
+                    HTML5 form validation–available in all our supported browsers.</p> -->
+                <form class="needs-validation" novalidate action="" method="POST">
+
+                    {% csrf_token %}
+
+                <div class="row">  
+                
+                    <div class="col-md-4">   
+                        <div class="mb-3">
+                            
+                            <label  for="validationCustom03" class="form-label">Member</label>
+                            <select class="form-control select2" id="validationCustom03" name="user" required>
+                                <option value="" selected disabled>Choose...</option>
+                                <optgroup label="Member">
+
+                                    
+                                    {% for u in users %}
+                                    
+                                    <option name="category" value="{{u.id}}">{{u.first_name}} {{ u.last_name }}</option>
+
+                                    {% endfor  %}
+
+                    
+                                </optgroup>
+                            
+                            </select>
+
+                            <div class="invalid-tooltip">
+                                Please select a Member
+                            </div>
+                        </div>
+                    </div>
+
+    
+
+
+                    <div class="col-md-4" >
+                        <div class="mb-3 position-relative">
+                            <label for="validationCustom03" idclass="form-label">Date Range</label>
+                            <div class="input-daterange input-group" id="datepicker6"  data-date-autoclose="true" data-provide="datepicker" data-date-container='#datepicker6'>
+                                <!-- <input type="text" class="form-control" name="start" placeholder="Start Date"  value = "{{ values.start }}" required/> -->
+                                <input type="text" class="form-control" name="start" placeholder="Start Date"  value = "01/01/2021" required/>
+                                <input type="text" class="form-control" name="end" placeholder="End Date" value="01/01/2024" required/>
+                                <!-- <input type="text" class="form-control" name="end" placeholder="End Date" value="{{ values.end }}" required/> -->
+                            </div>
+
+                            <div class="invalid-feedback">
+                                Please select a date.
+                            </div>
+
+                        </div>
+                    </div>
+
+                    
+                    <div class="col-md-4" >
+                        <div class="mb-3 position-relative">
+                            <label for="validationCustom03" idclass="form-label">Submit</label>
+                            <div>
+                                <button type="submit" class="btn btn-success waves-effect waves-light">
+                                    <i class="ri-check-line align-middle me-2"></i> Submit
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                  
+                </div>
+
+                
+                    
+                  
+                   
+                   
+                </form>
+            </div>
+        </div>
+        <!-- end card -->
+    </div> <!-- end col -->
+</div>

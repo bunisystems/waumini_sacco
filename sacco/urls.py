@@ -19,12 +19,17 @@ urlpatterns = [
 
     # Loan
     path('loan', views.loan, name="loan"),
+    path('payments', views.payments, name="payments"),
     path('paid-loan', views.paid_loan, name="paid-loan"),
     path('unpaid-loan', views.unpaid_loan, name="unpaid-loan"),
     path('loan-info/<hashid:id>', views.loan_info, name="loan-info"),
     path('loan-payments/<hashid:id>', views.loan_payments, name="loan-payments"),
     path('add-loan', views.add_loan, name="add-loan"),
     path('edit-loan/<hashid:id>', views.edit_loan, name="edit-loan"),
+
+    path('loan-fee', views.loan_fee, name="loan-fee"),
+    path('add-loan-fee', views.add_loan_fee, name="add-loan-fee"),
+    path('edit-loan-fee/<hashid:id>', views.edit_loan_fee, name="edit-loan-fee"),
 
 
 
@@ -68,6 +73,20 @@ urlpatterns = [
     path('statement-details/<hashid:id>', views.statement_details, name="statement-details"),
     
     path('settings', views.settings, name="settings"),
+
+    # Reciepts
+    path('r1/<hashid:id>', views.registration_reciept, name="r1"),
+    path('r2/<hashid:id>', views.capitalshare_reciept, name="r2"),
+    path('r3/<hashid:id>', views.nhif_reciept, name="r3"),
+    path('r4/<hashid:id>', views.account_reciept, name="r4"),
+    path('r5/<hashid:id>', views.shares_reciept, name="r5"),
+    path('r6/<hashid:id>', views.loanfee_reciept, name="r6"),
+    path('r7/<hashid:id>', views.cheque_reciept, name="r7"),
+    path('r8/<hashid:id>', views.passbook_reciept, name="r8"),
+    path('r9/<hashid:id>', views.payments_reciept, name="r9"),
+
+    # Statements
+    path('registration_statement', views.statements, name="registration_statement"),
 
 
     

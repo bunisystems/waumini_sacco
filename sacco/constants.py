@@ -22,29 +22,29 @@ try:
     PHONE_NUMBER = values.PHONE_NUMBER
 
 except Exception as e:
-    from api.models import Settings
+    # from api.models import Settings
     
-    values = Settings.objects.get(pk=1)
-    values.refresh_from_db()
+    # values = Settings.objects.get(pk=1)
+    # values.refresh_from_db()
 
-    SHARES_ENTRANCE_FEE = values.SHARES_ENTRANCE_FEE,
-    SHARES_APPLICATION_FEE = values.SHARES_APPLICATION_FEE,
-    SAVINGS_ENTRANCE_FEE = values.SAVINGS_ENTRANCE_FEE,
-    MIN_LOAN = values.MIN_LOAN 
-    MAX_LOAN = values.MAX_LOAN
-    CAPITAL_SHARE = values.CAPITAL_SHARE
-    SHARES_MIN =values.SHARES_MIN
-    ACCOUNT = values.ACCOUNT
-    ACCOUNT_WITHDRAWAL = values.ACCOUNT_WITHDRAWAL
-    PROCESSING_FEE = values.PROCESSING_FEE
-    PASSBOOK = values.PASSBOOK
-    INTEREST = values.INTEREST
-    INSUARANCE = values.INSUARANCE
-    PHONE_NUMBER = values.PHONE_NUMBER
+    # SHARES_ENTRANCE_FEE = values.SHARES_ENTRANCE_FEE,
+    # SHARES_APPLICATION_FEE = values.SHARES_APPLICATION_FEE,
+    # SAVINGS_ENTRANCE_FEE = values.SAVINGS_ENTRANCE_FEE,
+    # MIN_LOAN = values.MIN_LOAN 
+    # MAX_LOAN = values.MAX_LOAN
+    # CAPITAL_SHARE = values.CAPITAL_SHARE
+    # SHARES_MIN =values.SHARES_MIN
+    # ACCOUNT = values.ACCOUNT
+    # ACCOUNT_WITHDRAWAL = values.ACCOUNT_WITHDRAWAL
+    # PROCESSING_FEE = values.PROCESSING_FEE
+    # PASSBOOK = values.PASSBOOK
+    # INTEREST = values.INTEREST
+    # INSUARANCE = values.INSUARANCE
+    # PHONE_NUMBER = values.PHONE_NUMBER
 
     
 
-    """ REGISTRATION_FEE = 0
+    REGISTRATION_FEE = 0
     MIN_LOAN = 0
     MAX_LOAN = 0
     CAPITAL_SHARE = 0
@@ -55,7 +55,7 @@ except Exception as e:
     PASSBOOK = 0
     INTEREST = 0
     INSUARANCE = 0
-    PHONE_NUMBER = 0 """
+    PHONE_NUMBER = 0 
 
     print(e)
 
@@ -75,6 +75,7 @@ ERROR_AMOUNT = 'Amount is required'
 ERROR_INC_AMOUNT = 'Amount entered is not equal to KES ' 
 ERROR_REG_EXISTS = 'This member has already paid registration fee'
 ERROR_REG_MEMBER = 'Choose a member'
+ERROR_LOAN_FEE = 'Please ensure atleast one member has paid relevant loan fees'
 
 SUCCESS_FEE_SAVED = 'Fee saved successfully'
 SUCCESS_FEE_EDITED = 'Fee edited successfully'

@@ -33,6 +33,10 @@
 
             {% include 'partials/als_messages.html' %} 
 
+                
+                
+            {% include 'sacco/includes/search.html' %} 
+
 
                 <div class="row">
                     <div class="col-12">
@@ -52,6 +56,7 @@
                                     <th>Created On</th>
                                     <th>Updated By</th>
                                     <th>Updated On</th>
+                                    <th>Actions</th>
                                     <th>Actions</th>
                                     </tr>
                                     </thead>
@@ -105,6 +110,47 @@
                                         {% elif request.path|slice:"1:" == 'passbook'%} 
                                             <a href="{% url 'edit-passbook' r.id %}">
                                                 <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        {% endif %}
+                                    
+                                    </td>
+
+                                    <td>
+                                        {% if request.path|slice:"1:" == 'registration' %}
+                                            <a href="{% url 'edit-registration' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'loan'%} 
+                                            <a href="{% url 'edit-loan' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'capital-shares'%} 
+                                            <a href="{% url 'r2' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'shares'%} 
+                                            <a href="{% url 'r5' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'nhif'%} 
+                                            <a href="{% url 'r3' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'cheque'%} 
+                                            <a href="{% url 'edit-cheque' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'account'%} 
+                                            <a href="{% url 'r4' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'processing'%} 
+                                            <a href="{% url 'edit-processing' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        {% elif request.path|slice:"1:" == 'passbook'%} 
+                                            <a href="{% url 'r8' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
                                             </a>
                                         {% endif %}
                                     

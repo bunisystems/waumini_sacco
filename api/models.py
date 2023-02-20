@@ -57,18 +57,48 @@ class Registration(models.Model):
             self.transaction_id = generate_transaction_uuid()
             super().save(*args, **kwargs)
 
+class LoanFee(models.Model):
+    loan_fee_no = models.CharField(max_length=200, unique=True)
+    transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_loan_fee")
+    loan_fee = models.DecimalField(max_digits=8, decimal_places=2)
+    processing = models.DecimalField(max_digits=8, decimal_places=2)
+    
+    is_deleted = models.BooleanField(default=0)
+    is_issued = models.BooleanField(default=0)
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loan_fee_updated_by", null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loan_fee_deleted_by", null=True, blank=True)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(null=True)
+    deleted_on = models.DateTimeField(null=True)
+    
+    def __str__(self):
+        return self.member
+    
+    def save(self, *args, **kwargs):
+        loan_fee_no = self.id
+        if LoanFee.objects.filter(id=loan_fee_no).exists():
+            super(LoanFee, self).save()
+        else:
+            current_time = datetime.now()
+            self.loan_fee_no = 'WLF' + current_time.strftime("%Y%m%d%H%M%S")
+            self.transaction_id = generate_transaction_uuid()
+            super().save(*args, **kwargs)
+
 class Loan(models.Model):
 
     loan_no = models.CharField(max_length=200, unique=True)
+    loan_fees = models.ForeignKey(LoanFee, on_delete=models.CASCADE, related_name="member_loan_fee")
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
-    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_loan")
     amount = models.DecimalField(max_digits=8, decimal_places=2)
     interest_rate = models.IntegerField ()
     interest = models.DecimalField(max_digits=8, decimal_places=2)
     insuarance_rate = models.IntegerField()
     insurance = models.DecimalField(max_digits=8, decimal_places=2)
-    loan_fee = models.DecimalField(max_digits=8, decimal_places=2)
-    processing_fee = models.DecimalField(max_digits=8, decimal_places=2)
+    fines = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     balance = models.DecimalField(max_digits=8, decimal_places=2)
     total = models.DecimalField(max_digits=8, decimal_places=2)
     is_paid = models.BooleanField(default=0)
@@ -87,9 +117,9 @@ class Loan(models.Model):
     deleted_on = models.DateTimeField(null=True)
     
     def __str__(self):
-        return self.member
+        return self.loan_no
     
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):        
         loan_id = self.id
         if Loan.objects.filter(id=loan_id).exists():
             super(Loan, self).save()
@@ -97,6 +127,9 @@ class Loan(models.Model):
             current_time = datetime.now()
             self.loan_no = 'WLN' + current_time.strftime("%Y%m%d%H%M%S")
             self.transaction_id = generate_transaction_uuid()
+            loan_fees = self.loan_fees
+            loan_fees.is_issued = 1
+            loan_fees.save()
             super().save(*args, **kwargs)
 
 # Payments
@@ -243,7 +276,7 @@ class NHIF(models.Model):
             super(NHIF, self).save()
         else:
             current_time = datetime.now()
-            self.nhif_no = 'WSH' + current_time.strftime("%Y%m%d%H%M%S")
+            self.nhif_no = 'WNH' + current_time.strftime("%Y%m%d%H%M%S")
             self.transaction_id = generate_transaction_uuid()
             super().save(*args, **kwargs)
 
@@ -360,6 +393,9 @@ class Settings(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(null=True)
     deleted_on = models.DateTimeField(null=True)
+
+
+
 
 
 

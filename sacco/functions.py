@@ -97,17 +97,20 @@ END
 # 	UPDATE auth_user SET username = user_username, first_name = user_first_name, last_name = user_last_name, email = user_email WHERE id = usr_id;
 # END 
 
-# DELIMITER //
-# CREATE PROCEDURE sp_loan_per_month(IN start_date DATE, IN end_date DATE)
-# BEGIN
-#     SELECT 
-#     DATE_FORMAT(created_on, '%b') as month, 
-#     SUM(total) as total_amount
-#     FROM api_loan
-#     WHERE created_on BETWEEN start_date AND end_date
-#     GROUP BY MONTH(created_on);
-# END 
-# DELIMITER ;
+
+""" DELIMITER $$
+CREATE PROCEDURE sp_loan_per_month(IN start_date DATE, IN end_date DATE)
+BEGIN
+    SELECT 
+    DATE_FORMAT(created_on, '%b') as month, 
+    SUM(total) as total_amount
+    FROM api_loan
+    WHERE created_on BETWEEN start_date AND end_date
+    GROUP BY MONTH(created_on)
+    ;
+END$$
+DELIMITER ; """
+
 
 
 
@@ -120,4 +123,6 @@ END
 #     FROM api_loan
 #     GROUP BY YEAR(created_on);
 # END 
+
+
 

@@ -122,7 +122,7 @@ elif HOSTNAME == 'DESKTOP-M0QNIIU':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'w_sacco',
+            'NAME': 'w_sacco_demo',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
@@ -206,17 +206,7 @@ INTERNAL_IPS = [
     # ...
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
 
-        "KEY_PREFIX": "v1"
-    }
-}
 
 # Cache time to live is 15 minutes.
 CACHE_TTL = 60 
@@ -239,6 +229,19 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'no-reply@jenga-systems.com'
 EMAIL_HOST_PASSWORD = '@Jenga-systems123'
 
+
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+
+#         "KEY_PREFIX": "v1"
+#     }
+# }
 
 
 #Celery

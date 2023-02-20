@@ -63,7 +63,7 @@
                                                 
                                                 <label  for="validationCustom03" class="form-label">Member:</label>
                                                 <select class="form-control select2" id="validationCustom03" name="member" required>
-                                                    <option name="member" value="{{ l.member.id }}">{{  l.member.first_name }} {{  l.member.last_name }}</option>
+                                                    <option name="member" value="{{ l.loan_fees.member.id }}">{{  l.loan_fees.member.first_name }} {{  l.loan_fees.member.last_name }}</option>
                                                     
                                                    
                                                 </select>
@@ -97,6 +97,25 @@
 
                                             <div class="mb-3">
                                                 <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Fines</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="number" class="form-control" id="fine"
+                                                            placeholder="0.00"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="fine" value="{{ l.fine }}">
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount for fine.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
                                                     <label for="validationTooltipUsername" class="form-label">Duration</label>
                                                     <div class="input-group">
                                                         <div class="input-group-prepend">
@@ -115,49 +134,15 @@
 
                                     
 
-                                            <div class="mb-3">
-                                                <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label">Loan Fee Form</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"
-                                                                id="validationTooltipUsernamePrepend">KES</span>
-                                                        </div>
-                                                        <input type="number" class="form-control" id="loan_fee"
-                                                            placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="loan_fee" value="{{ l.loan_fee }}" required>
-                                                        <div class="invalid-tooltip">
-                                                            Please provide an amount.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
 
-
-                                            <div class="mb-3">
-                                                <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label">Proccessing Fee</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"
-                                                                id="validationTooltipUsernamePrepend">KES</span>
-                                                        </div>
-                                                        <input type="number" class="form-control" id="processing_fee"
-                                                            placeholder="0.00"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="processing_fee" value="{{ l.processing_fee }}" required readonly>
-                                                        <div class="invalid-tooltip">
-                                                            Please provide an amount.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
+                                    
 
                                             <div class="mb-3">
                                                 
                                                 <label  for="validationCustom03" class="form-label">Status</label>
                                                 <select class="form-control select2" id="validationCustom03" name="status" required>
-                                                    <option value="status" selected>{{ l.status }}</option>
+                                                    <option value="{{ l.status }}" selected>{{ l.status }}</option>
                                                     <optgroup label="">
                                                         <option name="status" value="Pending">Pending</option>                     
                                                         <option name="status" value="Processing">Processing</option>                     

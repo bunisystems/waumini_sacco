@@ -19,3 +19,8 @@ with open("data.csv", "r") as csvfile:
         row = ['"{}"'.format(value.replace('"', '\\"')) for value in row]
         sql = sql_template % tuple(row)
         print(sql)
+    
+
+
+
+

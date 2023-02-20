@@ -1,28 +1,5 @@
 client_id,branch_code,state_id,previous_state_id,next_state_id,message_request,message_response,response_action,response_action_message,repeat_message,is_deleted
-10,TEC01,1,1,2,TEC01,Bienvenue à *Tecsen*Veuillez répondre avec *1-2* Pour bénéficier du service.*1*. Rendez-vous*2*. Reçu,"{""expiry"": true}",\n,Bienvenue à *Tecsen*Veuillez répondre avec *1-2* Pour bénéficier du service.*1*. Rendez-vous*2*. Reçu,0
-10,TEC01,2,1,3,1,"S'il vous plaît, patientez. Nous émettons votre ticket. *Rendez-vous*. Merci de votre patience.","{""actions"": [{""action_name"": ""TICKET_ISSUE"",""category_name"": ""APP"",""priority"":0}],""expiry"": false}",\n,Bienvenue à *Tecsen*Veuillez répondre avec *1-2* Pour bénéficier du service.*1*. Rendez-vous*2*. Reçu,0
-10,TEC01,2,1,3,2,"S'il vous plaît, patientez. Nous émettons votre ticket. *Reçu*. Merci de votre patience.","{""actions"": [{""action_name"": ""TICKET_ISSUE"",""category_name"": ""RPT"",""priority"":0}],""expiry"": false}",\n,Bienvenue à *Tecsen*Veuillez répondre avec *1-2* Pour bénéficier du service.*1*. Rendez-vous*2*. Reçu,0
-10,TEC01,4,4,4,Q,"Votre numéro de ticket est *{ticket_number}*
-Vous serez appelé après *{position_in_queue}* client(s). Vous serez appelé après clients).
-Le temps d'attente approximatif est *{waittime_expected}* minutes.
-
-Envoyer *Q* pour votre position mise à jour dans la file d'attente.","{""expiry"": false}",\n,Veuillez attendre votre tour!,1
-10,TEC01,4,3,5,messaging_system_ticket_notification_ticket_call,"Votre numéro de ticket est *{ticket_number}* est appelé.
-Veuillez procéder au comptoir numéro *{counter_number}*
-Vous serez servi par *{operator_name}* ","{""expiry"": false}",\n,Veuillez attendre votre tour!,0
-10,TEC01,5,4,5,messaging_system_ticket_notification_ticket_noshow,Thank you for using our services.\\n\\nSend *TEC01* to avail any other Service(s),"{""expiry"": true,""closed"": true}",\n,Veuillez attendre votre tour!,0
-10,TEC01,5,4,5,messaging_system_ticket_notification_ticket_serve,Merci d'utiliser nos services. Envoyer*TEC01* Pour profiter de tout autre service (s),"{""expiry"": true,""closed"": true}",\n,"Votre numéro de ticket est *{ticket_number}* est appelé.
-Veuillez procéder au comptoir numéro *{counter_number}*
-Vous serez servi par *{operator_name}* ",0
-10,TEC01,5,5,5,E,"Vous avez quitté la file d'attente, veuillez envoyer *TEC01* pour émettre un autre billet","{""expiry"": true,""closed"": true}
-",\n,"S'il vous plaît, patientez! Nous travaillons sur votre demande.",0
-10,TEC01,6,4,5,"messaging_system_ticket_notification_ticket_cancel
-",Veuillez envoyer * TEC01 * pour émettre un autre billet,"{""expiry"": true,""closed"": true}
-",\n,Veuillez envoyer C pour annuler,1
-10,TEC01,3,2,4,messaging_system_ticket_notification_ticket_issue,"Votre numéro de ticket est *{ticket_number}*
-
-Le temps d'attente approximatif est *{waittime_expected}* minutes. 
-
-À un moment donné, envoyez * 'q' * pour suivre votre position dans la file d'attente, ou * 'e' * pour quitter la file d'attente.","{""expiry"": false}",\n,"S'il vous plaît, patientez! Nous travaillons sur votre demande.",0
-10,TEC01,1,1,7,TEC01 {ticket_id},,"{""actions"": [{""action_name"": ""TICKET_INFO_ID""}],""expiry"": true}",\n,Veuillez attendre votre tour!,0
-10,TEC01,7,1,4,messaging_system_ticket_notification_ticket_info,Il y a  *{position_in_queue}* les gens devant vous,"{""expiry"": false}",\n,Veuillez attendre votre tour!,0
+40,DPW001,9,9,9,E,"You have left the queue, please send *DPW001* to issue another ticket","{""expiry"": true,""closed"": true}
+",N,"You have left the queue, please send *DPW001* to issue another ticket",0
+40,DPW001,11,11,11,E,"You have left the queue, please send *DPW001* to issue another ticket","{""expiry"": true,""closed"": true}
+",N,"You have left the queue, please send *DPW001* to issue another ticket",0
