@@ -198,10 +198,7 @@ def add_user(request):
         form = CreateUserForm(request.POST)
         email = request.POST['email']
         username = request.POST['username']
-        f_name = request.POST['first_name']
-        l_name = request.POST['last_name']
-        url = request.META['HTTP_HOST'] + '/reset_password/'
-
+        
         print('Printing POST:', request.POST)
         print('Printing Errors:', form.errors )
         
@@ -209,26 +206,23 @@ def add_user(request):
             messages.error(request, "Email already exists")
         else:
             if form.is_valid():
-               
                 user = form.save(commit=False)
                 user.password = User.objects.make_random_password()
+                user.is_active = 1
                 user.save()
 
                 username = form.cleaned_data.get('username')
     
                 g = form.cleaned_data.get('group')
 
-    
+
                 print('selected user role:',g)
             
                 group = Group.objects.get(id=g)
                 # Add user to group
                 user.groups.add(group)
 
-                send_account_creation_email(email, f_name, l_name, username, url)
-
-               
-                    
+                # send_account_creation_email(email, f_name, l_name, username, url)
 
                 messages.success(request,  username + " has been created successfully")
                 cache.clear()
