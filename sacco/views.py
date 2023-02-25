@@ -191,7 +191,8 @@ def users(request):
 @login_required(login_url='sign-in')
 def add_user(request):
     form = CreateUserForm()
-    groups = Group.objects.all().exclude(name="Member")
+    #groups = Group.objects.all().exclude(name="Member")
+    groups = Group.objects.all()
     values = request.POST
     
     if request.method == 'POST':
@@ -249,7 +250,8 @@ def edit_user(request, id):
         messages.error(request, ERROR_404)
         return render(request, 'sacco/error.html')
 
-    groups = Group.objects.all().exclude(name="Member")
+    #groups = Group.objects.all().exclude(name="Member")
+    groups = Group.objects.all()
 
     context = {
         'groups': groups, 
@@ -350,18 +352,6 @@ def profile(request, id):
             return redirect('profile', user.id)
 
 @login_required(login_url='sign-in')
-def member(request, id):
-    user = User.objects.get(pk=id)
-    registration = Registration.objects.filter(member=id)
-    loan = Loan.objects.filter(member=id)
-    context = { 
-        'user': user , 
-        'registration':registration,
-        'loan': loan
-    }
-    return render(request, 'sacco/users/member.html', context)
-
-@login_required(login_url='sign-in')
 def delete_user(request, id):
     try:
         with connection.cursor() as cursor:
@@ -377,8 +367,6 @@ def delete_user(request, id):
 """ User End """
 
 """ Add Member """
-# @clear_cache
-# @cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def members(request):
     users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
@@ -389,7 +377,7 @@ def members(request):
 def add_member(request):
     form = CreateUserForm()
     user_profile = UserProfileForm()
-    groups = Group.objects.all()
+    groups = Group.objects.get(name='Member')
     values = request.POST
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
@@ -417,7 +405,7 @@ def add_member(request):
             if form.is_valid():
                
                 user = form.save(commit=False)
-                user.email = f'user{randint(1, 99999)}@jenga-systems.com'
+                user.email = f'user{randint(1, 99999)}@wauminisacco.co.ke'
                 user.password = User.objects.make_random_password()
                 user.is_active = is_active
                 user.save()
@@ -461,7 +449,7 @@ def add_member(request):
 @login_required(login_url='sign-in')
 def edit_member(request, id):
     # Check if user exists
-    groups = Group.objects.all()
+    groups = Group.objects.get(name='Member')
     try:
         user = User.objects.get(pk=id)
 
@@ -543,18 +531,6 @@ def edit_member(request, id):
 
     return render(request, 'sacco/users/edit-member.html', context)
 
-
-@login_required(login_url='sign-in')
-def member(request, id):
-    user = User.objects.get(pk=id)
-    registration = Registration.objects.filter(member=id)
-    loan = Loan.objects.filter(member=id)
-    context = { 
-        'user': user , 
-        'registration':registration,
-        'loan': loan
-    }
-    return render(request, 'sacco/users/member.html', context)
 
 """ Member End """
 
@@ -762,11 +738,13 @@ def loan(request):
     registration = Loan.objects.filter(is_paid=0)
     context = { 'registration' : registration}
     return render(request, 'sacco/loan/loan.html', context)
+
 @login_required(login_url='sign-in')
 def loan_info(request, id):
     loan = Loan.objects.get(pk=id)
     context = { 'loan' : loan }
     return render(request, 'sacco/loan/loan-info.html', context)
+
 @login_required(login_url='sign-in')
 def add_loan(request):
     members = LoanFee.objects.filter(is_issued=0)
@@ -879,6 +857,7 @@ def add_loan(request):
         messages.success(request, SUCCESS_FEE_SAVED)
 
         return redirect('loan')
+    
 @login_required(login_url='sign-in')
 def edit_loan(request, id):
     try:
@@ -985,6 +964,7 @@ def edit_loan(request, id):
 
         # redirect to the expense page to see the expenses
         return redirect('loan')
+    
 @login_required(login_url='sign-in')
 def loan_payments(request, id):
     loan = Loan.objects.get(pk=id)
@@ -1032,6 +1012,8 @@ def loan_payments(request, id):
         return redirect('loan')
     
     return render(request, 'sacco/loan/loan-payments.html', context)
+
+
 @login_required(login_url='sign-in')
 def paid_loan(request):
     registration = Loan.objects.filter(is_paid=1)
@@ -1143,6 +1125,8 @@ def add_capital_shares(request):
 
         # redirect to the expense page to see the expenses
         return redirect('capital-shares')
+    
+
 @login_required(login_url='sign-in')
 def edit_capital_shares(request, id):
     try:
@@ -1188,7 +1172,7 @@ def edit_capital_shares(request, id):
 def capitalshare_reciept(request, id):
     r = CapitalShares.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r2.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 """  Shares """
 @login_required(login_url='sign-in')
@@ -1320,7 +1304,7 @@ def edit_shares(request, id):
 def shares_reciept(request, id):
     r = Shares.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r5.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 """ NHIF """
 @login_required(login_url='sign-in')
@@ -1557,7 +1541,7 @@ def edit_nhif(request, id):
 def nhif_reciept(request, id):
     r = NHIF.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r3.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 """ Cheque """
 @login_required(login_url='sign-in')
@@ -1694,7 +1678,7 @@ def edit_cheque(request, id):
 def cheque_reciept(request, id):
     r = Cheque.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r7.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 """ Account """
 @login_required(login_url='sign-in')
@@ -1825,7 +1809,7 @@ def edit_account(request, id):
 def account_reciept(request, id):
     r = Account.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r4.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 
 """ Passbook """
@@ -1962,60 +1946,8 @@ def edit_passbook(request, id):
 def passbook_reciept(request, id):
     r = Passbook.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r8.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
     
-@login_required(login_url='sign-in')
-def statement(request):
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
-    context = { 'users': users  }
-    
-    print(request.POST)
-
-    if request.method == 'POST':
-        user = request.POST['user']
-        start = request.POST['start']
-        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
-        end = request.POST['end']
-        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
-
-        if user:
-            if start_date == end_date:
-                messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/reports/statements.html', context)
-            else:
-                m = User.objects.get(id=user)
-                shares_a = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('shares_application_fee'))['shares_application_fee__sum']
-                shares_e = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('shares_entrance_fee'))['shares_entrance_fee__sum']
-                savings_e = Registration.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('savings_entrance_fee'))['savings_entrance_fee__sum']
-                cs = CapitalShares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                nhif = NHIF.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                sa = Account.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                sc = Shares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                cq = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                pb = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-                l = Loan.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
-
-                
-                context = { 
-                  
-                    'cs': cs,
-                    'nhif' : nhif,
-                    'cq' : cq,
-                    'sa' : sa,
-                    'sc': sc,
-                    'shares_a' : shares_a,
-                    'shares_e' : shares_e,
-                    'savings_e' : savings_e,
-                    'l' : l,
-                    'm' : m,
-                    'pb' : pb,
-                    'users': users,
-                    'values' : request.POST
-                    }
-                return render(request, 'sacco/reports/statements.html', context)
-
-    return render(request, 'sacco/reports/statements.html', context)
-
 
 @login_required(login_url='sign-in')
 def settings(request):
@@ -2044,6 +1976,7 @@ def settings(request):
             INTEREST = request.POST['INTEREST']
             INSUARANCE = request.POST['INSUARANCE']
             PHONE_NUMBER = request.POST['PHONE_NUMBER']
+            SACCO_PHONE_NUMBER = request.POST['SACCO_PHONE_NUMBER']
 
 
             values.SHARES_ENTRANCE_FEE=SHARES_ENTRANCE_FEE
@@ -2060,6 +1993,7 @@ def settings(request):
             values.INTEREST=INTEREST 
             values.INSUARANCE=INSUARANCE 
             values.PHONE_NUMBER=PHONE_NUMBER
+            values.SACCO_PHONE_NUMBER =SACCO_PHONE_NUMBER
             values.created_by=request.user
             values.save()
 
@@ -2084,6 +2018,7 @@ def settings(request):
             INTEREST = 0,
             INSUARANCE = 0,
             PHONE_NUMBER = 0,
+            SACCO_PHONE_NUMBER = 0,
             created_by=request.user           
 
         )
@@ -2250,7 +2185,7 @@ def edit_loan_fee(request, id):
 def loanfee_reciept(request, id):
     r = LoanFee.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r6.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 @login_required(login_url='sign-in')
 def payments(request):
@@ -2262,7 +2197,7 @@ def payments(request):
 def payments_reciept(request, id):
     r = Payments.objects.get(pk=id)
     context = { 'r' : r}
-    return render(request, 'sacco/reciept/r9.html', context)
+    return render(request, 'sacco/reciept/r1.html', context)
 
 
 

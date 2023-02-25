@@ -221,12 +221,12 @@ CORS_ORIGIN_WHITELIST = [
 
 
 #SMTP
-DEFAULT_FROM_EMAIL = 'no-reply@jenga-systems.com'
+DEFAULT_FROM_EMAIL = 'no-reply@wauminisacco.co.ke'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtppro.zoho.com'
 EMAIL_PORT =  587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'no-reply@jenga-systems.com'
+EMAIL_HOST_USER = 'no-reply@wauminisacco.co.ke'
 EMAIL_HOST_PASSWORD = '@Jenga-systems123'
 
 

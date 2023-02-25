@@ -84,31 +84,6 @@ urlpatterns = [
     path('r8/<hashid:id>', views.passbook_reciept, name="r8"),
     path('r9/<hashid:id>', views.payments_reciept, name="r9"),
 
-
-    
-
-
-
-
-    # Entrance
-
-    # path('add-station', views.add_station, name="add-station"),
-    # path('edit-station/<hashid:id>', views.edit_station, name="edit-station"),
-    # path('delete-station/<hashid:id>', views.delete_station, name="delete-station"),
-
-    # # Float
-    # path('float', views.float, name="float"),
-    # path('add-float', views.add_float, name="add-float"),
-    # path('edit-float/<hashid:id>', views.edit_float, name="edit-float"),
-    # path('delete-float/<hashid:id>', views.delete_float, name="delete-float"),
-
-    # # Expense
-    # path('expense', views.expense, name="expense"),
-    # path('my-expense', views.my_expense, name="my-expense"),
-    # path('add-expense', views.add_expense, name="add-expense"),
-    # path('edit-expense/<hashid:id>', views.edit_expense, name="edit-expense"),
-    # path('delete-expense/<hashid:id>', views.delete_expense, name="delete-expense"),
-
     # # User
     path('users', views.users, name="users"),
     path('add-user', views.add_user, name="add-user"),
@@ -122,14 +97,7 @@ urlpatterns = [
 
 
     path('profile/<hashid:id>', views.profile, name="profile"),
-    path('member/<hashid:id>', views.member, name="member"),
-
-    # # Reports
-    # path('float-vs-expense', views.float_vs_expense, name="float-vs-expense"),
-    # path('user-expense', views.user_expense, name="user-expense"),
-    # path('all-user-expense', views.all_user_expense, name="all-user-expense"),
-    # path('user-expense-advanced-reports', views.user_expense_advanced_reports, name="user-expense-advanced-reports"),
-    # path('float-vs-expense-advanced-reports', views.float_vs_expense_advanced_reports, name="float-vs-expense-advanced-reports"),
+   
 
 
     # Password Reset

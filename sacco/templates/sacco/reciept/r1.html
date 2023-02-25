@@ -1,3 +1,4 @@
+{% load mathfilters %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -82,10 +83,7 @@
 				<td colspan="2">Date:</td>
 				<td colspan="2"><small>{{ r.created_on }}</small></td>
 			</tr>
-			<tr>
-				<td colspan="2">Receipt No.:</td>
-				<td colspan="2">{{ r.reg_no }}</td>
-			</tr>
+			
 			<tr>
 				<td colspan="2">Payee:</td>
 				<td colspan="2">{{ r.member.first_name }} {{ r.member.last_name }}</td>
@@ -103,30 +101,234 @@
 				<td colspan="2">{{ r.member.userprofile.id_no }}</td>
 			</tr>
 
-      
-        <tr>
-          <th colspan="2">Description</th>
-          <th colspan="2">Amount</th>
-        </tr>
-      
 
+		{% if 'r1' in request.path|slice:"1:" %}    
 
-      <tr>
+		<tr>
+			<td colspan="2">Receipt No.:</td>
+			<td colspan="2">{{ r.reg_no }}</td>
+		</tr>
+
+		<tr>
+			<th colspan="2">Description</th>
+			<th colspan="2">Amount</th>
+		  </tr>
+
+			<tr>
 				<td colspan="2">Shares Entrance:</td>
 				<td colspan="2">KES {{ r.shares_entrance_fee }}</td>
 			</tr>
-      <tr>
+			<tr>
 				<td colspan="2">Shares Application:</td>
 				<td colspan="2">KES {{ r.shares_application_fee }}</td>
 			</tr>
-      <tr>
+			<tr>
 				<td colspan="2">Savings Entrance:</td>
 				<td colspan="2">KES {{ r.savings_entrance_fee }}</td>
 			</tr>
+
+
+			{% elif 'r2' in request.path|slice:"1:" %}  
+
+			
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.c_share_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+
+			<tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES 20.00</td>
+				<td colspan="2">KES {{ r.amount }}</td>
 			</tr>
+
+			{% elif 'r3' in request.path|slice:"1:" %} 
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			  <tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.nhif_no }}</td>
+			</tr>
+
+
+			<tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+            <tr>
+				<td colspan="2">Commission:</td>
+				<td colspan="2">KES {{ r.commission }}</td>
+			</tr>
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount|add:r.commission }}.00</td>
+			</tr>
+
+			{% elif 'r4' in request.path|slice:"1:" %} 
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.account_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			<tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+			{% elif 'r5' in request.path|slice:"1:" %} 
+
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.share_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			  <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+			{% elif 'r6' in request.path|slice:"1:" %} 
+
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.loan_fee_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			  <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.loan_fee }}</td>
+			</tr>
+
+            <tr>
+				<td colspan="2">Processing Fee:</td>
+				<td colspan="2">KES {{ r.processing }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.loan_fee |add:r.processing }}.00</td>
+			</tr>
+
+			{% elif 'r7' in request.path|slice:"1:" %} 
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.cheque_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			  <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+            <tr>
+				<td colspan="2">Commission:</td>
+				<td colspan="2">KES {{ r.commission }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount |add:r.commission }}.00</td>
+			</tr>
+
+
+			{% elif 'r8' in request.path|slice:"1:" %} 
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.passbook_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+
+			  <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.amount }}</td>
+			</tr>
+
+
+			{% elif 'r9' in request.path|slice:"1:" %}
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.payment_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+			  <tr>
+				<td colspan="2">Amount:</td>
+				<td colspan="2">KES {{ r.paid }}</td>
+			</tr>
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">KES {{ r.paid }}</td>
+			</tr>
+
+			
+
+
+			{% endif %}
+			
 		</tbody>
 	</table>
 
