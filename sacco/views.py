@@ -1976,7 +1976,7 @@ def settings(request):
             INTEREST = request.POST['INTEREST']
             INSUARANCE = request.POST['INSUARANCE']
             PHONE_NUMBER = request.POST['PHONE_NUMBER']
-            SACCO_PHONE_NUMBER = request.POST['SACCO_PHONE_NUMBER']
+    
 
 
             values.SHARES_ENTRANCE_FEE=SHARES_ENTRANCE_FEE
@@ -1993,14 +1993,14 @@ def settings(request):
             values.INTEREST=INTEREST 
             values.INSUARANCE=INSUARANCE 
             values.PHONE_NUMBER=PHONE_NUMBER
-            values.SACCO_PHONE_NUMBER =SACCO_PHONE_NUMBER
             values.created_by=request.user
             values.save()
 
 
             messages.success(request, 'Settings updated successfully')
         
-            return redirect('settings')
+            logout(request)
+            return redirect('sign-in')
         
     except Settings.DoesNotExist:
         Settings.objects.create(
@@ -2025,7 +2025,8 @@ def settings(request):
 
         messages.success(request, 'Settings created  successfully')
         
-        return redirect('settings')
+        logout(request)
+        return redirect('sign-in')
 
 """ Loan Fee """
 @login_required(login_url='sign-in')

@@ -385,7 +385,7 @@ class Settings(models.Model):
     INTEREST = models.IntegerField(null=True, blank=True)
     INSUARANCE = models.IntegerField(null=True, blank=True)
     PHONE_NUMBER = models.IntegerField(null=True, blank=True)
-    SACCO_PHONE_NUMBER = models.TextField(null=True, blank=True)
+   
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="settings_updated_by", null=True, blank=True)
