@@ -93,9 +93,9 @@ def index(request):
 
     # USERS
     group = Group.objects.get(name='Member')
-    s_users = User.objects.all().exclude(groups=group).count()
-    s_active_users = User.objects.filter(is_active=1).exclude(groups=group).count()
-    s_inactive_users = User.objects.filter(is_active=0).exclude(groups=group).count()
+    s_users = User.objects.filter(is_superuser=0).exclude(groups=group).count()
+    s_active_users = User.objects.filter(is_active=1, is_superuser=0).exclude(groups=group).count()
+    s_inactive_users = User.objects.filter(is_active=0, is_superuser=0).exclude(groups=group).count()
 
     # MEMBERS
     s_members = User.objects.filter(groups=group).count()
