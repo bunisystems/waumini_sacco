@@ -125,7 +125,7 @@
                                                 
                                                 
                                                 <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.id_no}}"
-                                                        class="form-control" required
+                                                        class="form-control"
                                                         placeholder="Enter numerical value"/>
                                             </div>
 
@@ -141,8 +141,8 @@
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="text" type="text" id="" name="member_no_shares" value="{{values.member_no_shares}}"
-                                                        class="form-control" required  
+                                                <input data-parsley-type="text" type="text" id="member_no_shares" name="member_no_shares" value="{{values.member_no_shares}}"
+                                                        class="form-control"   
                                                         placeholder="Member # Shares Account"/>
                                             </div>
 
@@ -159,8 +159,8 @@
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="text" type="text" id="" name="member_no_savings" value="{{values.member_no_savings}}"
-                                                        class="form-control" required  
+                                                <input data-parsley-type="text" type="text" id="member_no_savings" name="member_no_savings" value="{{values.member_no_savings}}"
+                                                        class="form-control"   
                                                         placeholder="Member # Savings Account"/>
                                             </div>
 
@@ -239,13 +239,20 @@
             
             console.log(makeid(5));
 
-            var member = document.getElementById("member");
+            
+            var id_no = document.getElementById("id_no")
+            var member_no_shares = document.getElementById("member_no_shares");
+            var member_no_savings = document.getElementById("member_no_savings");
+
             var date = new Date();
             var toMySQL = date.toISOString().slice(0, 19).replace('T', '').replace('-', '').replace(':', '').replace(' ', '').replace(':', '')
+            var randomInt = Math.floor(Math.random() * 10) + 1;
 
     
             username.oninput = function() {
-                member.value = 'WS' + toMySQL
+                // id_no.value = '2319' + randomInt
+                // member_no_shares.value = 'WS' + toMySQL
+                // member_no_savings.value = 'WS' + toMySQL
             }
             
 

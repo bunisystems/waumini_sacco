@@ -75,7 +75,7 @@
 	</style>
 </head>
 <body>
-  <h5><small>LAARE CATHOLIC WAUMINI SACCO LTD</small><br><small>TEL: 0717688631</small></h5>
+  <h5><small>LAARE CATHOLIC WAUMINI SACCO LTD</small><br><small>TEL: +254 732 840926</small></h5>
 	<table>
 		
 		<tbody>
@@ -90,15 +90,15 @@
 			</tr>
       <tr>
 				<td colspan="2">Member No. (Shares):</td>
-				<td colspan="2">{{ r.member.userprofile.member_no_shares }}</td>
+				<td colspan="2">{% if r.member.userprofile.member_no_shares %} {{ r.member.userprofile.member_no_shares }} {% else %} N/A {% endif %}</td>
 			</tr>
       <tr>
 				<td colspan="2">Member No. (Savings):</td>
-				<td colspan="2">{{ r.member.userprofile.member_no_savings }}</td>
+				<td colspan="2">{% if r.member.userprofile.member_no_savings %} {{ r.member.userprofile.member_no_savings }} {% else %} N/A {% endif %}</td>
 			</tr>
       <tr>
 				<td colspan="2">ID No.:</td>
-				<td colspan="2">{{ r.member.userprofile.id_no }}</td>
+				<td colspan="2">{% if r.member.userprofile.id_no %} {{ r.member.userprofile.id_no }} {% else  %} N/A {% endif %}</td>
 			</tr>
 
 
@@ -116,15 +116,15 @@
 
 			<tr>
 				<td colspan="2">Shares Entrance:</td>
-				<td colspan="2">KES {{ r.shares_entrance_fee }}</td>
+				<td colspan="2">Ksh {{ r.shares_entrance_fee }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Shares Application:</td>
-				<td colspan="2">KES {{ r.shares_application_fee }}</td>
+				<td colspan="2">Ksh {{ r.shares_application_fee }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Savings Entrance:</td>
-				<td colspan="2">KES {{ r.savings_entrance_fee }}</td>
+				<td colspan="2">Ksh {{ r.savings_entrance_fee }}</td>
 			</tr>
 
 
@@ -145,11 +145,11 @@
 
 			<tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 			{% elif 'r3' in request.path|slice:"1:" %} 
@@ -167,16 +167,16 @@
 
 			<tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
             <tr>
 				<td colspan="2">Commission:</td>
-				<td colspan="2">KES {{ r.commission }}</td>
+				<td colspan="2">Ksh {{ r.commission }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount|add:r.commission }}.00</td>
+				<td colspan="2">Ksh {{ r.amount|add:r.commission }}.00</td>
 			</tr>
 
 			{% elif 'r4' in request.path|slice:"1:" %} 
@@ -193,12 +193,12 @@
 
 			<tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 			{% elif 'r5' in request.path|slice:"1:" %} 
@@ -216,12 +216,12 @@
 
 			  <tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 			{% elif 'r6' in request.path|slice:"1:" %} 
@@ -239,17 +239,17 @@
 
 			  <tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.loan_fee }}</td>
+				<td colspan="2">Ksh {{ r.loan_fee }}</td>
 			</tr>
 
             <tr>
 				<td colspan="2">Processing Fee:</td>
-				<td colspan="2">KES {{ r.processing }}</td>
+				<td colspan="2">Ksh {{ r.processing }}</td>
 			</tr>
 
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.loan_fee |add:r.processing }}.00</td>
+				<td colspan="2">Ksh {{ r.loan_fee |add:r.processing }}.00</td>
 			</tr>
 
 			{% elif 'r7' in request.path|slice:"1:" %} 
@@ -266,17 +266,17 @@
 
 			  <tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
             <tr>
 				<td colspan="2">Commission:</td>
-				<td colspan="2">KES {{ r.commission }}</td>
+				<td colspan="2">Ksh {{ r.commission }}</td>
 			</tr>
 
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount |add:r.commission }}.00</td>
+				<td colspan="2">Ksh {{ r.amount |add:r.commission }}.00</td>
 			</tr>
 
 
@@ -295,11 +295,11 @@
 
 			  <tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.amount }}</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
 
@@ -311,17 +311,37 @@
 			</tr>
 
 			<tr>
+				<td colspan="2">Principal:</td>
+				<td colspan="2">Ksh {{ r.loan.amount }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Interest:</td>
+				<td colspan="2">Ksh {{ r.loan.interest }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Insuarance:</td>
+				<td colspan="2">Ksh {{ r.loan.insurance }}</td>
+			</tr>
+
+			<tr>
 				<th colspan="2">Description</th>
 				<th colspan="2">Amount</th>
 			  </tr>
 
 			  <tr>
 				<td colspan="2">Amount:</td>
-				<td colspan="2">KES {{ r.paid }}</td>
+				<td colspan="2">Ksh {{ r.paid }}</td>
 			</tr>
 			<tr>
 				<td colspan="2">Total:</td>
-				<td colspan="2">KES {{ r.paid }}</td>
+				<td colspan="2">Ksh {{ r.paid }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Balance:</td>
+				<td colspan="2">Ksh {{ r.unpaid }}</td>
 			</tr>
 
 			

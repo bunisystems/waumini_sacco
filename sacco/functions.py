@@ -20,9 +20,10 @@ def upload_name(instance, filename):
     return os.path.join('uploads/receipts/', filename)
 
 
-def add_months(num_months):
+def add_months(created_on, num_months):
     # Get today's date
-    today = datetime.now()
+    # today = datetime.now()
+    today = created_on
 
     # Add the specified number of months to the date
     new_month = today.month + num_months

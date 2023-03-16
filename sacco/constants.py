@@ -77,6 +77,7 @@ ERROR_REG_EXISTS = 'This member has already paid registration fee'
 ERROR_REG_MEMBER = 'Choose a member'
 ERROR_LOAN_FEE = 'Please ensure atleast one member has paid relevant loan fees'
 
+ERROR_DATE = 'Date is required'
 SUCCESS_FEE_SAVED = 'Fee saved successfully'
 SUCCESS_FEE_EDITED = 'Fee edited successfully'
 

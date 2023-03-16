@@ -11,9 +11,9 @@ from django.db.models.signals import post_save
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    member_no_shares = models.CharField(max_length=200, unique=True, null=True)
-    member_no_savings = models.CharField(max_length=200, unique=True, null=True)
-    id_no = models.CharField(max_length=200, unique=True, null=True)
+    member_no_shares = models.CharField(max_length=200, unique=True, null=True, blank=True)
+    member_no_savings = models.CharField(max_length=200, unique=True, null=True, blank=True)
+    id_no = models.CharField(max_length=200, unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -112,7 +112,7 @@ class Loan(models.Model):
     updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loan_updated_by", null=True, blank=True)
     deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="loan_deleted_by", null=True, blank=True)
 
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField()
     updated_on = models.DateTimeField(null=True)
     deleted_on = models.DateTimeField(null=True)
     

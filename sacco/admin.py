@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api.models import UserProfile
+from api.models import UserProfile, Loan
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 
@@ -19,3 +19,4 @@ class AccountsUserAdmin(AuthUserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, AccountsUserAdmin)
+

@@ -162,7 +162,11 @@
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.userprofile.id_no}}"
+                                                <input data-parsley-type="text" type="text" id="id_no" name="id_no" 
+                                                {% if values.userprofile.id_no   %}
+                                                    value="{{  values.userprofile.id_no }}"
+                                                {% endif %}
+                                                
                                                         class="form-control" required
                                                         placeholder="Enter numerical value"/>
                                             </div>
@@ -179,7 +183,13 @@
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="text" type="text" id="" name="member_no_shares" value="{{values.userprofile.member_no_shares}}"
+                                                <input data-parsley-type="text" type="text" id="" name="member_no_shares" 
+
+                                                {% if values.userprofile.member_no_shares  %}
+                                                    value="{{values.userprofile.member_no_shares}}"
+                                                {% endif %}
+                                                
+                                                
                                                         class="form-control" required  
                                                         placeholder="Member # Shares Account"/>
                                             </div>
@@ -197,7 +207,13 @@
                                             <div>
                                                 
                                                 
-                                                <input data-parsley-type="text" type="text" id="" name="member_no_savings" value="{{values.userprofile.member_no_savings}}"
+                                                <input data-parsley-type="text" type="text" id="" name="member_no_savings" 
+                                                
+                                                {% if values.userprofile.member_no_savings  %}
+                                                    value="{{values.userprofile.member_no_savings}}"
+                                                {% endif %}
+                                                
+                                                
                                                         class="form-control" required  
                                                         placeholder="Member # Savings Account"/>
                                             </div>
