@@ -428,6 +428,7 @@ def add_member(request):
 
                     profile = user_profile_form.save(commit=False)
                     profile.save()
+                    
 
                 
 
@@ -481,7 +482,7 @@ def edit_member(request, id):
             }
         
 
-
+        print(request.POST)
         if request.method == 'GET':
             return render(request, 'sacco/users/edit-member.html', context)
 
@@ -510,8 +511,12 @@ def edit_member(request, id):
                 messages.error(request, "Phone number number must have " + str(PHONE_NUMBER) + ' digits starting with 0') 
             elif(starts_with_zero(u) == False):       
                 messages.error(request, "Phone number number must begin with 0")  
-            elif(UserProfile.objects.filter(member_no_shares=member_no_shares, member_no_savings=member_no_savings)).exclude(member_no_shares=member_no_shares, member_no_savings=member_no_savings):
-                messages.error(request, "Member Number Exists")
+            elif(UserProfile.objects.filter(member_no_savings=member_no_savings)).exclude(user_id=id):
+                messages.error(request, "Member Number Savings Exists")
+            elif(UserProfile.objects.filter(member_no_shares=member_no_shares)).exclude(user_id=id):
+                messages.error(request, "Member Number Shares Exists")
+            elif(UserProfile.objects.filter(id_no=id_no)).exclude(user_id=id):
+                messages.error(request, "ID Number Exists")
             else:
                 # Get user information from form
                 user.username = request.POST['username']
@@ -533,10 +538,29 @@ def edit_member(request, id):
 
                 print('selected user role:',g)
                 
-                if UserProfileForm.is_valid:
-                    user_profile.save()
+                user_profile_form = UserProfileForm(request.POST, instance=user.userprofile)
+                if user_profile_form.is_valid():
+
+                    if not id_no:
+                        id_no = None
+                    else:
+                        user_profile_form.id_no = id_no
+                        
+                    if not member_no_shares:
+                        member_no_shares = None
+                    else:
+                        user_profile_form.member_no_shares = member_no_shares
+                        
+                    if not member_no_savings:
+                        member_no_savings = None
+                    else:
+                        user_profile_form.member_no_savings = member_no_savings
+                    
+                    profile = user_profile_form.save(commit=False)
+                    profile.save()
+
                 else:
-                    messages.error(request, "User profile form is not valid")
+                    messages.error(request, "User profile form is not valid" + str(user_profile_form.errors))
             
                 
                 cache.clear()

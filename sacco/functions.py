@@ -125,5 +125,13 @@ DELIMITER ; """
 #     GROUP BY YEAR(created_on);
 # END 
 
+""" 
+CREATE PROCEDURE update_user_profile(IN user_id INT, IN id_no INT, IN member_no_shares INT, IN member_no_savings INT)
+BEGIN
+    -- Update the api_userprofile table with the new values
+    UPDATE api_userprofile SET id_no = id_no, member_no_shares = member_no_shares, member_no_savings = member_no_savings WHERE user_id = user_id;
+END;
+ """
+
 
 
