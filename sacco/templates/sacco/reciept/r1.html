@@ -312,12 +312,21 @@
 
 			<tr>
 				<td colspan="2">Principal:</td>
-				<td colspan="2">Ksh {{ r.loan.amount }}</td>
-			</tr>
+				<td colspan="2">
+					
+					{% with numerator=r.loan.amount denominator=r.loan.months %}
+						Ksh {{ numerator|div:denominator }}
+					{% endwith %}
 
+				</td>
+			</tr>
 			<tr>
 				<td colspan="2">Interest:</td>
-				<td colspan="2">Ksh {{ r.loan.interest }}</td>
+				<td colspan="2">
+					{% with numerator=r.loan.interest denominator=r.loan.months %}
+						Ksh {{ numerator|div:denominator }}
+					{% endwith %}
+				</td>
 			</tr>
 
 			<tr>
@@ -339,10 +348,10 @@
 				<td colspan="2">Ksh {{ r.paid }}</td>
 			</tr>
 
-			<tr>
+			<!-- <tr>
 				<td colspan="2">Balance:</td>
 				<td colspan="2">Ksh {{ r.unpaid }}</td>
-			</tr>
+			</tr> -->
 
 			
 

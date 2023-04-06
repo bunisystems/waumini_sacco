@@ -1105,7 +1105,7 @@ def capital_shares(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
             else:
                 registration = CapitalShares.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = CapitalShares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
@@ -1117,7 +1117,7 @@ def capital_shares(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
 
         return render(request, 'sacco/registration/registration.html', context)
 
@@ -1253,7 +1253,7 @@ def shares(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
             else:
                 registration = Shares.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = Shares.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
@@ -1265,7 +1265,7 @@ def shares(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
 
         return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
@@ -1387,7 +1387,7 @@ def nhif(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/nhif/nhif.html', context)
+                return render(request, 'sacco/nhif/n.html', context)
             else:
                 registration = NHIF.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = NHIF.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('amount')) + Sum(F('commission')))['total']
@@ -1399,7 +1399,7 @@ def nhif(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/nhif/nhif.html', context)
+                return render(request, 'sacco/nhif/n.html', context)
 
         return render(request, 'sacco/nhif/nhif.html', context)
 
@@ -1624,7 +1624,7 @@ def cheque(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/cheque/cheque.html', context)
+                return render(request, 'sacco/cheque/c.html', context)
             else:
                 registration = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = Cheque.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('amount')) + Sum(F('commission')))['total']            
@@ -1635,7 +1635,7 @@ def cheque(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/cheque/cheque.html', context)
+                return render(request, 'sacco/cheque/c.html', context)
 
         return render(request, 'sacco/cheque/cheque.html', context)
     
@@ -1761,7 +1761,7 @@ def account(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
             else:
                 registration = Account.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = Account.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(Sum('amount'))['amount__sum']
@@ -1773,7 +1773,7 @@ def account(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
 
         return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
@@ -1895,7 +1895,7 @@ def passbook(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
             else:
                 registration = Passbook.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = Passbook.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('amount')))['total']            
@@ -1907,7 +1907,7 @@ def passbook(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/registration/registration.html', context)
+                return render(request, 'sacco/registration/r.html', context)
 
         return render(request, 'sacco/registration/registration.html', context)
 @login_required(login_url='sign-in')
@@ -2112,7 +2112,7 @@ def loan_fee(request):
         if user:
             if start_date == end_date:
                 messages.error(request, 'Start Date and End Date are similar')
-                return render(request, 'sacco/loan_fee/loan-fee.html', context)
+                return render(request, 'sacco/loan_fee/l.html', context)
             else:
                 registration = LoanFee.objects.filter(created_on__range=(start_date, end_date), member=user)
                 total = LoanFee.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('loan_fee')) + Sum(F('processing')))['total']
@@ -2124,7 +2124,7 @@ def loan_fee(request):
                     'users': users,
                     'values' : request.POST
                     }
-                return render(request, 'sacco/loan_fee/loan-fee.html', context)
+            return render(request, 'sacco/loan_fee/l.html', context)
 
         return render(request, 'sacco/loan_fee/loan-fee.html', context)
 
