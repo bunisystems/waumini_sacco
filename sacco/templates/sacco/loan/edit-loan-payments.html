@@ -4,8 +4,6 @@
 
 {% load static%}
 
-{% load tz %}
-
  <!-- <body data-layout="horizontal" data-topbar="dark"> -->
 
         <!-- Begin page -->
@@ -49,34 +47,55 @@
 
                                             <div class="mb-3">
                                                 
-                                                <label  for="validationCustom03" class="form-label">Loan No:</label>
-                                                <select class="form-control select2" id="validationCustom03" name="loan_no" required>
-                                                    <option name="loan" value="{{ l.id }}">{{  l.loan_no }}</option>
-                                                    
-                                                   
-                                                </select>
-
-                                                <div class="invalid-tooltip">
-                                                    Please select a loan
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                
-                                                <label  for="validationCustom03" class="form-label">Member:</label>
-                                                <select class="form-control select2" id="validationCustom03" name="member" required>
-                                                    <option name="member" value="{{ l.loan_fees.member.id }}">{{  l.loan_fees.member.first_name }} {{  l.loan_fees.member.last_name }}</option>
-                                                    
-                                                   
+                                                <label  for="validationCustom03" class="form-label">Payment ID</label>
+                                                <select class="form-control select2" id="validationCustom03" name="payment" required >
+                                    
+                                                        <option name="payment" value="{{payments.id}}" selected>{{payments.id}} {{payments.payment_no}}</option>
+                                          
                                                 </select>
 
                                                 <div class="invalid-tooltip">
                                                     Please select a member
                                                 </div>
                                             </div>
+                                            
+
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationCustom03" class="form-label">Loan ID</label>
+                                                <select class="form-control select2" id="validationCustom03" name="loan" required>
+                                    
+                                                        <option name="loan" value="{{payments.loan.id}}">{{payments.loan.loan_no }}</option>
+                                          
+                                                </select>
+
+                                                <div class="invalid-tooltip">
+                                                    Please select a loan ID
+                                                </div>
+                                            </div>
 
 
                                         
+
+                                            <div class="mb-3">
+                                                <div class="mb-3 position-relative">
+                                                    <label for="validationTooltipUsername" class="form-label">Paid</label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text"
+                                                                id="validationTooltipUsernamePrepend">KES</span>
+                                                        </div>
+                                                        <input type="text" class="form-control" id="paid"
+                                                            placeholder="0.00" min="1"
+                                                            aria-describedby="validationTooltipUsernamePrepend"  name="paid" value="{{ payments.paid }}" required disabled>
+                                                        <div class="invalid-tooltip">
+                                                            Please provide an amount.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            
 
                                             <div class="mb-3">
                                                 <div class="mb-3 position-relative">
@@ -86,80 +105,22 @@
                                                             <span class="input-group-text"
                                                                 id="validationTooltipUsernamePrepend">KES</span>
                                                         </div>
-                                                        <input type="number" class="form-control" id="amount"
-                                                            placeholder="0.00" min="1"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="amount" value="{{ l.amount }}" required>
+                                                        <input type="text" class="form-control" id="amount"
+                                                            placeholder="0.00" min="-1"
+                                                            aria-describedby=""  name="amount" value="{{ values.amount }}" required >
                                                         <div class="invalid-tooltip">
                                                             Please provide an amount.
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-
-
-                                            <div class="mb-3">
-                                                <label for="validationCustom03" class="form-label">Start Date</label>
-                                                <div class="input-group" id="datepicker1">
-                                                    <input type="text" class="form-control" placeholder="dd M, yyyy"
-                                                        data-date-format="dd M, yyyy" data-date-container='#datepicker1' data-provide="datepicker" name="date" 
-                                                        value="{% timezone 'Europe/London' %}
-                                                        {{ l.created_on|date:'d M, Y' }}
-                                                    {% endtimezone %}" 
-                                                        required>
-
-                                                    <span class="input-group-text"><i class="mdi mdi-calendar"></i></span>
-                                                </div><!-- input-group -->
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <div class="mb-3 position-relative">
-                                                    <label for="validationTooltipUsername" class="form-label">Duration</label>
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text"
-                                                                id="validationTooltipUsernamePrepend">Months</span>
-                                                        </div>
-                                                        <input type="number" class="form-control" id="duration"
-                                                            placeholder="0"
-                                                            aria-describedby="validationTooltipUsernamePrepend"  name="duration" value="{{ l.months }}" required>
-                                                        <div class="invalid-tooltip">
-                                                            Please provide an amount.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                    
-
-                                            
-
-                                    
-
-                                            <div class="mb-3">
-                                                
-                                                <label  for="validationCustom03" class="form-label">Status</label>
-                                                <select class="form-control select2" id="validationCustom03" name="status" required>
-                                                    <option value="{{ l.status }}" selected>{{ l.status }}</option>
-                                                    <optgroup label="">
-                                                        <option name="status" value="Pending">Pending</option>                     
-                                                        <option name="status" value="Processing">Processing</option>                     
-                                                        <option name="status" value="Approved">Approved</option>  
-                                                        <option name="status" value="Rejected">Rejected</option>                        
-                                                        <option name="status" value="Disbursed">Disbursed</option>                     
-                                                        
-                                                    </optgroup>
-                                                   
-                                                </select>
-
-                                                <div class="invalid-tooltip">
-                                                    Please select status
                                                 </div>
                                             </div>
 
                                            
-                                          
 
-                                                                    
+                                            
+
+                
+        
                             
                                             <div class="mb-0">
                                                 <div>
@@ -191,5 +152,7 @@
         
         </div>
         <!-- END layout-wrapper -->
+
+
 
 {% endblock %}

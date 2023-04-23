@@ -6,6 +6,7 @@ from django.db.models.expressions import OrderBy
 from sacco.functions import *
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.db.models import Count, Sum, F
 
 
 
@@ -159,11 +160,15 @@ class Payments(models.Model):
 	
     
     def save(self, *args, **kwargs):
-        current_time = datetime.now()
-        self.payment_no = 'WPY' + current_time.strftime("%Y%m%d%H%M%S")
-        self.transaction_id = generate_transaction_uuid()
-        self.unpaid = self.balance - self.paid
-        super().save(*args, **kwargs)
+        payment_id = self.id
+        if Payments.objects.filter(id=payment_id).exists():
+            super(Payments, self).save()
+        else:
+            current_time = datetime.now()
+            self.payment_no = 'WPY' + current_time.strftime("%Y%m%d%H%M%S")
+            self.transaction_id = generate_transaction_uuid()
+            self.unpaid = self.balance - self.paid
+            super().save(*args, **kwargs)
 
         loan = self.loan   # fetch the related A object in my_a
         loan.balance = self.unpaid # update the no field of that object
@@ -174,7 +179,18 @@ class Payments(models.Model):
 
         loan.save()     # save the update to the database
 
+        
+
         self.save_balance()
+
+
+        total_fines_amount = self.loan.fines_loan.filter(loan=self.loan).aggregate(Sum('amount'))['amount__sum'] or 0
+        if total_fines_amount <= self.paid:
+            self.loan.fines_loan.update(is_paid=True)
+            self.loan.fines = 0
+            self.loan.save()
+        
+        
 
 
     def save_balance(self):
@@ -190,6 +206,31 @@ class Balance(models.Model):
 
 	def __str__(self):
 		return str(self.amount)
+
+class Fines(models.Model):
+    fine_no = models.CharField(max_length=200, unique=True)
+    transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
+    loan =  models.ForeignKey(Loan, on_delete=models.CASCADE, related_name="fines_loan")
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    is_paid = models.BooleanField(default=0)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(null=True)
+    deleted_on = models.DateTimeField(null=True)
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fines_created_by", null=True, blank=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fines_updated_by", null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fines_deleted_by", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        fine_id = self.id
+        if Fines.objects.filter(id=fine_id).exists():
+            super(Fines, self).save()
+        else:
+            current_time = datetime.now()
+            self.fine_no = 'WFN' + current_time.strftime("%Y%m%d%H%M%S")
+            self.transaction_id = generate_transaction_uuid()
+            super().save(*args, **kwargs)
 
 
 class CapitalShares(models.Model):
@@ -367,6 +408,28 @@ class Passbook(models.Model):
             self.passbook_no = 'WPB' + current_time.strftime("%Y%m%d%H%M%S")
             self.transaction_id = generate_transaction_uuid()
             super().save(*args, **kwargs)
+
+class Counter(models.Model):
+    s_users = models.IntegerField(null=True, blank=True)
+    s_active_users = models.IntegerField(null=True, blank=True)
+    s_inactive_users = models.IntegerField(null=True, blank=True)
+    s_members = models.IntegerField(null=True, blank=True)
+    s_paid_reg = models.IntegerField(null=True, blank=True)
+    s_unpaid_reg = models.IntegerField(null=True, blank=True)
+    s_loans = models.IntegerField(null=True, blank=True)
+    s_paid_loans = models.IntegerField(null=True, blank=True)
+    s_unpaid_loans = models.IntegerField(null=True, blank=True)
+    t_loans = models.IntegerField(null=True, blank=True)
+    l_this_month = models.IntegerField(null=True, blank=True)
+    l_last_month = models.IntegerField(null=True, blank=True)
+    l_this_year = models.IntegerField(null=True, blank=True)
+    l_last_year = models.IntegerField(null=True, blank=True)
+    t_loan = models.IntegerField(null=True, blank=True)
+
+    updated_on = models.DateTimeField(auto_now_add=True)
+
+
+
     
 
 class Settings(models.Model):

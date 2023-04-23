@@ -4,6 +4,7 @@ import datetime
 from datetime import datetime, timedelta
 import uuid
 from django.conf import settings
+import re
 
 
 def dictfetchall(cursor):
@@ -55,6 +56,22 @@ def starts_with_zero(num):
 def generate_transaction_uuid():
     transaction_uuid = uuid.uuid4()
     return transaction_uuid
+
+def formate_date_time(date_obj):
+    clean_date = re.sub(r'\b(?:midnight|noon|[ap]\.m\.|,)\b', '', date_obj).strip()
+    clean_date = clean_date.rstrip(',')
+    formats = ['%B %d, %Y', '%d %b, %Y', '%d. %b, %Y']
+    
+    for fmt in formats:
+         try:
+            created_on = datetime.strptime(clean_date, fmt)
+            break
+         except ValueError:
+            pass
+    else:
+        print("Could not parse date")
+    
+    return created_on
 
 
 
@@ -125,13 +142,76 @@ DELIMITER ; """
 #     GROUP BY YEAR(created_on);
 # END 
 
-""" 
-CREATE PROCEDURE update_user_profile(IN user_id INT, IN id_no INT, IN member_no_shares INT, IN member_no_savings INT)
-BEGIN
-    -- Update the api_userprofile table with the new values
-    UPDATE api_userprofile SET id_no = id_no, member_no_shares = member_no_shares, member_no_savings = member_no_savings WHERE user_id = user_id;
-END;
- """
 
+"""
 
+CREATE TRIGGER `update_loan_counters` AFTER INSERT ON `api_loan`
+ FOR EACH ROW BEGIN
 
+    SET @s_loans = (SELECT COUNT(*) FROM api_loan WHERE is_deleted = 0);
+    SET @s_paid_loans = (SELECT SUM(total) AS total_sum FROM api_loan WHERE is_paid = 1);
+    SET @s_unpaid_loans = (SELECT SUM(total) AS total_sum FROM api_loan WHERE is_paid = 0);
+    SET @l_this_month = (SELECT SUM(total) AS total__sum FROM api_loan WHERE MONTH(created_on) = MONTH(NOW())AND is_deleted = 0);
+    set @l_last_month = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH) AND MONTH(created_on) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) AND is_deleted = 0);
+    SET @l_this_year = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE) AND is_deleted = 0);
+    SET @l_last_year = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE - INTERVAL 1 YEAR) AND is_deleted = 0);
+    SET @t_loan = (SELECT SUM(total) AS total__sum FROM api_loan);
+    SET @updated_on = NOW();
+
+    UPDATE api_counter SET
+        s_paid_loans = @s_paid_loans,
+        s_unpaid_loans = @s_unpaid_loans,
+        s_loans = @s_loans,
+        l_this_month = @l_this_month,
+        l_last_month = @l_last_month,
+        l_this_year = @l_this_year,
+        l_last_year = @l_last_year,
+        t_loan = @t_loan,
+        updated_on = @updated_on WHERE id = 1;
+END
+
+CREATE TRIGGER `update_registration_counters` AFTER INSERT ON `api_registration`
+ FOR EACH ROW BEGIN
+    SET @s_members = (SELECT COUNT(group_id) FROM auth_user_groups INNER JOIN auth_group ON auth_user_groups.group_id = auth_group.id WHERE auth_group.name = 'Member' GROUP BY group_id);
+    SET @s_paid_reg = (SELECT COUNT(*) FROM api_registration WHERE is_deleted = 0);
+    SET @s_unpaid_reg =  (@s_members -  @s_paid_reg);
+    SET @updated_on = NOW();
+
+    UPDATE api_counter SET
+        s_paid_reg = @s_paid_reg,
+        s_unpaid_reg = @s_unpaid_reg,
+        updated_on = @updated_on WHERE id = 1;
+END
+
+CREATE TRIGGER `update_user_counters` AFTER INSERT ON `auth_user`
+ FOR EACH ROW BEGIN
+    SET @s_members = (SELECT COUNT(group_id) FROM auth_user_groups INNER JOIN auth_group ON auth_user_groups.group_id = auth_group.id WHERE auth_group.name = 'Member' GROUP BY group_id);
+    SET @s_users = (SELECT COUNT(group_id) FROM auth_user_groups INNER JOIN auth_group ON auth_user_groups.group_id = auth_group.id WHERE auth_group.name != 'Member' GROUP BY group_id);
+    SET @s_active_users = (SELECT COALESCE(COUNT(*), 0) FROM (SELECT auth_group.id FROM auth_user_groups INNER JOIN auth_group ON auth_user_groups.group_id = auth_group.id INNER JOIN auth_user ON auth_user_groups.user_id = auth_user.id WHERE auth_user.is_active = 1 AND auth_user.is_superuser = 0 AND auth_group.name != 'Member'  GROUP BY auth_group.id) AS subquery);
+    SET @s_inactive_users = (SELECT COALESCE(COUNT(*), 0) FROM (SELECT auth_group.id FROM auth_user_groups INNER JOIN auth_group ON auth_user_groups.group_id = auth_group.id INNER JOIN auth_user ON auth_user_groups.user_id = auth_user.id WHERE auth_user.is_active = 0 AND auth_user.is_superuser = 0 AND auth_group.name != 'Member' GROUP BY auth_group.id) AS subquery);
+    SET @updated_on = NOW();
+
+    UPDATE api_counter SET
+        s_members = @s_members,
+        s_users = @s_users,
+        s_active_users = @s_active_users,
+        s_inactive_users = @s_inactive_users,
+        updated_on = @updated_on WHERE id = 1;
+END
+
+CREATE TRIGGER `update_fines` AFTER INSERT ON `api_fines`
+ FOR EACH ROW BEGIN
+  DECLARE total_fines DECIMAL(10,2);
+  
+  SELECT SUM(amount) INTO total_fines
+  FROM api_fines
+  WHERE is_paid = False AND
+  loan_id = NEW.loan_id;
+  
+  UPDATE api_loan
+  SET fines = total_fines,
+      total = total + total_fines,
+      balance = balance + total_fines
+  WHERE id = NEW.loan_id;
+END
+"""

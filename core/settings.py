@@ -110,7 +110,7 @@ if HOSTNAME  == 'DESKTOP-6FABKOP':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'w_sacco',
+            'NAME': 'w_sacco_test',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
@@ -122,21 +122,10 @@ elif HOSTNAME == 'DESKTOP-M0QNIIU':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'w_sacco',
+            'NAME': 'w_sacco_test',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
-            'PORT': '3306',
-        }
-    }
-else:
-     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'w_sacco',
-            'USER': 'inv-pane',
-            'PASSWORD': 'bf8b7947ddbb93',
-            'HOST': '35.224.216.30',
             'PORT': '3306',
         }
     }
@@ -228,6 +217,11 @@ EMAIL_PORT =  587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'no-reply@wauminisacco.co.ke'
 EMAIL_HOST_PASSWORD = '@Jenga-systems123'
+
+
+
+
+
 
 
 

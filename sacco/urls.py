@@ -24,8 +24,13 @@ urlpatterns = [
     path('unpaid-loan', views.unpaid_loan, name="unpaid-loan"),
     path('loan-info/<hashid:id>', views.loan_info, name="loan-info"),
     path('loan-payments/<hashid:id>', views.loan_payments, name="loan-payments"),
+    path('edit-loan-payments/<hashid:id>', views.edit_loan_payments, name="edit-loan-payments"),
     path('add-loan', views.add_loan, name="add-loan"),
     path('edit-loan/<hashid:id>', views.edit_loan, name="edit-loan"),
+
+    # Fines
+    path('fines', views.fine, name="fines"),
+    path('add-fine/<hashid:id>', views.add_fine, name="add-fine"),
 
     path('loan-fee', views.loan_fee, name="loan-fee"),
     path('add-loan-fee', views.add_loan_fee, name="add-loan-fee"),

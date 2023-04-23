@@ -265,6 +265,12 @@
 			  </tr>
 
 			  <tr>
+				<td colspan="2">Product:</td>
+				<td colspan="2">Cheque</td>
+			</tr>
+
+
+			  <tr>
 				<td colspan="2">Amount:</td>
 				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
@@ -286,11 +292,17 @@
 				<td colspan="2">Receipt No.:</td>
 				<td colspan="2">{{ r.passbook_no }}</td>
 			</tr>
+			
 
 			<tr>
 				<th colspan="2">Description</th>
 				<th colspan="2">Amount</th>
 			  </tr>
+
+			  <tr>
+				<td colspan="2">Product:</td>
+				<td colspan="2">Passbook</td>
+			</tr>
 
 
 			  <tr>
@@ -334,10 +346,23 @@
 				<td colspan="2">Ksh {{ r.loan.insurance }}</td>
 			</tr>
 
+
+			<tr>
+				<td colspan="2">Fines:</td>
+				<td colspan="2">Ksh {% if r.loan.fines == None %} 0 {% else %} {{ r.loan.fines  }} {% endif %}</td>
+			</tr>
+
 			<tr>
 				<th colspan="2">Description</th>
 				<th colspan="2">Amount</th>
 			  </tr>
+
+
+			  <tr>
+				<td colspan="2">Product:</td>
+				<td colspan="2">Loan</td>
+			</tr>
+
 
 			  <tr>
 				<td colspan="2">Amount:</td>

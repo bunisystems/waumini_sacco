@@ -28,6 +28,8 @@ from django.core.cache import cache
 from.celery import *
 from django.db.models import Q
 from .constants import *
+from django.core.paginator import Paginator
+import re
 
 
 try:
@@ -70,52 +72,11 @@ def index(request):
 
     # 2023-02-01
     today = timezone.now().date()
-    # 2023-02-02
-    tomorrow = today + timedelta(1)
-    
-    today_start = timezone.now().combine(today, time())
 
-   
-    
-    today_end = timezone.now().combine(tomorrow, time())
-
-    
-    this_year =  datetime.now().year
-    last_year =  datetime.now().year - 1
-
-    month = today + timedelta(30)
-    m_today_start = datetime.combine(today, time())
-    m_today_end = datetime.combine(month, time())
-
-    """ Get the current month """
-    this_month = datetime.now().month
-    last_month = datetime.now().month - 1
-
-    # USERS
     group = Group.objects.get(name='Member')
-    s_users = User.objects.filter(is_superuser=0).exclude(groups=group).count()
-    s_active_users = User.objects.filter(is_active=1, is_superuser=0).exclude(groups=group).count()
-    s_inactive_users = User.objects.filter(is_active=0, is_superuser=0).exclude(groups=group).count()
 
-    # MEMBERS
-    s_members = User.objects.filter(groups=group).count()
-    s_paid_reg = Registration.objects.filter(is_deleted=0).count()
-    s_unpaid_reg = s_members - s_paid_reg
-
-    # LOANS
-    s_loans = Loan.objects.all().count()
-    s_paid_loans = Loan.objects.filter(is_paid=1).aggregate(Sum('total'))['total__sum']
-    s_unpaid_loans = Loan.objects.filter(is_paid=0).aggregate(Sum('balance'))['balance__sum']
-    t_loans = Loan.objects.all().aggregate(Sum('total'))['total__sum']
-
-    """ This/Last month's Loans """
-    l_this_month = Loan.objects.filter(created_on__month=this_month).aggregate(Sum('total'))['total__sum']
-    l_last_month = Loan.objects.filter(created_on__month=last_month).aggregate(Sum('total'))['total__sum']
-
-    """ This/Last Year's Loans """
-    l_this_year = Loan.objects.filter(created_on__year=this_year).aggregate(Sum('total'))['total__sum']
-    l_last_year = Loan.objects.filter(created_on__year=last_year).aggregate(Sum('total'))['total__sum']
-
+    counter = Counter.objects.get(pk=1)
+ 
 
     # Current Yr
     # 09:11:57.225475+00:00
@@ -146,7 +107,6 @@ def index(request):
         cursor.execute("CALL sp_loan_per_year")
         loan_per_year = dictfetchall(cursor)
     
-
     for lpy in loan_per_year: 
         ly_labels.append(int(lpy['year']))
         ly_data.append(str(lpy['total_amount']))
@@ -155,20 +115,7 @@ def index(request):
     
     
     context = {
-        's_members' : s_members,
-        's_paid_reg' : s_paid_reg,
-        's_unpaid_reg' : s_unpaid_reg,
-        's_loans' : s_loans,
-        's_paid_loans' : s_paid_loans,
-        's_unpaid_loans' : s_unpaid_loans,
-        's_users' : s_users,
-        's_active_users' : s_active_users,
-        's_inactive_users' : s_inactive_users,
-        't_loans' : t_loans,
-        'l_this_month' : l_this_month,
-        'l_last_month' : l_last_month,
-        'l_this_year': l_this_year, 
-        'l_last_year': l_last_year,
+        'counter' : counter,
         'lc_labels' : lc_labels,
         'lc_data' : lc_data,
         'ly_labels' : ly_labels,
@@ -184,8 +131,15 @@ def index(request):
 @cache_page(CACHE_TTL)
 @login_required(login_url='sign-in')
 def users(request):
-    users = User.objects.filter(is_active=1, is_superuser=0)
-    context = {'users': users }
+    #users  = User.objects.filter(is_active=1, is_superuser=0)
+
+    users = User.objects.filter(is_superuser=0, is_staff=1)
+    paginator = Paginator(users, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+
+    context = {'users': users, 'page_obj': page_obj }
     return render(request, 'sacco/users/users.html', context)
 
 @login_required(login_url='sign-in')
@@ -269,10 +223,10 @@ def edit_user(request, id):
 
         if User.objects.exclude(pk=id).filter(email=e):
             messages.error(request, "Email already exists")
-            return render(request, 'sacoo/users/edit-user.html', context)
+            return render(request, 'sacco/users/edit-user.html', context)
         elif User.objects.exclude(pk=id).filter(username=u):
             messages.error(request, "Username already exists")
-            return render(request, 'sacoo/users/edit-user.html', context)
+            return render(request, 'sacco/users/edit-user.html', context)
         else:
             
              # Get user information from form
@@ -280,7 +234,7 @@ def edit_user(request, id):
             user.first_name = request.POST['first_name']
             user.last_name = request.POST['last_name']
             user.email = request.POST['email']
-            user.password = User.objects.make_random_password()
+            # user.password = User.objects.make_random_password()
 
             # Save user
             user.save()
@@ -369,8 +323,12 @@ def delete_user(request, id):
 """ Add Member """
 @login_required(login_url='sign-in')
 def members(request):
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
-    context = {'users': users }
+    users = User.objects.filter(is_superuser=0, is_staff=0)
+    paginator = Paginator(users, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+    context = {'users': users, 'page_obj': page_obj }
     return render(request, 'sacco/users/members.html', context)
 
 @login_required(login_url='sign-in')
@@ -523,7 +481,7 @@ def edit_member(request, id):
                 user.first_name = request.POST['first_name']
                 user.last_name = request.POST['last_name']
                 user.email = f'user{randint(1, 99999)}@wauminisacco.co.ke'
-                user.password = User.objects.make_random_password()
+                # user.password = User.objects.make_random_password()
                 user.is_active = is_active
 
                 # Save user
@@ -777,8 +735,12 @@ def registration_reciept(request, id):
 """ Loans """
 @login_required(login_url='sign-in')
 def loan(request):
-    registration = Loan.objects.filter(is_paid=0)
-    context = { 'registration' : registration}
+    registration = Loan.objects.filter(is_paid=0).order_by('-id')
+    paginator = Paginator(registration, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+    context = { 'registration' : registration, 'page_obj': page_obj}
     return render(request, 'sacco/loan/loan.html', context)
 
 @login_required(login_url='sign-in')
@@ -961,6 +923,21 @@ def edit_loan(request, id):
         if int(float(amount)) > int(MAX_LOAN):
             messages.error(request, ERROR_MAX_LOAN)
             return render(request, 'sacco/loan/edit-loan.html', context)
+
+        date_obj = request.POST['date']
+        
+        if not date_obj:
+            messages.error(request, ERROR_DATE)
+            return render(request, 'sacco/loan/add-loan.html', context)
+        else:
+            # Parse the date string into a datetime object
+            clean_date = re.sub(r'\b(?:midnight|noon|[ap]\.m\.|,)\b', '', date_obj).strip()
+            clean_date = clean_date.rstrip(',').rstrip('.')
+            formats = ['%B %d, %Y', '%B. %d, %Y', '%b. %d, %Y', '%d %b, %Y', '%d. %b, %Y', '%b %d, %Y']
+           
+            created_on = datetime.strptime(clean_date, '%d %b, %Y')
+                
+            
         
         duration = request.POST['duration']
 
@@ -968,22 +945,17 @@ def edit_loan(request, id):
             messages.error(request, LOAN_DURATION)
             return render(request, 'sacco/loan/edit-loan.html', context)
         else:
-            due_date = add_months(int(duration))
+            due_date = add_months(created_on, int(duration))
 
         interest = (float(amount) * (float(INTEREST) / 100)) * float(duration)
 
-        fines = request.POST['fine']
-        if not fines:
-            fines = 0
 
-
-    
         
         insurance = float(amount) * (float(INSUARANCE) / 100)
 
     
 
-        total = float(amount) + float(interest) + float(insurance) + float(fines)
+        total = float(amount) + float(interest) + float(insurance)
         
 
         member = User.objects.get(id=request.POST.get('member'))
@@ -1006,15 +978,15 @@ def edit_loan(request, id):
         l.balance=total
         l.months=duration
         l.total=total
-        l.fines=fines
         l.status = status
+        l.created_on = created_on
         l.updated_by = request.user
         l.updated_on = timezone.now()
         l.save()
     
 
         # saving the expense in the database after creating it
-        messages.success(request, 'Loan Fee updated successfully')
+        messages.success(request, 'Loan updated successfully')
 
         # redirect to the expense page to see the expenses
         return redirect('loan')
@@ -1066,6 +1038,136 @@ def loan_payments(request, id):
         return redirect('loan')
     
     return render(request, 'sacco/loan/loan-payments.html', context)
+
+@login_required(login_url='sign-in')
+def fine(request):
+    users = User.objects.filter(is_superuser=0, is_staff=0)
+    
+
+    if request.method == 'GET':
+
+        registration = Fines.objects.all()
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj } 
+        return render(request, 'sacco/fines/fine.html', context)
+   
+    print(request.POST)
+
+    
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/fines/fine.html', context)
+            else:
+                # TODO
+                # registration = Fines.objects.filter(created_on__range=(start_date, end_date), loan=user)
+                # total = Fines.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('amount')))['total']
+               
+                
+                context = { 
+                    'users': users,
+                    'values' : request.POST
+                    }
+
+            """     context = { 
+                    'registration' : registration,
+                    'total' : total,
+                    'users': users,
+                    'values' : request.POST
+                    } """
+            return render(request, 'sacco/fines/fine.html', context)
+
+        return render(request, 'sacco/fines/fine.html', context)
+
+
+@login_required(login_url='sign-in')
+def add_fine(request, id):
+    loan = Loan.objects.get(pk=id)
+    context = { 'loan' : loan }
+
+    print(request.POST)
+
+    if request.method == 'GET':
+        return render(request, 'sacco/fines/add-fine.html', context)
+    
+    if request.method == 'POST':
+
+        amount = request.POST['amount']
+        if not amount:
+            messages.error(request, 'Amount is required')
+            return render(request, 'sacco/fines/add-fine.html', context)
+        
+        Fines.objects.create( 
+            loan=loan,
+            amount=amount,          
+            created_by=request.user)
+
+        # saving the expense in the database after creating it
+       
+        messages.success(request, 'Fines saved successfully')
+        return redirect('loan')
+        
+       
+        
+
+    return render(request, 'sacco/fines/add-fine.html', context)
+
+
+@login_required(login_url='sign-in')
+def edit_loan_payments(request, id):
+    payments = Payments.objects.get(pk=id)
+    context = { 'payments' : payments }
+    print(request.POST)
+
+    if request.method == 'GET':
+        return render(request, 'sacco/loan/edit-loan-payments.html', context)
+    
+    if request.method == 'POST':
+        payment = Payments.objects.get(id=request.POST.get('payment'))
+        if not payment:
+            messages.error(request, 'Payment is required')
+            return render(request, 'sacco/loan/edit-loan-payments.html', context)
+       
+        loans = Loan.objects.get(id=request.POST.get('loan'))
+        if not loans:
+            messages.error(request, 'Loan is required')
+            return render(request, 'sacco/loan/edit-loan-payments.html', context)
+        
+      
+
+        new_paid_amount = request.POST['amount']
+        if not new_paid_amount:
+            messages.error(request, 'Amount is required')
+            return render(request, 'sacco/loan/edit-loan-payments.html', context)
+        elif(float(new_paid_amount) > float(payments.loan.balance)):
+            messages.error(request, 'Amount cannot be greater than ' + str(payments.loan.balance))
+            return render(request, 'sacco/loan/edit-loan-payments.html', context)
+        else:
+            paid = decimal.Decimal(new_paid_amount)
+            unpaid = decimal.Decimal(payments.balance) - paid
+        
+
+
+        payments.paid = paid
+        payments.unpaid = unpaid
+        payments.updated_by = request.user
+        payments.updated_on = timezone.now()
+        payments.save()
+
+        messages.success(request, 'Payments edited successfully')
+        return redirect('payments')
+    
+    return render(request, 'sacco/loan/edit-loan-payments.html', context)
 
 
 @login_required(login_url='sign-in')
@@ -1740,12 +1842,19 @@ def cheque_reciept(request, id):
 """ Account """
 @login_required(login_url='sign-in')
 def account(request):
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    users = User.objects.filter(is_superuser=0, is_staff=0)
   
     if request.method == 'GET':
-
+    
         registration = Account.objects.all()
-        context = { 'registration' : registration, 'users' : users} 
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj} 
+
+
+
         return render(request, 'sacco/registration/registration.html', context)
    
     print(request.POST)
@@ -2091,12 +2200,16 @@ def settings(request):
 @login_required(login_url='sign-in')
 def loan_fee(request):
 
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    users = User.objects.filter(is_superuser=0, is_staff=0)
   
     if request.method == 'GET':
 
         registration = LoanFee.objects.all()
-        context = { 'registration' : registration, 'users' : users} 
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj } 
         return render(request, 'sacco/loan_fee/loan-fee.html', context)
    
     print(request.POST)
@@ -2250,8 +2363,13 @@ def loanfee_reciept(request, id):
 
 @login_required(login_url='sign-in')
 def payments(request):
-    r = Payments.objects.all()
-    context = { 'r' : r}
+
+    r = Payments.objects.all().order_by('-id')
+    paginator = Paginator(r, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+    context = { 'r' : r, 'page_obj': page_obj}
     return render(request, 'sacco/loan/payments.html', context)
 
 @login_required(login_url='sign-in')
