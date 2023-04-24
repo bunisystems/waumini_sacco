@@ -27,6 +27,7 @@ urlpatterns = [
     path('edit-loan-payments/<hashid:id>', views.edit_loan_payments, name="edit-loan-payments"),
     path('add-loan', views.add_loan, name="add-loan"),
     path('edit-loan/<hashid:id>', views.edit_loan, name="edit-loan"),
+    path('defaulters', views.defaulters, name="defaulters"),
 
     # Fines
     path('fines', views.fine, name="fines"),

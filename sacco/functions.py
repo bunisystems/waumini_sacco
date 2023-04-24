@@ -144,8 +144,77 @@ DELIMITER ; """
 
 
 """
+DELIMITER //
+CREATE PROCEDURE sp_get_unpaid_loans()
+BEGIN
+    SELECT api_loan.*,
+           MAX(api_payments.created_on) AS last_payment_date,
+           CASE
+               WHEN DATEDIFF(NOW(), MAX(api_payments.created_on)) <= 30 THEN 'Within 30 days'
+               WHEN DATEDIFF(NOW(), MAX(api_payments.created_on)) <= 60 THEN 'Within 60 days'
+               WHEN DATEDIFF(NOW(), MAX(api_payments.created_on)) <= 90 THEN 'Within 90 days'
+               ELSE 'Over 90 days'
+           END AS payment_due,
+           SUM(api_payments.paid) AS total_amount_paid,
+           ROUND(api_loan.total / api_loan.months, 2) AS expected_monthly_payment,
+           
+           auth_user.first_name,
+           auth_user.last_name
+    FROM api_loan
+             LEFT JOIN api_payments ON api_loan.id = api_payments.loan_id
+             LEFT JOIN api_loanfee ON api_loan.loan_fees_id = api_loanfee.id
+             LEFT JOIN auth_user ON api_loanfee.member_id = auth_user.id
+    WHERE api_loan.is_paid = 0
+    GROUP BY api_loan.id;
+  
+  END //
+DELIMITER ;
+
+"""
+
+"""
+CREATE TRIGGER `update_fines` AFTER INSERT ON `api_fines`
+ FOR EACH ROW BEGIN
+  DECLARE total_fines DECIMAL(10,2);
+  
+  SELECT SUM(amount) INTO total_fines
+  FROM api_fines
+  WHERE is_paid = False AND
+  loan_id = NEW.loan_id;
+  
+  UPDATE api_loan
+  SET fines = total_fines,
+      total = total + total_fines,
+      balance = balance + total_fines
+  WHERE id = NEW.loan_id;
+END
 
 CREATE TRIGGER `update_loan_counters` AFTER INSERT ON `api_loan`
+ FOR EACH ROW BEGIN
+
+    SET @s_loans = (SELECT COUNT(*) FROM api_loan WHERE is_deleted = 0);
+    SET @s_paid_loans = (SELECT SUM(total) AS total_sum FROM api_loan WHERE is_paid = 1);
+    SET @s_unpaid_loans = (SELECT SUM(total) AS total_sum FROM api_loan WHERE is_paid = 0);
+    SET @l_this_month = (SELECT SUM(total) AS total__sum FROM api_loan WHERE MONTH(created_on) = MONTH(NOW())AND is_deleted = 0);
+    set @l_last_month = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH) AND MONTH(created_on) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) AND is_deleted = 0);
+    SET @l_this_year = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE) AND is_deleted = 0);
+    SET @l_last_year = (SELECT SUM(total) AS total__sum FROM api_loan WHERE YEAR(created_on) = YEAR(CURRENT_DATE - INTERVAL 1 YEAR) AND is_deleted = 0);
+    SET @t_loan = (SELECT SUM(total) AS total__sum FROM api_loan);
+    SET @updated_on = NOW();
+
+    UPDATE api_counter SET
+        s_paid_loans = @s_paid_loans,
+        s_unpaid_loans = @s_unpaid_loans,
+        s_loans = @s_loans,
+        l_this_month = @l_this_month,
+        l_last_month = @l_last_month,
+        l_this_year = @l_this_year,
+        l_last_year = @l_last_year,
+        t_loan = @t_loan,
+        updated_on = @updated_on WHERE id = 1;
+END
+
+CREATE TRIGGER `update_loan_counters1` AFTER INSERT ON `api_payments`
  FOR EACH ROW BEGIN
 
     SET @s_loans = (SELECT COUNT(*) FROM api_loan WHERE is_deleted = 0);
@@ -199,19 +268,5 @@ CREATE TRIGGER `update_user_counters` AFTER INSERT ON `auth_user`
         updated_on = @updated_on WHERE id = 1;
 END
 
-CREATE TRIGGER `update_fines` AFTER INSERT ON `api_fines`
- FOR EACH ROW BEGIN
-  DECLARE total_fines DECIMAL(10,2);
-  
-  SELECT SUM(amount) INTO total_fines
-  FROM api_fines
-  WHERE is_paid = False AND
-  loan_id = NEW.loan_id;
-  
-  UPDATE api_loan
-  SET fines = total_fines,
-      total = total + total_fines,
-      balance = balance + total_fines
-  WHERE id = NEW.loan_id;
-END
+
 """

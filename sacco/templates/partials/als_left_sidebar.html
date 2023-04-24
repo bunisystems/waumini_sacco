@@ -46,7 +46,7 @@
                     </a>
                 </li>
 
-                <li class="menu-title">Member Payments</li>  
+                <li class="menu-title">Payments</li>  
 
                 <li>
                     <a href="javascript: void(0);" class="has-arrow waves-effect">
@@ -59,8 +59,6 @@
                         <li><a href="{% url 'nhif' %}">NHIF</a></li>
                         <li><a href="{% url 'account' %}">Savings Account</a></li>
                         <li><a href="{% url 'shares' %}">Shares Account</a></li>
-                        <li><a href="{% url 'loan-fee' %}">Loans</a></li>
-                        <li><a href="{% url 'fines' %}">Fines</a></li>
                     </ul>
                 </li>
 
@@ -81,11 +79,26 @@
                         <span>Loans</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
+
+                        <li><a href="{% url 'loan-fee' %}">Loan Fee</a></li>
                         <li><a href="{% url 'loan' %}">Loans</a></li>
+                        <li><a href="{% url 'fines' %}">Fines</a></li>                  
+                    </ul>
+                </li>
+
+                <li class="menu-title">Reports</li>  
+
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-mail-send-line"></i>
+                        <span>Loans</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'defaulters' %}">Defaulters</a></li>
                         <li><a href="{% url 'payments' %}">Payments</a></li>
                         <li><a href="{% url 'paid-loan' %}">Paid Loans</a></li>
                         <li><a href="{% url 'unpaid-loan' %}">Unpaid Loans</a></li>
-                                      
                     </ul>
                 </li>
 

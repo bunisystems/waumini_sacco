@@ -1172,14 +1172,33 @@ def edit_loan_payments(request, id):
 
 @login_required(login_url='sign-in')
 def paid_loan(request):
-    registration = Loan.objects.filter(is_paid=1)
-    context = { 'registration' : registration}
+
+    registration = Loan.objects.filter(is_paid=1).order_by('-id')
+    paginator = Paginator(registration, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+    context = { 'registration' : registration, 'page_obj': page_obj}
+
     return render(request, 'sacco/loan/loan.html', context)
 @login_required(login_url='sign-in')
 def unpaid_loan(request):
-    registration = Loan.objects.filter(is_paid=0)
-    context = { 'registration' : registration}
+    registration = Loan.objects.filter(is_paid=0).order_by('-id')
+    paginator = Paginator(registration, 20)
+    page_number = request.GET.get('page')
+    page_obj = Paginator.get_page(paginator, page_number)
+
+    context = { 'registration' : registration, 'page_obj': page_obj}
     return render(request, 'sacco/loan/loan.html', context)
+
+@login_required(login_url='sign-in')
+def defaulters(request):
+    with connection.cursor() as cursor:
+        cursor.execute("CALL sp_get_unpaid_loans()")
+        results = dictfetchall(cursor)
+
+    context = { 'results' : results }
+    return render(request, 'sacco/loan/defaulter.html', context)
 
 
 
