@@ -735,13 +735,54 @@ def registration_reciept(request, id):
 """ Loans """
 @login_required(login_url='sign-in')
 def loan(request):
-    registration = Loan.objects.filter(is_paid=0).order_by('-id')
-    paginator = Paginator(registration, 20)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
 
-    context = { 'registration' : registration, 'page_obj': page_obj}
-    return render(request, 'sacco/loan/loan.html', context)
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+
+    if request.method == 'GET':
+
+        registration = Loan.objects.filter(is_paid=0).order_by('-id')
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'users': users, 'page_obj': page_obj}
+        return render(request, 'sacco/loan/loan.html', context)
+    
+    print(request.POST)
+
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/loan/loan.html', context)
+            else:
+                page_obj = Loan.objects.filter(created_on__range=(start_date, end_date), loan_fees__member=user)
+                total_loan = Loan.objects.filter(created_on__range=(start_date, end_date), loan_fees__member=user).aggregate(total_loan=Sum(F('total')))['total_loan']
+                total_balance = Loan.objects.filter(created_on__range=(start_date, end_date), loan_fees__member=user).aggregate(total_balance=Sum(F('balance')))['total_balance']
+                
+               
+                
+                context = { 
+                    'users': users,
+                    'values' : request.POST
+                    }
+
+            context = { 
+                    'page_obj' : page_obj,
+                    'total_loan' : total_loan,
+                    'total_balance' : total_balance,
+                    'users': users,
+                    'values' : request.POST
+                    }
+            return render(request, 'sacco/loan/loan.html', context)
+
+        return render(request, 'sacco/loan/loan.html', context)
 
 @login_required(login_url='sign-in')
 def loan_info(request, id):
@@ -1181,6 +1222,7 @@ def paid_loan(request):
     context = { 'registration' : registration, 'page_obj': page_obj}
 
     return render(request, 'sacco/loan/loan.html', context)
+
 @login_required(login_url='sign-in')
 def unpaid_loan(request):
     registration = Loan.objects.filter(is_paid=0).order_by('-id')
@@ -1205,12 +1247,18 @@ def defaulters(request):
 """ Capital Shares """
 @login_required(login_url='sign-in')
 def capital_shares(request):
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    users = User.objects.filter(is_superuser=0, is_staff=0)
   
     if request.method == 'GET':
 
+
         registration = CapitalShares.objects.all()
-        context = { 'registration' : registration, 'users' : users} 
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+    
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj} 
         return render(request, 'sacco/registration/registration.html', context)
    
     print(request.POST)
@@ -1358,7 +1406,12 @@ def shares(request):
     if request.method == 'GET':
 
         registration = Shares.objects.all()
-        context = { 'registration' : registration, 'users' : users} 
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj} 
         return render(request, 'sacco/registration/registration.html', context)
    
     print(request.POST)
@@ -2002,12 +2055,16 @@ def account_reciept(request, id):
 @login_required(login_url='sign-in')
 def passbook(request):
 
-    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
+    users = User.objects.filter(is_superuser=0, is_staff=0)
   
     if request.method == 'GET':
 
         registration = Passbook.objects.all()
-        context = { 'registration' : registration, 'users' : users} 
+        paginator = Paginator(registration, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'users' : users, 'page_obj': page_obj} 
         return render(request, 'sacco/registration/registration.html', context)
    
     print(request.POST)

@@ -36,6 +36,8 @@
             {% include "partials/als_page_title.html" %}
             <!-- end page title -->
 
+            {% include "sacco/includes/search.html" %}
+
             {% include 'partials/als_messages.html' %} 
 
 
@@ -112,6 +114,7 @@
                                         <td>--</td>
                                         <td>--</td>
                                         <td>--</td>
+                                        <td>--</td>
                                     {% elif request.path|slice:"1:" == 'unpaid-loan'%} 
                                         <td>--</td>
                                         <td>
@@ -125,6 +128,7 @@
                                                 <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Make Payments</button>
                                             </a>
                                         </td>
+                                        <td>--</td>
                                     {% endif %}
 
 
@@ -133,6 +137,14 @@
                                     </tr>    
                                     {% endfor %}                                       
                                     </tbody>
+
+                                    <tr>
+                                        <td>Total</td>
+                                        <td>{{ total_loan}}</td>
+                                        <td>{{ total_balance}}</td>
+
+                                    </tr>
+                                    
                                 </table>
 
 

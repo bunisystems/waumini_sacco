@@ -122,7 +122,7 @@ elif HOSTNAME == 'DESKTOP-M0QNIIU':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'w_sacco_test',
+            'NAME': 'w_sacco',
             'USER': 'root',
             'PASSWORD': '',
             'HOST': 'localhost',
