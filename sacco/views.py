@@ -30,6 +30,11 @@ from django.db.models import Q
 from .constants import *
 from django.core.paginator import Paginator
 import re
+from openpyxl import Workbook
+from django.http import HttpResponse
+from django.db import connection
+
+
 
 
 try:
@@ -76,7 +81,7 @@ def index(request):
     group = Group.objects.get(name='Member')
 
     counter = Counter.objects.get(pk=1)
- 
+
 
     # Current Yr
     # 09:11:57.225475+00:00
@@ -112,7 +117,7 @@ def index(request):
         ly_data.append(str(lpy['total_amount']))
     
     trans = Payments.objects.all().order_by('-created_on')[:5]
-    
+    users = User.objects.filter(Q(groups=group)).prefetch_related('groups')
     
     context = {
         'counter' : counter,
@@ -120,10 +125,13 @@ def index(request):
         'lc_data' : lc_data,
         'ly_labels' : ly_labels,
         'ly_data' : ly_data,
-        'trans' : trans
+        'trans' : trans,
+        'users' : users
         }
 
     return render(request, 'sacco/index.html', context)
+
+    
 
 """ User """
 
@@ -324,7 +332,7 @@ def delete_user(request, id):
 @login_required(login_url='sign-in')
 def members(request):
     users = User.objects.filter(is_superuser=0, is_staff=0)
-    paginator = Paginator(users, 20)
+    paginator = Paginator(users, 10)
     page_number = request.GET.get('page')
     page_obj = Paginator.get_page(paginator, page_number)
 
@@ -2453,6 +2461,43 @@ def payments_reciept(request, id):
     r = Payments.objects.get(pk=id)
     context = { 'r' : r}
     return render(request, 'sacco/reciept/r1.html', context)
+
+
+@login_required(login_url='sign-in')
+def export_to_excel(request):
+    # Execute the SQL query
+    with connection.cursor() as cursor:
+        query = """
+            SELECT auth_user.first_name, auth_user.username, api_userprofile.member_no_shares, 
+                   api_userprofile.member_no_savings, api_userprofile.id_no 
+            FROM auth_user 
+            INNER JOIN api_userprofile ON auth_user.id = api_userprofile.user_id
+            WHERE auth_user.is_superuser = 0 AND auth_user.is_staff = 0
+        """
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+    # Create a new workbook and select the active sheet
+    wb = Workbook()
+    ws = wb.active
+
+    # Write column headers
+    headers = ['First Name', 'Phone Number', 'Member Shares', 'Member Savings', 'ID Number']
+    ws.append(headers)
+
+    # Write data rows
+    for row in result:
+        ws.append(row)
+
+    # Set the appropriate content type for the response
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=members.xlsx'
+
+    # Save the workbook to the response
+    wb.save(response)
+
+    return response
+
 
 
 

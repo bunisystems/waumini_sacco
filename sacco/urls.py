@@ -103,6 +103,10 @@ urlpatterns = [
 
 
     path('profile/<hashid:id>', views.profile, name="profile"),
+
+
+    #
+    path('export/', views.export_to_excel, name='export'),
    
 
 
