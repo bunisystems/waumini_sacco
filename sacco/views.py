@@ -331,10 +331,12 @@ def delete_user(request, id):
 """ Add Member """
 @login_required(login_url='sign-in')
 def members(request):
-    users = User.objects.filter(is_superuser=0, is_staff=0)
-    paginator = Paginator(users, 10)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
+    users = User.objects.filter(is_superuser=0, is_staff=0).select_related('userprofile').values('id', 'first_name', 'last_name', 'username', 'userprofile__member_no_shares', 'userprofile__member_no_savings', 'userprofile__id_no')
+
+    page_obj = users
+    #paginator = Paginator(users, 10)
+    #page_number = request.GET.get('page')
+    #page_obj = Paginator.get_page(paginator, page_number)
 
     context = {'users': users, 'page_obj': page_obj }
     return render(request, 'sacco/users/members.html', context)

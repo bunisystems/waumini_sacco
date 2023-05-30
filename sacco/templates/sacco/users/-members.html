@@ -5,6 +5,13 @@
 {% load static%}
 
 {% load group_tags %}
+<style>
+    .dataTables_paginate {
+    display: none;
+}
+
+</style>
+
 
 
  <!-- <body data-layout="horizontal" data-topbar="dark"> -->
@@ -69,9 +76,9 @@
                                                 <td>{{ u.first_name }}</td>
                                                 <td>{{ u.last_name }}</td>
                                                 <td>{{ u.username }}</td>
-                                                <td>{{ u.userprofile__member_no_shares }}</td>
-                                                <td>{{ u.userprofile__member_no_savings }}</td>
-                                                <td>{{ u.userprofile__id_no }}</td>
+                                                <td>{{ u.userprofile.member_no_shares }}</td>
+                                                <td>{{ u.userprofile.member_no_savings }}</td>
+                                                <td>{{ u.userprofile.id_no }}</td>
                                               
 
                                                 <th>
@@ -102,8 +109,23 @@
 
 
 
+                                        <div class="pagination-container d-flex justify-content-between align-items-center">
+                                            <div class="">
+                                                Showing page {{page_obj.number}} of {{ page_obj.paginator.num_pages }}
+                                            </div>
+                                            <ul class="pagination align-left float-left ml-auto justify-content-end">
+                                                {% if page_obj.has_previous %}
+                                                    <li {% if page_obj.number == 1 %} class="page-item active" {% endif %}><a class="page-link" href="?page=1">&laquo; 1</a></li>
+                                                    <li class="page-item"> <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                                                {% endif %}
+                                                {% if page_obj.has_next %}
+                                                    <li class="page-item"> <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                                                    <li class="page-item"> <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages}} &raquo;</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
                                         
-                                  
+                                          
                                           
 
                                     </div>

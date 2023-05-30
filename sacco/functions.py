@@ -270,3 +270,13 @@ END
 
 
 """
+
+
+
+"""
+CREATE INDEX idx_is_superuser ON auth_user (is_superuser);
+
+CREATE INDEX idx_is_staff ON auth_user (is_staff);
+
+
+"""
