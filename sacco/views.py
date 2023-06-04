@@ -29,7 +29,6 @@ from.celery import *
 from django.db.models import Q
 from .constants import *
 from django.core.paginator import Paginator
-import re
 from openpyxl import Workbook
 from django.http import HttpResponse
 from django.db import connection

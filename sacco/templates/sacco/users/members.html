@@ -52,9 +52,9 @@
                                                 <th>Member #(Savings)</th>
                                                 <th>ID Number</th>
                                              
-                                                <th>Status</th>
-
                                                 <th>Actions</th>
+
+                                                
                                               
                                               
                                             </tr>
@@ -72,15 +72,7 @@
                                                 <td>{{ u.userprofile__member_no_shares }}</td>
                                                 <td>{{ u.userprofile__member_no_savings }}</td>
                                                 <td>{{ u.userprofile__id_no }}</td>
-                                              
 
-                                                <th>
-                                                    {% if u.is_active %}
-                                                        Member
-                                                    {% else %}
-                                                        Non-Member
-                                                    {% endif %}
-                                                </th>
                                                 
                                                 <!-- <td>{{ u.last_login }}</td> -->
                                                 <td>
