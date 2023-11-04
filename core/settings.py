@@ -34,34 +34,36 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+   
+]
 
-    'django.contrib.humanize',
-    'sacco.apps.SaccoConfig',
-    'api.apps.ApiConfig',
-
+THIRD_PARTY_APPS = [  
+    'django.contrib.humanize',  
     'rest_framework',
     'corsheaders',
-
     'mathfilters',
-
     'crispy_forms',
-
     'debug_toolbar',
     'sacco.celery',
     'django_tables2',
-
-
-  
-
-
 ]
+USER_APPS = [
+    'sacco.apps.SaccoConfig',
+    'api.apps.ApiConfig',
+    'savings.apps.SavingsConfig',
+    'deposit.apps.DepositConfig'
+]
+
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + USER_APPS
+
 
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -73,9 +75,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+    # Debug Toolbar
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-
+    # Session Middleware
     'sacco.middleware.SessionTimeoutMiddleware',
 ]
 
@@ -129,6 +131,19 @@ elif HOSTNAME == 'DESKTOP-M0QNIIU':
             'PORT': '3306',
         }
     }
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'w_sacco',
+            'USER': 'sammy',
+            'PASSWORD': 'password',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
+
 
 
 # Password validation

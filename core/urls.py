@@ -22,6 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('', include('sacco.urls')),
+    path('savings/', include('savings.urls')),
+    path('account/deposit/', include('deposit.urls')),
 ]
 
 if settings.DEBUG:

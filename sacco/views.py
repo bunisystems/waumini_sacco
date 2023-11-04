@@ -1,6 +1,5 @@
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 from pytz import timezone
 from api.models import *
 from django.contrib import messages
@@ -1451,6 +1450,8 @@ def shares(request):
                 return render(request, 'sacco/registration/r.html', context)
 
         return render(request, 'sacco/registration/registration.html', context)
+
+
 @login_required(login_url='sign-in')
 def add_shares(request):
     members = User.objects.filter(groups=group)
@@ -1496,6 +1497,8 @@ def add_shares(request):
 
         # redirect to the expense page to see the expenses
         return redirect('shares')
+    
+
 @login_required(login_url='sign-in')
 def edit_shares(request, id):
     try:
@@ -1870,6 +1873,8 @@ def add_cheque(request):
 
         # redirect to the expense page to see the expenses
         return redirect('cheque')
+    
+    
 @login_required(login_url='sign-in')
 def edit_cheque(request, id):
     try:

@@ -7,6 +7,7 @@ from sacco.functions import *
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.db.models import Count, Sum, F
+from decimal import Decimal
 
 
 
@@ -355,6 +356,7 @@ class Account(models.Model):
     transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
     member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_account")
     amount = models.DecimalField(max_digits=8, decimal_places=2)
+
     is_deleted = models.BooleanField(default=0)
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -370,14 +372,87 @@ class Account(models.Model):
     
     def save(self, *args, **kwargs):
         account_id = self.id
+        
         if Account.objects.filter(id=account_id).exists():
             super(Account, self).save()
         else:
             current_time = datetime.now()
-            self.account_no = 'WAC' + current_time.strftime("%Y%m%d%H%M%S")
+            self.account_no = 'WAD' + current_time.strftime("%Y%m%d%H%M%S")
             self.transaction_id = generate_transaction_uuid()
+
+            last_statement = Statement.objects.filter(member=self.member).order_by('-created_on').first()
+            
+            if last_statement:
+                # Create a new statement
+            
+                money_in = Decimal(str(self.amount))
+                money_out = Decimal('0')
+                balance = Decimal(str(self.amount)) + last_statement.balance
+                Statement.objects.create(member=self.member, money_in=money_in, money_out=money_out, balance=balance, transaction_id=self.transaction_id)
+            else:
+                # Create a new statement
+                
+                money_in = self.amount
+                money_out = 0
+                balance = self.amount
+                Statement.objects.create(member=self.member, money_in=money_in, money_out=money_out, balance=balance, transaction_id=self.transaction_id)            
             super().save(*args, **kwargs)
 
+class Withdrawl(models.Model):
+    account_no = models.CharField(max_length=200, unique=True)
+    transaction_id = models.CharField(max_length=200, unique=True, default=generate_transaction_uuid())
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_withdrawal")
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    is_deleted = models.BooleanField(default=0)
+
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawal_updated_by", null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="withdrawal_deleted_by", null=True, blank=True)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(null=True)
+    deleted_on = models.DateTimeField(null=True)
+    
+    def __str__(self):
+        return self.member
+    
+    def save(self, *args, **kwargs):
+        account_id = self.id
+        if Withdrawl.objects.filter(id=account_id).exists():    
+            super(Withdrawl, self).save()
+        else:
+            current_time = datetime.now()
+            self.account_no = 'WAW' + current_time.strftime("%Y%m%d%H%M%S")
+            self.transaction_id = generate_transaction_uuid()
+
+            last_statement = Statement.objects.filter(member=self.member).order_by('-created_on').first()
+            
+            if last_statement:
+                # Create a new statement
+    
+                money_out = Decimal(str(self.amount))
+                money_in = Decimal('0')
+                balance = last_statement.balance - Decimal(str(self.amount))
+                Statement.objects.create(member=self.member, money_in=money_in, money_out=money_out, balance=balance, transaction_id=self.transaction_id)
+            else:
+                # Create a new statement
+                
+                money_out = self.amount
+                money_in = 0
+                balance = self.amount
+                Statement.objects.create(member=self.member, money_in=money_in, money_out=money_out, balance=balance, transaction_id=self.transaction_id) 
+            super().save(*args, **kwargs)
+
+
+class Statement(models.Model):
+    transaction_id = models.CharField(max_length=200, unique=True)
+    member = models.ForeignKey(User, on_delete=models.CASCADE, related_name="member_statement")
+    created_on = models.DateTimeField(auto_now_add=True)
+    money_in = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    money_out = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    
 
 class Passbook(models.Model):
     passbook_no = models.CharField(max_length=200, unique=True)

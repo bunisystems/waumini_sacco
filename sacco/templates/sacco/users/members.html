@@ -51,7 +51,7 @@
                                                 <th>Member #(Shares)</th>
                                                 <th>Member #(Savings)</th>
                                                 <th>ID Number</th>
-                                             
+                                                <th>Actions</th>
                                                 <th>Actions</th>
 
                                                 
@@ -78,6 +78,13 @@
                                                 <td>
                                                     <a href="{% url 'edit-member' u.id %}">
                                                         <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light btn-sm">Edit</button>
+                                                    </a>
+                                                    
+                                                </td>
+
+                                                <td>
+                                                    <a href="{% url 'savings:account-statement' u.id %}">
+                                                        <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light btn-sm">Statement</button>
                                                     </a>
                                                     
                                                 </td>

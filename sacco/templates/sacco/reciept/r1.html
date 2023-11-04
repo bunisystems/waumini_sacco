@@ -88,15 +88,16 @@
 				<td colspan="2">Payee:</td>
 				<td colspan="2">{{ r.member.first_name }} {{ r.member.last_name }}</td>
 			</tr>
-      <tr>
+      		
+			<tr>
 				<td colspan="2">Member No. (Shares):</td>
 				<td colspan="2">{% if r.member.userprofile.member_no_shares %} {{ r.member.userprofile.member_no_shares }} {% else %} N/A {% endif %}</td>
 			</tr>
-      <tr>
+      		<tr>
 				<td colspan="2">Member No. (Savings):</td>
 				<td colspan="2">{% if r.member.userprofile.member_no_savings %} {{ r.member.userprofile.member_no_savings }} {% else %} N/A {% endif %}</td>
 			</tr>
-      <tr>
+      		<tr>
 				<td colspan="2">ID No.:</td>
 				<td colspan="2">{% if r.member.userprofile.id_no %} {{ r.member.userprofile.id_no }} {% else  %} N/A {% endif %}</td>
 			</tr>
@@ -213,11 +214,11 @@
 
 			  <tr>
 				<td colspan="2">Product</td>
-				<td colspan="2">Savings Account</td>
+				<td colspan="2">Savings Account Deposits</td>
 			</tr>
 
 			<tr>
-				<td colspan="2">Savings Account:</td>
+				<td colspan="2">Savings Account Deposits:</td>
 				<td colspan="2">Ksh {{ r.amount }}</td>
 			</tr>
 
@@ -409,7 +410,36 @@
 				<td colspan="2">Ksh {{ r.paid }}</td>	
 			</tr>
 
+			{% elif 'reciept' in request.path|slice:"1:" %}
+
+			<tr>
+				<td colspan="2">Receipt No.:</td>
+				<td colspan="2">{{ r.account_no }}</td>
+			</tr>
+
+			<tr>
+				<th colspan="2">Description</th>
+				<th colspan="2">Amount</th>
+			  </tr>
+
+
+			  <tr>
+				<td colspan="2">Product</td>
+				<td colspan="2">Savings Account Withdrawal</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Savings Account Withdrawal:</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
+			</tr>
+
+			<tr>
+				<td colspan="2">Total:</td>
+				<td colspan="2">Ksh {{ r.amount }}</td>
+
 			{% else %}
+
+			
 			
 
 

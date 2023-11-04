@@ -57,8 +57,18 @@
                         <li><a href="{% url 'registration' %}">Registration</a></li>
                         <li><a href="{% url 'capital-shares' %}">Capital Shares</a></li>
                         <li><a href="{% url 'nhif' %}">NHIF</a></li>
-                        <li><a href="{% url 'account' %}">Savings Account</a></li>
                         <li><a href="{% url 'shares' %}">Shares Account</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow waves-effect">
+                        <i class="ri-mail-send-line"></i>
+                        <span>Accounts</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{% url 'account' %}">Deposits</a></li>
+                        <li><a href="{% url 'savings:withdrawal-list'%}">Withdrawal</a></li>
                     </ul>
                 </li>
 

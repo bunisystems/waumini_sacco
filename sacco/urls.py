@@ -89,6 +89,7 @@ urlpatterns = [
     path('r7/<hashid:id>', views.cheque_reciept, name="r7"),
     path('r8/<hashid:id>', views.passbook_reciept, name="r8"),
     path('r9/<hashid:id>', views.payments_reciept, name="r9"),
+    
 
     # # User
     path('users', views.users, name="users"),
