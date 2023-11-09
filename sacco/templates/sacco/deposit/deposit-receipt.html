@@ -53,7 +53,6 @@
                                     <th>Amount</th>
                                     <th class="t_id">Transaction ID</th>
                                     <th class="c_on">Created On</th>
-                                    <th class="">Action</th>
                                     
                                     </tr>
                                     </thead>
@@ -68,22 +67,6 @@
                                     <td class="t_id1">{{ r.transaction_id}}</td>
                 
                                     <td class="c_on1">{{ r.created_on }}</td>
-
-                                    {% if request.path|slice:"1:" == 'account'%} 
-                                    <td>
-                                    <a href="{% url 'r4' r.id %}">
-                                        <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
-                                    </a>
-                                    </td>
-                                    {% elif request.path|slice:"1:" == 'savings/withdrawal/'%} 
-                                    <td>
-                                        <a href="{% url 'savings:withdrawal-reciept' r.id %}">
-                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
-                                        </a>
-
-                                    </td>
-                                            
-                                    {% endif %}
                                    
 
                                     
