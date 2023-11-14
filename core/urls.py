@@ -24,6 +24,9 @@ urlpatterns = [
     path('', include('sacco.urls')),
     path('savings/', include('savings.urls')),
     path('account/deposit/', include('deposit.urls')),
+    path('n/', include('nhif.urls')),
+    path('m/', include('members.urls')),
+    path('reports/', include('reports.urls')),
 ]
 
 if settings.DEBUG:

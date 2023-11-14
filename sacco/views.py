@@ -314,15 +314,14 @@ def profile(request, id):
 @login_required(login_url='sign-in')
 def delete_user(request, id):
     try:
-        with connection.cursor() as cursor:
-            cursor.execute("call sp_delete_user(%s)", [id])
-            data = cursor.fetchone()
-            messages.success(request, 'Deleted')
-            cache.clear()
-            return redirect('users')
-    except:
-        messages.error(request, ERROR_PK_CONSTRAINT)
+        user = User.objects.get(pk=id)
+        user.delete()
+        messages.success(request, "Deleted successfully")
+        return redirect('members')
+    except User.DoesNotExist:
+        messages.error(request, ERROR_404 + ERROR_PK_CONSTRAINT )
         return render(request, 'sacco/error.html')
+    
 
 """ User End """
 
@@ -1222,24 +1221,57 @@ def edit_loan_payments(request, id):
 @login_required(login_url='sign-in')
 def paid_loan(request):
 
-    registration = Loan.objects.filter(is_paid=1).order_by('-id')
-    paginator = Paginator(registration, 20)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
+    users = User.objects.filter(is_superuser=0, is_staff=0)
+    
+    if request.method == 'GET':
 
-    context = { 'registration' : registration, 'page_obj': page_obj}
+        registration = Loan.objects.filter(is_paid=1).order_by('-id')
+        paginator = Paginator(registration, 2000)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
 
-    return render(request, 'sacco/loan/loan.html', context)
+        context = { 'registration' : registration, 'page_obj': page_obj, 'users' : users }
+
+        return render(request, 'sacco/loan/loan.html', context)
+    
+    if request.method == 'POST':
+
+        registration = Loan.objects.filter(is_paid=1).order_by('-id')
+        paginator = Paginator(registration, 2000)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'page_obj': page_obj, 'users' : users }
+
+        return render(request, 'sacco/loan/loan.html', context)
+    
+
+    
 
 @login_required(login_url='sign-in')
 def unpaid_loan(request):
-    registration = Loan.objects.filter(is_paid=0).order_by('-id')
-    paginator = Paginator(registration, 20)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
 
-    context = { 'registration' : registration, 'page_obj': page_obj}
-    return render(request, 'sacco/loan/loan.html', context)
+    users = User.objects.filter(is_superuser=0, is_staff=0)
+    
+    if request.method == 'GET':
+
+        registration = Loan.objects.filter(is_paid=0).order_by('-id')
+        paginator = Paginator(registration, 2000)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'page_obj': page_obj, 'users' : users}
+        return render(request, 'sacco/loan/loan.html', context)
+    
+    if request.method == 'POST':
+
+        registration = Loan.objects.filter(is_paid=0).order_by('-id')
+        paginator = Paginator(registration, 2000)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'registration' : registration, 'page_obj': page_obj, 'users' : users}
+        return render(request, 'sacco/loan/loan.html', context)
 
 @login_required(login_url='sign-in')
 def defaulters(request):
@@ -2454,13 +2486,43 @@ def loanfee_reciept(request, id):
 @login_required(login_url='sign-in')
 def payments(request):
 
-    r = Payments.objects.all().order_by('-id')
-    paginator = Paginator(r, 20)
-    page_number = request.GET.get('page')
-    page_obj = Paginator.get_page(paginator, page_number)
+    users = User.objects.filter(is_superuser=0, is_staff=0)
 
-    context = { 'r' : r, 'page_obj': page_obj}
-    return render(request, 'sacco/loan/payments.html', context)
+    if request.method == 'GET':
+
+        r = Payments.objects.all().order_by('-id')
+        paginator = Paginator(r, 20)
+        page_number = request.GET.get('page')
+        page_obj = Paginator.get_page(paginator, page_number)
+
+        context = { 'r' : r, 'page_obj': page_obj, 'users' : users}
+        return render(request, 'sacco/loan/payments.html', context)
+    
+    if request.method == 'POST':
+        user = request.POST['user']
+        start = request.POST['start']
+        start_date = datetime.strptime(start, "%m/%d/%Y").strftime("%Y-%m-%d")
+        end = request.POST['end']
+        end_date = datetime.strptime(end, "%m/%d/%Y").strftime("%Y-%m-%d")
+
+        if user:
+            if start_date == end_date:
+                messages.error(request, 'Start Date and End Date are similar')
+                return render(request, 'sacco/loan/payments.html', context)
+            else:
+                registration = Payments.objects.filter(created_on__range=(start_date, end_date), member=user)
+                page_obj = Payments.objects.filter(created_on__range=(start_date, end_date), member=user)
+                #total = Payments.objects.filter(created_on__range=(start_date, end_date), member=user).aggregate(total=Sum(F('loan_fee')) + Sum(F('processing')))['total']
+               
+                
+                context = { 
+                    'registration' : registration,
+                    'page_obj': page_obj,
+                    'users': users,
+                    'values' : request.POST
+                    }
+                
+                return render(request, 'sacco/loan/payments.html', context)
 
 @login_required(login_url='sign-in')
 def payments_reciept(request, id):

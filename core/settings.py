@@ -53,12 +53,15 @@ THIRD_PARTY_APPS = [
     'debug_toolbar',
     'sacco.celery',
     'django_tables2',
+
 ]
 USER_APPS = [
     'sacco.apps.SaccoConfig',
     'api.apps.ApiConfig',
     'savings.apps.SavingsConfig',
-    'deposit.apps.DepositConfig'
+    'deposit.apps.DepositConfig',
+    'nhif.apps.NhifConfig',
+    'members.apps.MembersConfig'
 ]
 
 

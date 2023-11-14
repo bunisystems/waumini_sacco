@@ -8,15 +8,15 @@
             </div>
             <div class="modal-body">
                 <h5>You are about to delete {{ values.first_name }} {{ values.last_name }}</h5>
-                <p>Clicking Delete will delete {{ values.first_name }} {{ values.last_name }} </p>
-                <p>If you are sure about this you can proceed by clicking Delete button</p>
+                <p>Clicking Delete will delete {{ values.first_name }} {{ values.last_name }} and all ralted date </p>
+                <p>By clicking <code>Delete</code> button you are accepting the changes to occur</p>
 
                 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light waves-effect" data-bs-dismiss="modal">Close</button>
                 <a href="{% url 'delete-user'  values.id %}">
-                    <button type="button" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                    <button type="button" class="btn btn-danger waves-effect waves-light">Delete</button>
                 </a>
             </div>
         </div><!-- /.modal-content -->

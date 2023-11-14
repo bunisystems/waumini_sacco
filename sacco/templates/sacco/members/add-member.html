@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load static%}
+
+
+ <!-- <body data-layout="horizontal" data-topbar="dark"> -->
+
+        <!-- Begin page -->
+        <div id="layout-wrapper">
+
+            
+            <!-- Header-->
+            {% include "partials/als_header.html" %}
+
+            <!-- ========== Left Sidebar Start ========== -->
+            {% include "partials/als_left_sidebar.html" %}
+            <!-- Left Sidebar End -->
+
+
+            <!-- ============================================================== -->
+            <!-- Start right Content here -->
+            <!-- ============================================================== -->
+            <div class="main-content">
+                <div class="page-content">
+                    <div class="container-fluid">
+
+                         <!-- start page title -->
+                         {% include "partials/als_page_title.html" %}
+                        <!-- end page title -->
+
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card">
+                
+
+                                    <div class="card-body">
+                                       
+        
+                                        {% include 'partials/als_messages.html' %} 
+                                            <form class="custom-validation" novalidate action="" method="POST">
+                                                {% csrf_token %}
+                                            
+                                            <div class="mb-3">
+                                                
+                                                <label  for="validationTooltip01" class="form-label">Role</label>
+                                                <select class="form-control select2" id="validationTooltip01" name="group" required>
+                                                    <option value=""  disabled>Choose...</option>
+                                                    
+                                                    <optgroup label="ROLES">
+
+                                                       
+                                                        <option value="{{ groups.id }}" {% if groups.selected %} selected {% endif %}  >{{groups.name}}</option>
+                                
+                                                     
+
+                                        
+                                                    </optgroup>
+                                                   
+                                                </select>
+
+                                
+                                            </div>
+
+
+        
+        
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label>First Name</label>
+                                                <div>
+                                                    <input data-parsley-type="alphanum" type="text"
+                                                            class="form-control" required name="first_name"  value="{{values.first_name}}"
+                                                            placeholder="Enter alphanumeric value"/>
+                                                </div>
+
+                                                
+                                                <div style="color: red;">
+                                                    {{form.errors.first_name }}
+                                                </div>
+                                            </div>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label>Last Name</label>
+                                                <div>
+                                                    <input data-parsley-type="alphanum" type="text" name="last_name" value="{{values.last_name}}"
+                                                            class="form-control" required
+                                                            placeholder="Enter alphanumeric value"/>
+                                                </div>
+
+                                                <div style="color: red;">
+                                                    {{form.errors.last_name }}
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>Phone Number</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="number" type="number" id="username" name="username" value="{{values.username}}"
+                                                        class="form-control" required
+                                                        placeholder="Enter numerical value"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{form.errors.username }}
+                                            </div>
+                                        </div>
+
+
+                                        <div class="mb-3">
+                                            <label>ID Number</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="number" type="number" id="id_no" name="id_no" value="{{values.id_no}}"
+                                                        class="form-control"
+                                                        placeholder="Enter numerical value"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{form.errors.id_no }}
+                                            </div>
+                                        </div>
+                                        
+
+                                        <div class="mb-3">
+                                            <label>Member No (Shares Account)</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="text" type="text" id="member_no_shares" name="member_no_shares" value="{{values.member_no_shares}}"
+                                                        class="form-control"   
+                                                        placeholder="Member # Shares Account"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{user_form.errors.member_no_shares }}
+                                            </div>
+                                        </div>
+                                        
+                                        
+                                        
+                                        <div class="mb-3">
+                                            <label>Member No (Savings Account)</label>
+                                            
+                                            <div>
+                                                
+                                                
+                                                <input data-parsley-type="text" type="text" id="member_no_savings" name="member_no_savings" value="{{values.member_no_savings}}"
+                                                        class="form-control"   
+                                                        placeholder="Member # Savings Account"/>
+                                            </div>
+
+                                            <div style="color: red;">
+                                                {{user_form.errors.member_no_savings }}
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div>
+                                                <h5 class="font-size-14 mb-4">Sacco Member?</h5>
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="is_active" value="1"
+                                                        id="formRadios1" required checked>
+                                                    <label class="form-check-label" for="formRadios1">
+                                                        Yes 
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="radio" name="is_active" value="0"
+                                                        id="formRadios1" required>
+                                                    <label class="form-check-label" for="formRadios1">
+                                                        No 
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                                                            
+
+                                           
+                                            <div class="mb-0">
+                                                <div>
+                                                    <button type="submit" class="btn btn-success waves-effect waves-light">
+                                                        <i class="ri-check-line align-middle me-2"></i> Submit
+                                                    </button>
+                                                    
+                                                    <a href="{% url 'members' %}">
+                                                   
+                                                        <button type="button" class="btn btn-warning waves-effect waves-light">
+                                                            <i class="ri-error-warning-line align-middle me-2"></i> Cancel
+                                                        </button>
+                                                     
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </form>
+        
+                                    </div>
+
+                                    
+                                </div>
+                            </div> <!-- end col -->
+                        <!-- end row -->
+                    </div>
+                  </div>  
+            </div>
+        
+        </div>
+        <!-- END layout-wrapper -->
+
+
+        <script>
+            function makeid(length) {
+                let result = '';
+                const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                const charactersLength = characters.length;
+                let counter = 0;
+                while (counter < length) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                    counter += 1;
+                }
+                return result;
+            }
+            
+            console.log(makeid(5));
+
+            
+            var id_no = document.getElementById("id_no")
+            var member_no_shares = document.getElementById("member_no_shares");
+            var member_no_savings = document.getElementById("member_no_savings");
+
+            var date = new Date();
+            var toMySQL = date.toISOString().slice(0, 19).replace('T', '').replace('-', '').replace(':', '').replace(' ', '').replace(':', '')
+            var randomInt = Math.floor(Math.random() * 10) + 1;
+
+    
+            username.oninput = function() {
+                // id_no.value = '2319' + randomInt
+                // member_no_shares.value = 'WS' + toMySQL
+                // member_no_savings.value = 'WS' + toMySQL
+            }
+            
+
+        </script>
+
+
+
+{% endblock %}

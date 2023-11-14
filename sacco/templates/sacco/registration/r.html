@@ -54,6 +54,7 @@
                                     <th class="t_id">Transaction ID</th>
                                     <th class="c_on">Created On</th>
                                     <th class="">Action</th>
+                                    <th class="">Action</th>
                                     
                                     </tr>
                                     </thead>
@@ -78,6 +79,60 @@
                                     {% elif request.path|slice:"1:" == 'savings/withdrawal/'%} 
                                     <td>
                                         <a href="{% url 'savings:withdrawal-reciept' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                        </a>
+
+                                    </td>
+
+                                    {% elif request.path|slice:"1:" == 'capital-shares'%} 
+                                    <td>
+                                        <a href="{% url 'edit-capital-shares' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+                                        <a href="{% url 'r2' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                        </a>
+
+                                    </td>
+
+                                    {% elif request.path|slice:"1:" == 'shares'%} 
+                                    <td>
+                                        <a href="{% url 'edit-shares' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+                                        <a href="{% url 'r5' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                        </a>
+
+                                    </td>
+
+
+                                    {% elif request.path|slice:"1:" == 'passbook'%} 
+                                    <td>
+                                        <a href="{% url 'edit-passbook' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                        </a>
+
+                                    </td>
+
+                                    <td>
+                                        <a href="{% url 'r8' r.id %}">
+                                            <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                        </a>
+
+                                    </td>
+
+                                    {% elif request.path|slice:"1:" == 'nhif'%} 
+                                    <td>
+                                        <a href="{% url 'r3' r.id %}">
                                             <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
                                         </a>
 

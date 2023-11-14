@@ -55,6 +55,8 @@
                                     <th>Transaction ID</th>
                                    
                                     <th class="c_on">Created On</th>
+                                    <th>Action</th>
+                                    <th>Action</th>
                                     
                                     </tr>
                                     </thead>
@@ -69,7 +71,19 @@
                                         <td>{{ r.commission | intcomma }}</td>
                                         <td>{{ r.transaction_id}}</td>
                 
-                                    <td class="c_on1">{{ r.created_on }}</td>
+                                        <td class="c_on1">{{ r.created_on }}</td>
+
+                                        <td>
+                                            <a href="{% url 'edit-cheque' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Edit</button>
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <a href="{% url 'r7' r.id %}">
+                                                <button type="button" class="btn btn-dark btn-rounded waves-effect waves-light  btn-sm">Reciept</button>
+                                            </a>
+                                        </td>
                                    
 
                                     
